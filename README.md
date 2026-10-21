@@ -1,26 +1,97 @@
-# ONVIF Virtual Camera (vcam)
+<p align="center">
+  <img src="docs/images/logo.png" width="220" alt="IPS-Co.">
+</p>
 
-**Developed by Behrouz Kazemi** — VMS Systems Specialist · **IPS-Co.** · Telegram [@B_8241](https://t.me/B_8241)  
-© 1405 — All rights reserved. Version 1.1.0
+<h1 align="center">ONVIF VCam</h1>
+<p align="center"><b>Turn any video file into a standards-compliant ONVIF IP camera for VMS testing.</b><br>
+Virtual ONVIF Profile S / T camera with WS-Discovery, RTSP streaming, events and a web control panel. Fully offline and portable.</p>
 
-Turns any video file into a **standards-compliant ONVIF network camera** that every VMS can
-discover, add, configure and record — no physical camera needed. Built from the official ONVIF
-specifications (Core 26.06, Streaming 26.06, Profile S 1.2, Media / Media2 services).
+<p align="center">
+  <img alt="version" src="https://img.shields.io/badge/version-1.1.0-0f6fb3">
+  <img alt="ONVIF" src="https://img.shields.io/badge/ONVIF-Profile%20S%20%2F%20T-38bdf8">
+  <img alt="platform" src="https://img.shields.io/badge/Windows%20x64-portable%20%26%20offline-2fbf71">
+  <img alt="python" src="https://img.shields.io/badge/Python-3.9%2B%20stdlib%20only-3776ab">
+</p>
 
-* Pure Python 3.9+ standard library, plus **FFmpeg** for decoding/encoding. No pip packages.
-* One process can emulate **many cameras** (load / scale testing of recording servers).
-* All protocol work — WS-Discovery, SOAP, auth, RTSP, RTP packetization, RTCP — is done by the
-  tool itself, so it behaves like a camera, not like a media server.
+<p align="center"><b>Developed by Behrouz Kazemi</b> (بهروز کاظمی), VMS Systems Specialist · <b>IPS-Co.</b> ·
+Telegram <a href="https://t.me/B_8241">@B_8241</a><br>
+<a href="README.fa.md">راهنمای فارسی</a></p>
 
-```
-            ┌────────────────────────── vcam process ──────────────────────────┐
- video ───► │ ffmpeg (1 per encoder) ─► AU parser ─► RTP packetizer ─► fan-out │ ─► RTSP clients
-  file      │                                    (H.264/H.265/JPEG)            │    UDP / TCP /
-            │ WS-Discovery  ·  Device · Media · Media2 · Events (SOAP 1.2)      │    HTTP tunnel /
-            └──────────────────────────────────────────────────────────────────┘    multicast
-```
+---
 
-## Quick start
+![Control panel](docs/images/panel.jpg)
+
+## Why
+
+VMS engineers need cameras to test with: many of them, of different models and codecs, in
+reproducible conditions. ONVIF VCam turns recorded clips into real ONVIF devices. A VMS discovers
+them, adds them, configures them, records them and receives their motion events, exactly as it would
+with physical cameras. No hardware is needed, and the same footage plays every time.
+
+## Features
+
+**ONVIF device (built from the official ONVIF specifications)**
+- **WS-Discovery:** Hello / Bye / Probe / Resolve, scopes, stable `urn:uuid` per device
+- **Services:** Device, Media (ver10), Media2 (ver20, H.265), Events (pull-point + WS-BaseNotification push)
+- **Authentication:** WS-UsernameToken digest + HTTP Digest, ONVIF user levels and access policy
+- **SOAP faults** with correct ONVIF `ter:` sub-codes
+
+**Streaming**
+- **Codecs:** H.264, H.265 (HEVC) and MJPEG, transcoded from any file, or passed through untouched (`copy`)
+- **RTSP transports:** RTP/UDP, RTP/RTSP/TCP, RTSP-over-HTTP tunnel, RTP multicast
+- **RTP/RTCP:** RTCP sender reports, NAT-friendly UDP (symmetric RTP)
+- **Configurable profiles:** main/sub/MJPEG; the VMS can change resolution, fps, bitrate, GOP and codec live
+- **RTSP relay:** re-publish a real camera's RTSP stream as a new ONVIF device
+
+**Built for VMS testing**
+- **Simulated motion events** (`MotionAlarm`, `CellMotionDetector`), scheduled or triggered by hand
+- **Clones for load testing:** one click makes N copies of a camera, each a separate ONVIF device
+  (own port and UUID)
+- **Shared encoders:** clones share one encoder, so 20 viewers on 20 devices cost a single encode
+- **Robust under VMS behaviour:**
+  - re-applied settings don't drop streams
+  - an encoder watchdog restarts a frozen ffmpeg
+  - the device keeps a stable address on hosts with several network adapters
+- **Diagnostics:** every RTSP session logs its client software, transport, duration and packet count
+
+**Web control panel** (port 8000, Persian UI, Vazirmatn font, works offline)
+- **Cameras:** add from the video library (with upload), a file path or an RTSP URL; edit, enable/disable, delete
+- **Live view:** snapshot previews with an on/off switch to save CPU; copy ONVIF/RTSP URLs in one click
+- **Monitoring:** active sessions, encoders and a live log
+- **Network:** choose the IP announced to the VMS; change credentials
+- **Themes:** data-center blue, operational green, dark, amber NOC, night purple, light
+
+**Portable Windows bundle**
+- **Self-contained:** Python 3.12 and a GPL ffmpeg (libx264/libx265) are inside one folder; nothing to install, no internet
+- **Background mode:** runs without a console window; stop from the panel, STOP.bat or autostart scripts; one-click firewall setup
+
+![Themes](docs/images/themes.jpg)
+
+| Camera editor | Clones for stress tests |
+|---|---|
+| ![editor](docs/images/editor.jpg) | ![clone](docs/images/clone.jpg) |
+
+## Download & run (Windows)
+
+1. Download **`ONVIF-VCam-1.1.0-Portable-win64.zip`** from [Releases](../../releases) and extract it
+   (e.g. to `C:\ONVIF-VCam`).
+2. Run **`FIREWALL.bat`** once as administrator.
+3. Run **`START.bat`**. The control panel opens at `http://127.0.0.1:8000` (login `admin` / `admin`).
+4. In your VMS, discover the cameras or add them manually. The ONVIF port of each camera is shown in
+   the panel (8080, 8081, …).
+
+| File | Purpose |
+|---|---|
+| `START.bat` / `STOP.bat` | run in the background / stop |
+| `START-DEBUG.bat` | run with a console and verbose log |
+| `AUTOSTART-ON.bat` / `AUTOSTART-OFF.bat` | start with Windows |
+| `TEST.bat` | automated test suites (125 checks) |
+| `SHELL.bat` | prompt with python / ffmpeg / ffprobe / ffplay |
+
+The Windows launchers live in [`windows/`](windows). [`scripts/build_portable.sh`](scripts/build_portable.sh)
+rebuilds the bundle from conda-forge and PyPI.
+
+## Quick start (Python / any OS)
 
 ```bash
 # needs: python3 >= 3.9 and ffmpeg/ffprobe in PATH
@@ -178,3 +249,16 @@ docker run --rm --network host -v $PWD/videos:/videos -v $PWD/state:/state vcam 
   timestamps (a warning is logged). The default transcode mode never uses B-frames.
 * Media (ver10) cannot express H.265; such encoders are reported as `H264` there (configurable
   via `media1_h265_as`) and correctly as `H265` in Media2.
+
+
+## Author
+
+**Behrouz Kazemi** (بهروز کاظمی), VMS Systems Specialist
+**IPS-Co.** · Telegram: [@B_8241](https://t.me/B_8241)
+
+© 1405 IPS-Co. All rights reserved.
+
+Third-party components in the portable bundle keep their own licences:
+- FFmpeg (GPL): source at https://ffmpeg.org and https://github.com/conda-forge/ffmpeg-feedstock
+- Python (PSF)
+- Vazirmatn font (SIL OFL)
