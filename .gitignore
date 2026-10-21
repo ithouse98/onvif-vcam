@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+vcam-state/
+config.json
+vcam.log*
+runtime/
+videos/
+dist/
+*.zip

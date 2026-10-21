@@ -1,0 +1,10 @@
+@rem Shared environment: only the bundled Python and ffmpeg are used, never anything installed on the PC.
+set "ROOT=%~dp0"
+set "PATH=%ROOT%runtime;%ROOT%runtime\Library\bin;%ROOT%runtime\Scripts;%SystemRoot%\system32;%SystemRoot%"
+set "PYTHONHOME=%ROOT%runtime"
+set "PYTHONPATH=%ROOT%app"
+set "PYTHONNOUSERSITE=1"
+set "PYTHONUTF8=1"
+set "PY=%ROOT%runtime\python.exe"
+set "PYW=%ROOT%runtime\pythonw.exe"
+cd /d "%ROOT%"

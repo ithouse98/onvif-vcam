@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ONVIF VCam · پنل مدیریت</title>
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<style>
+@font-face{font-family:"Vazirmatn";src:url("/fonts/Vazirmatn.woff2") format("woff2");
+  font-weight:100 900;font-display:swap}
+:root{--r:10px;--mono:ui-monospace,Consolas,"Cascadia Mono",monospace;
+  --ok:#2fbf71;--warn:#f0a020;--bad:#ef5350;--rec:#ff4d4f;--glow:transparent;
+  /* default = data-center blue */
+  --bg:#081221;--panel:#0d1b31;--panel2:#12243f;--line:#1d3456;--fg:#e3edf9;--mut:#8aa3c2;
+  --acc:#38bdf8;--acc2:#0f6fb3;--glow:#38bdf833}
+html[data-theme=dark]{--bg:#0f1216;--panel:#161b21;--panel2:#1c232b;--line:#262f39;--fg:#e6eaef;
+  --mut:#8792a2;--acc:#3ea6ff;--acc2:#1f6fb8;--glow:transparent}
+html[data-theme=ops]{--bg:#06110c;--panel:#0b1c14;--panel2:#10271c;--line:#1a3a2a;--fg:#dcf5e6;
+  --mut:#7fa892;--acc:#34d27b;--acc2:#15803d;--ok:#4ade80;--glow:#34d27b2e}
+html[data-theme=amber]{--bg:#120e07;--panel:#1c160b;--panel2:#261d0f;--line:#3a2c15;--fg:#f6ead6;
+  --mut:#b39c78;--acc:#fbbf24;--acc2:#b45309;--glow:#fbbf2426}
+html[data-theme=purple]{--bg:#0f0c1d;--panel:#171329;--panel2:#1f1a36;--line:#2f2850;--fg:#ece8fb;
+  --mut:#a39cc8;--acc:#a78bfa;--acc2:#6d28d9;--glow:#a78bfa2e}
+html[data-theme=light]{--bg:#eef2f7;--panel:#fff;--panel2:#f5f8fc;--line:#d8e0ea;--fg:#16202c;
+  --mut:#5f6d80;--acc:#0b6bcb;--acc2:#0b6bcb;--glow:transparent}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--fg);
+  font:14px/1.7 "Vazirmatn",Tahoma,"Segoe UI",sans-serif}
+button,input,select{font:inherit;color:inherit}
+.ltr{direction:ltr;unicode-bidi:isolate;font-family:var(--mono);font-size:12.5px}
+header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar{max-width:1400px;margin:0 auto;padding:10px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.brand i{width:12px;height:12px;border-radius:50%;background:var(--rec);box-shadow:0 0 10px var(--rec);
+  animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.stats{display:flex;gap:18px;color:var(--mut);font-size:13px;flex-wrap:wrap}
+.stats b{color:var(--fg);font-weight:600}
+.sp{flex:1}
+.btn{border:1px solid var(--line);background:var(--panel2);padding:6px 12px;border-radius:8px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--acc)}
+.btn.pri{background:var(--acc2);border-color:var(--acc2);color:#fff}
+.btn.dan:hover{border-color:var(--bad);color:var(--bad)}
+.btn.sm{padding:3px 9px;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:default}
+main{max-width:1400px;margin:0 auto;padding:16px}
+.notice{border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent);
+  padding:10px 14px;border-radius:var(--r);margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.card:hover{box-shadow:0 0 0 1px var(--acc2),0 8px 28px var(--glow)}
+.card{transition:box-shadow .2s;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  display:flex;flex-direction:column}
+.card.off{opacity:.65}
+.ch{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.ch h3{margin:0;font-size:15px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{font-size:11.5px;border-radius:99px;padding:1px 9px;border:1px solid var(--line);color:var(--mut)}
+.pill.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,transparent)}
+.pill.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 50%,transparent)}
+.pill.mot{color:#fff;background:var(--warn);border-color:var(--warn)}
+.thumb{position:relative;aspect-ratio:16/9;background:#000;display:grid;place-items:center;color:#667;cursor:zoom-in}
+.thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.thumb .ov{position:absolute;inset-inline-start:8px;bottom:8px;font-size:11.5px;background:#000a;color:#fff;
+  padding:1px 8px;border-radius:6px}
+.cb{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:8px;align-items:center;min-width:0}
+.row .k{color:var(--mut);font-size:12.5px;min-width:52px}
+.url{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.cp{cursor:pointer;color:var(--acc);font-size:12px;border:0;background:none;padding:0 2px}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:start;padding:5px 8px;border-top:1px solid var(--line);vertical-align:middle}
+th{color:var(--mut);font-weight:600;font-size:12px;border-top:0}
+.prof td{font-size:12.5px}
+.err{color:var(--bad);font-size:12.5px;white-space:pre-wrap}
+.cf{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid var(--line);margin-top:auto}
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:40px;text-align:center;color:var(--mut)}
+.tabs{display:flex;gap:4px;margin:22px 0 0;border-bottom:1px solid var(--line)}
+.tab{padding:8px 14px;cursor:pointer;border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;color:var(--mut)}
+.tab.on{background:var(--panel);border-color:var(--line);color:var(--fg)}
+.tp{background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 var(--r) var(--r);
+  padding:10px;overflow-x:auto}
+#log{height:300px;overflow:auto;margin:0;font:12px/1.55 var(--mono);direction:ltr;text-align:left;white-space:pre-wrap}
+#log .WARNING{color:var(--warn)} #log .ERROR{color:var(--bad)}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--fg);padding:0;
+  width:min(860px,96vw);max-height:92vh}
+dialog::backdrop{background:#0009}
+.dh{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.dh h2{margin:0;font-size:16px;flex:1}
+.db{padding:14px 16px;overflow:auto;max-height:calc(92vh - 120px);display:flex;flex-direction:column;gap:14px}
+.df{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line)}
+fieldset{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;margin:0}
+legend{color:var(--mut);padding:0 6px;font-size:12.5px}
+.f{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--mut)}
+label.inl{flex-direction:row;align-items:center;gap:6px;color:var(--fg)}
+input,select{background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 8px;min-width:0}
+input:focus,select:focus{outline:2px solid var(--acc);outline-offset:-1px}
+.pt input,.pt select{width:100%;padding:4px 6px}
+.pt select{min-width:86px}
+.pt td:first-child input{min-width:110px}
+.pt input[type=number]{min-width:64px}
+.hint{color:var(--mut);font-size:12px}
+#toast{position:fixed;bottom:18px;inset-inline-start:18px;display:flex;flex-direction:column;gap:8px;z-index:20}
+.t{background:var(--panel2);border:1px solid var(--line);border-inline-start:4px solid var(--acc);
+  padding:8px 14px;border-radius:8px;box-shadow:0 6px 20px #0006;max-width:420px}
+.t.bad{border-inline-start-color:var(--bad)}
+#big{width:min(1280px,96vw)} #big img{width:100%;display:block;background:#000}
+progress{width:100%}
+.nolive .thumb img{display:none}
+.nolive .thumb::before{content:"تصویر زنده خاموش است";color:var(--mut);font-size:13px}
+.tsel{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;cursor:pointer}
+.btn.on{border-color:var(--acc);color:var(--acc)}
+footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
+.ft{max-width:1400px;margin:0 auto;padding:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.ft img{width:52px;height:auto;filter:drop-shadow(0 0 10px var(--glow))}
+.ft .who{display:flex;flex-direction:column;line-height:1.5}
+.ft .who b{font-size:15px}
+.ft .who span{color:var(--mut);font-size:12.5px}
+.ft .tg{display:inline-flex;align-items:center;gap:6px;color:var(--acc);text-decoration:none;
+  border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:13px}
+.ft .tg:hover{border-color:var(--acc)}
+.ft .cr{color:var(--mut);font-size:12.5px;text-align:end}
+@media (max-width:640px){.ft{justify-content:center;text-align:center}.ft .who{align-items:center}
+  .ft .cr{text-align:center;width:100%}}
+#off{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:50;font-size:18px}
+@media (max-width:520px){.grid{grid-template-columns:1fr}.stats{gap:10px}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="brand"><i></i>ONVIF VCam</div>
+  <div class="stats" id="stats"></div>
+  <div class="sp"></div>
+  <select class="tsel" id="theme" title="تم رنگی" onchange="setTheme(this.value)">
+    <option value="dc">🎨 آبی دیتاسنتر</option><option value="ops">🎨 سبز عملیاتی</option>
+    <option value="dark">🎨 تیره</option><option value="amber">🎨 کهربایی NOC</option>
+    <option value="purple">🎨 بنفش شب</option><option value="light">🎨 روشن</option></select>
+  <button class="btn" id="liveBtn" onclick="toggleLive()" title="تصویر زنده کارت‌ها؛ خاموش = مصرف کمتر CPU"></button>
+  <button class="btn" onclick="openSettings()">⚙ شبکه و دسترسی</button>
+  <button class="btn pri" onclick="openEditor()">＋ دوربین جدید</button>
+  <button class="btn dan" onclick="shutdown()" title="خاموش کردن سرور">⏻</button>
+</div></header>
+
+<main>
+  <div id="notice"></div>
+  <div id="cams" class="grid"></div>
+
+  <div class="tabs">
+    <div class="tab on" data-t="sess" onclick="tab(this)">اتصال‌های فعال (RTSP)</div>
+    <div class="tab" data-t="enc" onclick="tab(this)">انکودرها</div>
+    <div class="tab" data-t="log" onclick="tab(this)">لاگ</div>
+  </div>
+  <div class="tp" id="tp-sess"></div>
+  <div class="tp" id="tp-enc" hidden></div>
+  <div class="tp" id="tp-log" hidden>
+    <div class="row" style="margin-bottom:6px">
+      <label class="inl"><input type="checkbox" id="logWarn"> فقط هشدار و خطا</label>
+      <label class="inl"><input type="checkbox" id="logFollow" checked> دنبال کردن</label>
+      <div class="sp"></div><button class="btn sm" onclick="logEl.textContent=''">پاک کردن نما</button>
+    </div>
+    <pre id="log"></pre>
+  </div>
+</main>
+
+<footer><div class="ft">
+  <img src="/assets/logo.png" alt="IPS-Co.">
+  <div class="who">
+    <b><bdi dir="ltr">IPS-Co.</bdi></b>
+    <span>طراحی و توسعه: <b style="font-size:13px;color:var(--fg)">بهروز کاظمی</b> · <span class="ltr" style="font-family:inherit">Behrouz Kazemi</span></span>
+    <span class="ltr" style="font-family:inherit;text-align:start">VMS Systems Specialist</span>
+  </div>
+  <a class="tg ltr" style="font-family:inherit" href="https://t.me/B_8241" target="_blank" rel="noopener">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.6 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1L18.1 6.6c.4-.4-.1-.6-.6-.2L6.1 13.6l-4.9-1.5c-1.1-.3-1.1-1.1.2-1.6L20.6 3.1c.9-.3 1.7.2 1.3 1.2z"/></svg>
+    @B_8241</a>
+  <div class="sp"></div>
+  <div class="cr">© 1405 — تمام حقوق محفوظ است.<br><span class="ltr" id="ver" style="font-size:11.5px"></span></div>
+</div></footer>
+
+<!-- camera editor -->
+<dialog id="ed"><form method="dialog" onsubmit="return false">
+  <div class="dh"><h2 id="edTitle">دوربین جدید</h2><button class="btn sm" value="x" formnovalidate onclick="ed.close()">✕</button></div>
+  <div class="db">
+    <fieldset><legend>مشخصات</legend><div class="f">
+      <label>نام دوربین<input id="fName" required placeholder="Lobby"></label>
+      <label id="countWrap">تعداد (کپی از همین دوربین)<input id="fCount" type="number" min="1" max="64" value="1"></label>
+      <label>سازنده (Manufacturer)<input id="fMan" placeholder="ONVIF-VCam"></label>
+      <label>مدل<input id="fModel" placeholder="VirtualCamera-S"></label>
+      <label class="inl" style="align-self:end"><input type="checkbox" id="fEnabled" checked> فعال</label>
+    </div></fieldset>
+
+    <fieldset><legend>منبع ویدیو</legend>
+      <div class="f" style="grid-template-columns:1fr">
+        <label>از کتابخانه ویدیو
+          <select id="fLib" onchange="if(this.value)fSrc.value=this.value"></select></label>
+        <label>یا مسیر فایل / آدرس RTSP<input id="fSrc" class="ltr" required placeholder="D:\videos\clip.mp4  یا  rtsp://user:pass@ip/stream"></label>
+        <div class="row">
+          <input type="file" id="fUp" accept="video/*,.mkv,.ts,.h264,.h265" hidden onchange="upload(this.files[0])">
+          <button class="btn sm" type="button" onclick="fUp.click()">⬆ آپلود ویدیو به کتابخانه</button>
+          <progress id="upBar" value="0" max="1" hidden></progress>
+          <span class="hint" id="libDir"></span>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset><legend>استریم‌ها (پروفایل‌های ONVIF)</legend>
+      <table class="pt"><thead><tr><th>نام</th><th>حالت</th><th>کدک</th><th>عرض</th><th>ارتفاع</th><th>FPS</th><th>kbps</th><th>GOP</th><th></th></tr></thead>
+        <tbody id="profs"></tbody></table>
+      <div class="row" style="margin-top:8px">
+        <button class="btn sm" type="button" onclick="addProf()">＋ استریم</button>
+        <span class="hint">خالی = از روی فایل. حالت copy بدون انکود (کم‌مصرف) ولی فقط H.264/H.265 بدون B-frame.</span>
+      </div>
+    </fieldset>
+
+    <fieldset><legend>رویداد حرکت (شبیه‌سازی)</legend><div class="f">
+      <label class="inl"><input type="checkbox" id="mOn" checked> فعال</label>
+      <label>مدت حرکت (ثانیه)<input id="mOnS" type="number" min="1" value="10"></label>
+      <label>فاصله بین حرکت‌ها (ثانیه)<input id="mOffS" type="number" min="1" value="50"></label>
+    </div></fieldset>
+    <div class="err" id="edErr"></div>
+  </div>
+  <div class="df">
+    <button class="btn" type="button" onclick="ed.close()">انصراف</button>
+    <button class="btn pri" type="button" id="edSave" onclick="saveCam()">ذخیره و اجرا</button>
+  </div>
+</form></dialog>
+
+<!-- settings -->
+<dialog id="st"><form method="dialog" onsubmit="return false">
+  <div class="dh"><h2>شبکه و دسترسی</h2><button class="btn sm" onclick="st.close()">✕</button></div>
+  <div class="db">
+    <fieldset><legend>آدرس اعلام‌شده به VMS</legend>
+      <label>IP این سیستم که VMS باید با آن وصل شود
+        <select id="sIp"></select></label>
+      <p class="hint">اگر سیستم چند کارت شبکه دارد (Hyper-V، WSL، Docker، VMware…)، IP شبکه‌ای که VMS روی آن است را انتخاب کنید.
+        Discovery و همه آدرس‌های ONVIF/RTSP فقط همین IP را اعلام می‌کنند و دوربین بین آداپترها جابه‌جا نمی‌شود.</p>
+    </fieldset>
+    <fieldset><legend>نام کاربری و رمز (همه دوربین‌ها و این پنل)</legend><div class="f">
+      <label>نام کاربری<input id="sUser" class="ltr"></label>
+      <label>رمز جدید<input id="sPass" type="password" class="ltr" placeholder="بدون تغییر"></label>
+    </div></fieldset>
+    <p class="hint" id="sInfo"></p>
+    <div class="err" id="stErr"></div>
+  </div>
+  <div class="df"><button class="btn" onclick="st.close()">انصراف</button>
+    <button class="btn pri" onclick="saveSettings()">اعمال</button></div>
+</form></dialog>
+
+<dialog id="cl"><form method="dialog" onsubmit="return false">
+  <div class="dh"><h2 id="clT">کپی دوربین</h2><button class="btn sm" onclick="cl.close()">✕</button></div>
+  <div class="db">
+    <label>تعداد کپی<input id="clN" type="number" min="1" max="256" value="10"></label>
+    <p class="hint">هر کپی یک دستگاه ONVIF مستقل است (UUID، نام و پورت ONVIF جدا) و برای تست بار VMS مناسب است.
+      کپی‌ها انکودرهای دوربین اصلی را مشترک استفاده می‌کنند؛ پس ۵۰ کپی تقریباً همان CPU یک دوربین را مصرف می‌کند
+      (هر استریم فقط یک بار انکود و برای همه ارسال می‌شود).</p>
+    <div class="err" id="clErr"></div>
+  </div>
+  <div class="df"><button class="btn" onclick="cl.close()">انصراف</button>
+    <button class="btn pri" id="clGo" onclick="doClone()">ساخت کپی‌ها</button></div>
+</form></dialog>
+
+<dialog id="big"><div class="dh"><h2 id="bigT"></h2><button class="btn sm" onclick="big.close()">✕</button></div>
+  <img id="bigImg" alt=""></dialog>
+
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const logEl = $('#log');
+let S = null, editing = null, sig = '', logSeq = 0, videos = [];
+
+async function api(method, url, body, raw){
+  const o = {method, headers:{}};
+  if (body !== undefined){ if(raw){o.body=body}else{o.body=JSON.stringify(body);o.headers['Content-Type']='application/json'} }
+  const r = await fetch(url, o);
+  const ct = r.headers.get('content-type')||'';
+  const d = ct.includes('json') ? await r.json() : await r.blob();
+  if (!r.ok) throw new Error(d.error || r.statusText);
+  return d;
+}
+function toast(msg, bad){
+  const t = document.createElement('div'); t.className = 't' + (bad?' bad':''); t.textContent = msg;
+  $('#toast').append(t); setTimeout(()=>t.remove(), bad?7000:3500);
+}
+function copy(text){
+  const done = () => toast('کپی شد: ' + text);
+  if (navigator.clipboard && isSecureContext) return navigator.clipboard.writeText(text).then(done);
+  const ta = document.createElement('textarea'); ta.value = text; document.body.append(ta); ta.select();
+  document.execCommand('copy'); ta.remove(); done();
+}
+const fmtUp = s => s<60? s+' ثانیه' : s<3600? Math.floor(s/60)+' دقیقه' : Math.floor(s/3600)+' ساعت '+Math.floor(s%3600/60)+' دقیقه';
+
+/* ---------------------------------------------------------------- render */
+function render(){
+  $('#ver').textContent = 'ONVIF VCam v' + S.version;
+  const running = S.cameras.filter(c=>c.running).length;
+  $('#stats').innerHTML = `<span>دوربین فعال <b>${running}/${S.cameras.length}</b></span>
+    <span>اتصال <b>${S.sessions.length}</b></span><span>انکودر <b>${S.encoders.length}</b></span>
+    <span>آدرس <b class="ltr">${esc(S.settings.primary_ip)}</b></span><span>زمان اجرا <b>${fmtUp(S.uptime_s)}</b></span>`;
+
+  const ips = S.settings.ips;
+  $('#notice').innerHTML = (!S.settings.advertise_ip && ips.length > 1) ? `<div class="notice">
+    <span>⚠ این سیستم ${ips.length} آداپتر شبکه دارد (<span class="ltr">${ips.map(esc).join(' · ')}</span>).
+    برای اتصال پایدار VMS، IP شبکه‌ای که VMS روی آن است را انتخاب کنید.</span>
+    <button class="btn sm" onclick="openSettings()">انتخاب IP</button></div>` : '';
+
+  const s = JSON.stringify([S.cameras.map(c=>[c.config,c.running,c.error,c.runtime&&c.runtime.profiles]),
+                             S.encoders.filter(e=>e.error).map(e=>[e.source,e.error])]);
+  if (s !== sig){ sig = s; $('#cams').innerHTML = S.cameras.length ? S.cameras.map(card).join('') :
+    `<div class="empty">هنوز دوربینی نیست. «＋ دوربین جدید» را بزنید.</div>`; refreshThumbs(true); }
+  for (const c of S.cameras){                       // live bits without re-rendering images
+    const el = document.getElementById('live-'+c.config.id); if(!el) continue;
+    const mot = c.runtime && c.runtime.motion;
+    el.innerHTML = `${mot?'<span class="pill mot">حرکت</span>':''}<span class="pill">${c.sessions.length} اتصال</span>`;
+  }
+  $('#tp-sess').innerHTML = S.sessions.length ? `<table><tr><th>کلاینت</th><th>دوربین / استریم</th><th>انتقال</th><th>وضعیت</th><th>بسته‌های RTP</th><th>مدت</th><th>نرم‌افزار کلاینت</th></tr>
+    ${S.sessions.map(x=>`<tr><td class="ltr">${esc(x.client)}</td><td>${esc(x.camera)} / ${esc(x.profile)}</td>
+    <td>${esc(x.transport)}</td><td>${esc(x.state)}</td><td>${x.packets}</td><td>${fmtUp(x.age_s)}</td><td class="ltr">${esc(x.agent||'-')}</td></tr>`).join('')}</table>`
+    : '<p class="hint">اتصال فعالی نیست.</p>';
+  $('#tp-enc').innerHTML = S.encoders.length ? `<table><tr><th>انکودر (منبع / تنظیمات)</th><th>فرمت</th><th>فریم</th><th>ارسال‌شده</th><th>بیننده (همه دوربین‌ها)</th><th>وضعیت</th></tr>
+    ${S.encoders.map(e=>`<tr><td class="ltr">${esc(e.label)}</td><td class="ltr">${esc(e.encoding)} ${esc(e.resolution)} @${e.fps}</td>
+    <td>${e.frames}</td><td>${e.mbytes} MB</td><td>${e.consumers}</td>
+    <td>${e.error?`<span class="err">${esc(e.error)}</span>`:e.ready?'✓':'در حال شروع…'}</td></tr>`).join('')}</table>`
+    : '<p class="hint">انکودرها فقط هنگام اتصال یک بیننده اجرا می‌شوند.</p>';
+}
+
+function card(c){
+  const cf = c.config, r = c.runtime, id = esc(cf.id);
+  const st = !cf.enabled && cf.enabled !== undefined ? '<span class="pill">غیرفعال</span>' :
+             c.error ? '<span class="pill bad">خطا</span>' : c.running ? '<span class="pill ok">آنلاین</span>' : '<span class="pill">متوقف</span>';
+  const profs = r ? r.profiles.map(p=>`<tr><td>${esc(p.name)}</td>
+      <td class="ltr">${p.encoder?esc(p.encoder.encoding+' '+p.encoder.resolution+' @'+p.encoder.fps):'-'}</td>
+      <td class="ltr">${!p.encoder?'':p.encoder.mode==='copy'?'copy':p.encoder.bitrate_kbps+'k'}</td>
+      <td><button class="cp" onclick="copy('${esc(p.rtsp)}')" title="${esc(p.rtsp)}">RTSP ⧉</button></td></tr>`).join('') : '';
+  const first = r && r.profiles[0];
+  return `<div class="card ${c.running?'':'off'}">
+    <div class="ch"><h3 title="${esc(cf.name)}">${esc(cf.name)}</h3><span id="live-${id}"></span>${st}</div>
+    <div class="thumb" onclick="${c.running?`zoom('${id}')`:''}">${c.running ?
+      `<img data-cam="${id}" data-prof="${esc(first?first.token:'')}" alt="">` : '<span>—</span>'}
+      <span class="ov ltr">${id} · :${cf.http_port}</span></div>
+    <div class="cb">
+      ${c.error?`<div class="err">${esc(c.error)}</div>`:''}
+      ${S.encoders.filter(e=>e.source===cf.source && e.error).map(e=>`<div class="err">انکودر ${esc(e.label)}: ${esc(e.error)}</div>`).join('')}
+      <div class="row"><span class="k">منبع</span><span class="url ltr" title="${esc(cf.source)}">${esc(String(cf.source).split(/[\\/]/).pop()||cf.source)}</span></div>
+      ${r?`<div class="row"><span class="k">ONVIF</span><span class="url ltr">${esc(r.device_service)}</span>
+        <button class="cp" onclick="copy('${esc(r.device_service)}')">⧉</button></div>
+        <div class="hint ltr" style="text-align:right">${esc(r.source_info)}</div>
+        <table class="prof">${profs}</table>`:''}
+    </div>
+    <div class="cf">
+      <button class="btn sm" onclick="openEditor('${id}')">✎ ویرایش</button>
+      <button class="btn sm" onclick="toggle('${id}',${!(cf.enabled===false)})">${cf.enabled===false?'▶ فعال‌سازی':'⏸ غیرفعال'}</button>
+      ${c.running?`<button class="btn sm" onclick="motion('${id}',1)">⚡ حرکت</button>`:''}
+      <button class="btn sm" onclick="openClone('${id}')" title="چند کپی با پورت‌های جدا برای تست بار">⧉ کپی</button>
+      <div class="sp"></div>
+      <button class="btn sm dan" onclick="del('${id}')">🗑</button>
+    </div></div>`;
+}
+
+/* thumbnails: refreshed one at a time, only for visible cards */
+let thumbIdx = 0;
+function refreshThumbs(all){
+  if (!live) return;
+  const imgs = [...document.querySelectorAll('img[data-cam]')].filter(i=>{const b=i.getBoundingClientRect();return b.bottom>0&&b.top<innerHeight});
+  if (!imgs.length) return;
+  const list = all ? imgs : [imgs[thumbIdx++ % imgs.length]];
+  for (const i of list) i.src = `/api/cameras/${i.dataset.cam}/snapshot.jpg?profile=${encodeURIComponent(i.dataset.prof)}&t=${Date.now()}`;
+}
+function zoom(id){
+  const c = S.cameras.find(x=>x.config.id===id); $('#bigT').textContent = c.config.name;
+  const p = c.runtime.profiles[0]; $('#bigImg').src = `/api/cameras/${id}/snapshot.jpg?profile=${p.token}&t=${Date.now()}`;
+  big.showModal();
+}
+
+/* ---------------------------------------------------------------- actions */
+async function toggle(id, on){ try{ await api('PUT','/api/cameras/'+id,{enabled:!on}); toast(on?'غیرفعال شد':'فعال شد'); poll(); }catch(e){toast(e.message,1)} }
+async function motion(id){ try{ await api('POST',`/api/cameras/${id}/motion?state=1`); toast('رویداد حرکت ارسال شد'); setTimeout(()=>api('POST',`/api/cameras/${id}/motion?state=0`),8000);}catch(e){toast(e.message,1)} }
+async function del(id){
+  const c = S.cameras.find(x=>x.config.id===id);
+  if (!confirm(`دوربین «${c.config.name}» حذف شود؟ (فایل ویدیو حذف نمی‌شود)`)) return;
+  try{ await api('DELETE','/api/cameras/'+id); toast('حذف شد'); poll(); }catch(e){toast(e.message,1)}
+}
+
+/* ---------------------------------------------------------------- editor */
+const DEF = [{name:'MainStream',mode:'transcode',encoding:'H264'},{name:'SubStream',mode:'transcode',encoding:'H264',width:640,height:360,fps:15,bitrate_kbps:512}];
+function profRow(p={}){
+  const tr = document.createElement('tr');
+  const v = k => p[k] ?? '';
+  tr.innerHTML = `<td><input data-k="name" value="${esc(v('name'))}"></td>
+    <td><select data-k="mode"><option value="transcode">انکود</option><option value="copy">copy</option></select></td>
+    <td><select data-k="encoding"><option>H264</option><option>H265</option><option>JPEG</option></select></td>
+    ${['width','height','fps','bitrate_kbps','gop'].map(k=>`<td><input data-k="${k}" type="number" min="1" class="ltr" value="${esc(v(k))}" placeholder="auto"></td>`).join('')}
+    <td><button class="btn sm dan" type="button" onclick="this.closest('tr').remove()">✕</button></td>`;
+  tr.querySelector('[data-k=mode]').value = p.mode || 'transcode';
+  tr.querySelector('[data-k=encoding]').value = p.encoding || 'H264';
+  const sync = () => tr.querySelectorAll('input[type=number],[data-k=encoding]').forEach(i=>i.disabled = tr.querySelector('[data-k=mode]').value==='copy');
+  tr.querySelector('[data-k=mode]').onchange = sync; sync();
+  return tr;
+}
+function addProf(){ $('#profs').append(profRow({name:'Stream'+($('#profs').children.length+1)})); }
+
+async function loadVideos(sel){
+  try{ const d = await api('GET','/api/videos'); videos = d.files;
+    $('#libDir').innerHTML = 'پوشه: <span class="ltr">'+esc(d.dir)+'</span>';
+    $('#fLib').innerHTML = '<option value="">— انتخاب —</option>' + videos.map(f=>`<option value="${esc(f.path)}">${esc(f.name)}  (${esc(f.info)}, ${f.size_mb} MB)</option>`).join('');
+    const hit = sel && videos.find(f=>f.path===sel || f.name===String(sel).split(/[\\/]/).pop());
+    $('#fLib').value = hit ? hit.path : '';
+  }catch(e){ toast(e.message,1) }
+}
+function openEditor(id){
+  editing = id || null; $('#edErr').textContent = '';
+  const cf = id ? S.cameras.find(x=>x.config.id===id).config : {};
+  $('#edTitle').textContent = id ? 'ویرایش «'+cf.name+'»' : 'دوربین جدید';
+  $('#countWrap').hidden = !!id;
+  $('#fName').value = cf.name || ('Camera-'+(S.cameras.length+1));
+  $('#fCount').value = 1;
+  $('#fMan').value = cf.manufacturer || ''; $('#fModel').value = cf.model || '';
+  $('#fEnabled').checked = cf.enabled !== false;
+  $('#fSrc').value = cf.source || '';
+  const m = cf.motion || {}; $('#mOn').checked = m.enabled !== false; $('#mOnS').value = m.on_seconds||10; $('#mOffS').value = m.off_seconds||50;
+  $('#profs').innerHTML = ''; (cf.profiles || DEF).forEach(p=>$('#profs').append(profRow(p)));
+  loadVideos(cf.source).then(()=>{ if(!cf.source && videos.length){ $('#fLib').value = videos[0].path; $('#fSrc').value = videos[0].path; } });
+  ed.showModal();
+}
+async function saveCam(){
+  const profiles = [...$('#profs').children].map(tr=>{
+    const p = {}; tr.querySelectorAll('[data-k]').forEach(i=>{ if(i.value!=='' && !i.disabled) p[i.dataset.k]=i.value });
+    p.mode = tr.querySelector('[data-k=mode]').value; return p; });
+  const body = {name:$('#fName').value.trim(), source:$('#fSrc').value.trim(), enabled:$('#fEnabled').checked,
+    profiles, motion:{enabled:$('#mOn').checked,on_seconds:+$('#mOnS').value,off_seconds:+$('#mOffS').value}};
+  if ($('#fMan').value.trim()) body.manufacturer = $('#fMan').value.trim();
+  if ($('#fModel').value.trim()) body.model = $('#fModel').value.trim();
+  if (!body.source){ $('#edErr').textContent = 'منبع ویدیو را انتخاب کنید.'; return; }
+  if (!editing) body.count = +$('#fCount').value || 1;
+  $('#edSave').disabled = true; $('#edSave').textContent = 'در حال اجرا…';
+  try{
+    if (editing) await api('PUT','/api/cameras/'+editing, body); else await api('POST','/api/cameras', body);
+    ed.close(); toast(editing?'ذخیره شد؛ دوربین با تنظیمات جدید اجرا شد':'دوربین اضافه شد'); sig=''; poll();
+  }catch(e){ $('#edErr').textContent = e.message; }
+  finally{ $('#edSave').disabled = false; $('#edSave').textContent = 'ذخیره و اجرا'; }
+}
+function upload(file){
+  if (!file) return;
+  const bar = $('#upBar'); bar.hidden = false; bar.value = 0;
+  const x = new XMLHttpRequest();
+  x.open('PUT','/api/videos?name='+encodeURIComponent(file.name));
+  x.upload.onprogress = e => { if(e.lengthComputable) bar.value = e.loaded/e.total };
+  x.onload = () => { bar.hidden = true; $('#fUp').value='';
+    if (x.status===200){ const d = JSON.parse(x.responseText); toast('آپلود شد: '+d.info); $('#fSrc').value = d.path; loadVideos(d.path); }
+    else toast('آپلود ناموفق: '+(JSON.parse(x.responseText||'{}').error||x.status),1); };
+  x.onerror = () => { bar.hidden = true; toast('آپلود ناموفق',1) };
+  x.send(file);
+}
+
+/* ---------------------------------------------------------------- settings */
+function openSettings(){
+  const s = S.settings; $('#stErr').textContent = '';
+  $('#sIp').innerHTML = `<option value="">خودکار — همه آداپترها (${esc(s.primary_ip)} اول)</option>` + s.ips.map(i=>`<option>${esc(i)}</option>`).join('');
+  $('#sIp').value = s.advertise_ip || '';
+  $('#sUser').value = s.username; $('#sPass').value = '';
+  $('#sInfo').innerHTML = `پورت RTSP: <span class="ltr">${s.rtsp_port}</span> · فایل پیکربندی: <span class="ltr">${esc(s.config_path||'—')}</span>`;
+  st.showModal();
+}
+async function saveSettings(){
+  const body = {advertise_ip: $('#sIp').value};
+  if ($('#sPass').value) { body.username = $('#sUser').value.trim(); body.password = $('#sPass').value; }
+  else if ($('#sUser').value.trim() !== S.settings.username){ $('#stErr').textContent='برای تغییر نام کاربری، رمز را هم وارد کنید.'; return; }
+  try{ await api('PUT','/api/settings', body); st.close(); toast('اعمال شد'); sig=''; poll(); }catch(e){ $('#stErr').textContent = e.message }
+}
+
+/* ---------------------------------------------------------------- loops */
+function tab(el){ document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t===el));
+  document.querySelectorAll('.tp').forEach(p=>p.hidden = p.id !== 'tp-'+el.dataset.t); }
+async function poll(){ try{ S = await api('GET','/api/state'); render(); }catch(e){ $('#stats').innerHTML = '<span style="color:var(--bad)">اتصال به سرور قطع است…</span>' } }
+async function pollLog(){
+  try{ const lines = await api('GET','/api/logs?after='+logSeq); if(!lines.length) return;
+    logSeq = lines[lines.length-1].seq; const warn = $('#logWarn').checked;
+    for (const l of lines){ if (warn && l.level==='INFO') continue;
+      const d = document.createElement('div'); d.className = l.level; d.textContent = l.text; logEl.append(d); }
+    while (logEl.childElementCount > 2000) logEl.firstChild.remove();
+    if ($('#logFollow').checked) logEl.scrollTop = logEl.scrollHeight;
+  }catch(e){}
+}
+const ed = $('#ed'), st = $('#st'), big = $('#big'), cl = $('#cl');
+function store(k, v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k, v) }catch(e){} }
+function setTheme(t){ document.documentElement.dataset.theme = t; $('#theme').value = t; store('vcam-theme', t); }
+let live = store('vcam-live') !== '0';
+function toggleLive(set){
+  live = set === undefined ? !live : set; store('vcam-live', live ? '1' : '0');
+  document.body.classList.toggle('nolive', !live);
+  $('#liveBtn').textContent = live ? '🎥 تصویر زنده: روشن' : '🎥 تصویر زنده: خاموش';
+  $('#liveBtn').classList.toggle('on', live);
+  if (live) refreshThumbs(true); else document.querySelectorAll('img[data-cam]').forEach(i=>i.removeAttribute('src'));
+}
+let cloneId = null;
+function openClone(id){ cloneId = id; const c = S.cameras.find(x=>x.config.id===id);
+  $('#clT').textContent = 'کپی از «' + c.config.name + '»'; $('#clErr').textContent=''; cl.showModal(); }
+async function doClone(){
+  const n = +$('#clN').value || 1; $('#clGo').disabled = true; $('#clGo').textContent = 'در حال ساخت…';
+  try{ const r = await api('POST', `/api/cameras/${cloneId}/clone`, {count:n}); cl.close(); sig=''; await poll();
+    const ports = S.cameras.filter(c=>r.ids.includes(c.config.id)).map(c=>c.config.http_port);
+    toast(`${r.ids.length} کپی ساخته شد — پورت‌های ONVIF ${Math.min(...ports)} تا ${Math.max(...ports)}`);
+  }catch(e){ $('#clErr').textContent = e.message }
+  finally{ $('#clGo').disabled = false; $('#clGo').textContent = 'ساخت کپی‌ها' }
+}
+async function shutdown(){
+  if (!confirm('سرور دوربین‌های مجازی خاموش شود؟ همه دوربین‌ها از دسترس VMS خارج می‌شوند.')) return;
+  try{ await api('POST','/api/shutdown') }catch(e){}
+  document.body.insertAdjacentHTML('beforeend','<div id="off">سرور خاموش شد. برای اجرای دوباره START.bat را بزنید.</div>');
+}
+setTheme(store('vcam-theme') || 'dc'); toggleLive(live);
+poll(); pollLog();
+setInterval(poll, 2000); setInterval(pollLog, 2000); setInterval(()=>refreshThumbs(false), 2500);
+</script>
+</body>
+</html>

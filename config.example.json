@@ -1,0 +1,72 @@
+{
+  "rtsp_port": 8554,
+  "http_port_base": 8080,
+  "bind": "0.0.0.0",
+  "advertise_ip": null,
+  "state_dir": "./vcam-state",
+
+  "auth": true,
+  "rtsp_auth": true,
+  "digest_algorithms": ["MD5"],
+  "allow_basic": true,
+  "wsse_clock_tolerance": 0,
+  "wsse_strict": true,
+  "snapshot_auth": false,
+  "users": [
+    {"username": "admin",    "password": "admin123", "level": "Administrator"},
+    {"username": "operator", "password": "oper123",  "level": "Operator"},
+    {"username": "viewer",   "password": "view123",  "level": "User"}
+  ],
+
+  "discovery": true,
+  "discovery_interfaces": null,
+  "motion": {"enabled": true, "on_seconds": 10, "off_seconds": 50},
+
+  "x264_preset": "veryfast",
+  "encoder_idle_timeout": 15,
+  "prestart_encoders": false,
+  "rtp_mtu": 1400,
+  "rtp_port_range": [50000, 59999],
+  "max_profiles": 8,
+  "media1_h265_as": "H264",
+
+  "cameras": [
+    {
+      "id": "lobby",
+      "name": "Lobby Entrance",
+      "source": "/videos/lobby_1080p.mp4",
+      "http_port": 8080,
+      "manufacturer": "ONVIF-VCam",
+      "model": "VC-2000",
+      "firmware": "2.4.1",
+      "location": "building-a/floor-1",
+      "profiles": [
+        {"name": "MainStream", "encoding": "H264", "width": 1920, "height": 1080, "fps": 25,
+         "bitrate_kbps": 4096, "gop": 50, "profile": "High"},
+        {"name": "SubStream",  "encoding": "H264", "width": 640,  "height": 360,  "fps": 12,
+         "bitrate_kbps": 512, "gop": 24, "profile": "Main"},
+        {"name": "MJPEG",      "encoding": "JPEG", "width": 640,  "height": 352,  "fps": 5,
+         "quality": 6}
+      ]
+    },
+    {
+      "id": "parking",
+      "name": "Parking H.265",
+      "source": "/videos/parking_4k_hevc.mkv",
+      "http_port": 8081,
+      "profiles": [
+        {"name": "MainStream", "mode": "copy"},
+        {"name": "SubStream",  "encoding": "H265", "width": 960, "height": 540, "fps": 15,
+         "bitrate_kbps": 800}
+      ],
+      "motion": {"on_seconds": 5, "off_seconds": 20}
+    },
+    {
+      "id": "relay",
+      "name": "Re-streamed real camera",
+      "source": "rtsp://user:pass@192.168.1.64:554/Streaming/Channels/101",
+      "http_port": 8082,
+      "profiles": [{"name": "MainStream", "mode": "copy"}]
+    }
+  ]
+}
