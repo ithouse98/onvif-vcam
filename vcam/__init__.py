@@ -11,5 +11,5 @@ Implements (per ONVIF Core 26.06, Streaming 26.06, Profile S 1.2):
     RTP/UDP multicast, RTCP sender reports, H.264 (RFC 6184), H.265 (RFC 7798), JPEG (RFC 2435)
 """
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __author__ = "Behrouz Kazemi (IPS-Co.)"

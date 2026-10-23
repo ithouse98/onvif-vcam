@@ -42,10 +42,10 @@
 
 ## دانلود
 
-فایل **ONVIF-VCam-1.1.0-Portable-win64.zip** را از بخش [Releases](../../releases) دانلود کنید.
+فایل **ONVIF-VCam-1.1.1-Portable-win64.zip** را از بخش [Releases](../../releases) دانلود کنید.
 
 ```text
-ONVIF Virtual Camera 1.1.0 - نسخه پرتابل و آفلاین (Windows 64-bit)
+ONVIF Virtual Camera 1.1.1 - نسخه پرتابل و آفلاین (Windows 64-bit)
 ================================================================
 طراحی و توسعه: بهروز کاظمی (Behrouz Kazemi) - VMS Systems Specialist
 IPS-Co.  ·  تلگرام: @B_8241
@@ -122,3 +122,32 @@ IPS-Co.  ·  تلگرام: @B_8241
 ```
 
 </div>
+
+## عیب‌یابی: خطای `WinError 10013` یا `WinError 10048`
+
+اگر هنگام اجرا پیغام `PermissionError: [WinError 10013] ...` یا `[WinError 10048] Only one usage of each socket address ...` دیدید،
+یعنی پورت‌های پیش‌فرض (RTSP: **8554** و ONVIF HTTP: **8080** به بعد) روی آن سیستم توسط برنامه دیگری
+(نرم‌افزار VMS / NVR، IIS، MediaMTX، go2rtc و ...) گرفته شده یا ویندوز آن‌ها را رزرو کرده است (Hyper-V، WSL، Docker).
+
+**در نسخه 1.1.1 رفع شده است.** برنامه خودش پورت آزاد دیگری انتخاب می‌کند و در لاگ می‌نویسد:
+
+```
+WARNING vcam.rtsp   RTSP port 8554 unavailable, using 18554 instead
+WARNING vcam.soap   cam1: HTTP port 8080 unavailable, using 8081 instead
+```
+
+- پورت RTSP به ترتیب 18554، 28554، 38554 و 554 امتحان می‌شود. VMS آدرس استریم را از خود دوربین می‌گیرد، پس تغییری لازم نیست.
+- پورت HTTP دوربین به اولین پورت آزاد بعدی می‌رود و **در `config.json` ذخیره می‌شود** تا آدرس دوربین ثابت بماند.
+  دوربین را در VMS با پورتی که در پنل یا `vcam.log` نمایش داده می‌شود اضافه کنید (جستجوی خودکار ONVIF آدرس درست را می‌دهد).
+- اگر هنوز نسخه 1.1.0 دارید: نسخه 1.1.1 را دانلود کنید (`config.json` و پوشه `videos` را نگه دارید)،
+  یا در `config.json` پورت‌ها را دستی عوض کنید: `"rtsp_port": 18554` و `"http_port_base": 18080`.
+
+برای پیدا کردن برنامه‌ای که پورت را گرفته (در cmd):
+
+```
+netstat -ano | findstr :8554
+tasklist /fi "PID eq <pid>"
+netsh interface ipv4 show excludedportrange protocol=tcp
+```
+
+پورت پنل (8000) خودکار عوض نمی‌شود چون `PANEL.url` به آن اشاره دارد؛ اگر گرفته شده بود `ui_port` را در `config.json` تغییر دهید.

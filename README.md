@@ -7,7 +7,7 @@
 Virtual ONVIF Profile S / T camera with WS-Discovery, RTSP streaming, events and a web control panel. Fully offline and portable.</p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-1.1.0-0f6fb3">
+  <img alt="version" src="https://img.shields.io/badge/version-1.1.1-0f6fb3">
   <img alt="ONVIF" src="https://img.shields.io/badge/ONVIF-Profile%20S%20%2F%20T-38bdf8">
   <img alt="platform" src="https://img.shields.io/badge/Windows%20x64-portable%20%26%20offline-2fbf71">
   <img alt="python" src="https://img.shields.io/badge/Python-3.9%2B%20stdlib%20only-3776ab">
@@ -73,7 +73,7 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 
 ## Download & run (Windows)
 
-1. Download **`ONVIF-VCam-1.1.0-Portable-win64.zip`** from [Releases](../../releases) and extract it
+1. Download **`ONVIF-VCam-1.1.1-Portable-win64.zip`** from [Releases](../../releases) and extract it
    (e.g. to `C:\ONVIF-VCam`).
 2. Run **`FIREWALL.bat`** once as administrator.
 3. Run **`START.bat`**. The control panel opens at `http://127.0.0.1:8000` (login `admin` / `admin`).
@@ -237,6 +237,42 @@ Global keys: `rtsp_port`, `http_port_base`, `bind`, `advertise_ip` (NAT / Docker
 docker build -t vcam .
 docker run --rm --network host -v $PWD/videos:/videos -v $PWD/state:/state vcam /videos/lobby.mp4 -n 4
 ```
+
+## Troubleshooting: `WinError 10013` / `WinError 10048` (port in use)
+
+```
+PermissionError: [WinError 10013] An attempt was made to access a socket in a way forbidden by its access permissions
+OSError: [WinError 10048] Only one usage of each socket address ... is normally permitted
+```
+
+The default ports (RTSP **8554**, ONVIF HTTP **8080+**) are already taken on that machine by another
+program (a VMS / NVR, IIS, MediaMTX, go2rtc, ...) or reserved by Windows (Hyper-V, WSL, Docker).
+
+**Fixed in 1.1.1** — VCam now moves to a free port by itself and logs it:
+
+```
+WARNING vcam.rtsp   RTSP port 8554 unavailable, using 18554 instead
+WARNING vcam.soap   cam1: HTTP port 8080 unavailable, using 8081 instead
+```
+
+* RTSP falls back to 18554, 28554, 38554, 554. ONVIF clients get the real port from
+  `GetStreamUri`, so nothing changes on the VMS side.
+* A camera's HTTP port moves to the next free one and is **saved in `config.json`**, so the address
+  stays the same on later starts. Add the camera in the VMS with the port shown in the panel /
+  `vcam.log` (WS-Discovery already advertises the right address).
+* Still on 1.1.0? Download 1.1.1 (keep your `config.json` and `videos\`), or set free ports
+  yourself in `config.json`: `"rtsp_port": 18554`, `"http_port_base": 18080`.
+
+Find out what holds a port (cmd):
+
+```
+netstat -ano | findstr :8554
+tasklist /fi "PID eq <pid>"
+netsh interface ipv4 show excludedportrange protocol=tcp
+```
+
+The control panel port (`ui_port`, 8000) does not move, because `PANEL.url` points to it; if it
+is taken, change `ui_port` in `config.json`.
 
 ## Known limitations
 

@@ -1,4 +1,4 @@
-﻿ONVIF Virtual Camera 1.1.0 - نسخه پرتابل و آفلاین (Windows 64-bit)
+﻿ONVIF Virtual Camera 1.1.1 - نسخه پرتابل و آفلاین (Windows 64-bit)
 ================================================================
 طراحی و توسعه: بهروز کاظمی (Behrouz Kazemi) - VMS Systems Specialist
 IPS-Co.  ·  تلگرام: @B_8241
@@ -61,13 +61,18 @@ IPS-Co.  ·  تلگرام: @B_8241
 
 پورت‌ها
 -------
-  پنل: 8000 · ONVIF: 8080، 8081، ... (هر دوربین یکی) · RTSP: 8554
+  پنل: 8000 · ONVIF: 8080، 8081، ... (هر دوربین یکی) · RTSP: 8554 (اگر گرفته باشد خودکار پورت دیگر)
   WS-Discovery: UDP 3702 · RTP/UDP: 50000-59999
 
 عیب‌یابی
 --------
 - مشکل دارید؟ STOP.bat و بعد START-DEBUG.bat تا همه چیز را در کنسول ببینید.
   یا vcam.log را بفرستید.
+- خطای WinError 10013 یا 10048 (پورت گرفته شده توسط برنامه دیگر یا رزرو ویندوز):
+  از نسخه 1.1.1 برنامه خودش پورت آزاد انتخاب می‌کند (RTSP: 18554 ...، HTTP: 8081 ...)
+  و پورت جدید را در vcam.log و پنل نشان می‌دهد. دوربین را در VMS با همان پورت اضافه کنید.
+  بررسی:  netstat -ano | findstr :8554
+          netsh interface ipv4 show excludedportrange protocol=tcp
 - SmartScreen: More info > Run anyway (یا قبل از Extract: zip > Properties > Unblock).
 - بازگشت به حالت اولیه: config.json و پوشه vcam-state را پاک کنید.
 

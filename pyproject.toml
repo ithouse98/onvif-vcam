@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "onvif-vcam"
-version = "1.1.0"
+version = "1.1.1"
 authors = [{name = "Behrouz Kazemi (IPS-Co.)"}]
 description = "ONVIF Profile S/T virtual camera: serve video files as discoverable ONVIF devices with RTSP streaming"
 readme = "README.md"
