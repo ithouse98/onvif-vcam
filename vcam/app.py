@@ -111,6 +111,10 @@ class App:
 
     def start(self):
         self.rtsp.start()
+        if self.rtsp.port != self.rtsp_port:  # fallback port: keep URLs/capabilities in step
+            self.rtsp_port = self.cfg["rtsp_port"] = self.rtsp.port
+            for cam in self.cameras:
+                cam.protocols["RTSP"] = self.rtsp.port
         for cam in list(self.cameras):
             try:
                 self.http[cam.id] = serve(self, cam, self.bind)

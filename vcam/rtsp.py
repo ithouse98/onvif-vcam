@@ -802,9 +802,30 @@ class RtspServer:
 
     # ---------------------------------------------------------------- lifecycle
     def start(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((self.bind_ip, self.port))
+        # Busy (VMS, mediamtx/go2rtc use 8554) or Windows-reserved (Hyper-V/WSL/Docker, WinError 10013)
+        # ports are common; fall back, clients learn the real port from GetStreamUri.
+        wanted, last = self.port, None
+        for port in dict.fromkeys([wanted, 8554, 18554, 28554, 38554, 554]):
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # Windows SO_REUSEADDR lets two servers share a port silently; exclusive use instead
+            s.setsockopt(socket.SOL_SOCKET, getattr(socket, "SO_EXCLUSIVEADDRUSE", socket.SO_REUSEADDR), 1)
+            try:
+                s.bind((self.bind_ip, port))
+                break
+            except OSError as exc:
+                s.close()
+                last = exc
+                log.warning("RTSP port %d unavailable: %s", port, exc)
+        else:
+            raise SystemExit(
+                f"No RTSP port could be opened (tried {wanted}, 8554, 18554, 28554, 38554, 554):\n{last}\n\n"
+                "Ports are used by another program or reserved by Windows (Hyper-V / WSL / Docker).\n"
+                f"Check:  netstat -ano | findstr :{wanted}\n"
+                "        netsh interface ipv4 show excludedportrange protocol=tcp\n\n"
+                'Fix: set a free "rtsp_port" in config.json, then run START.bat again.')
+        if port != wanted:
+            log.warning("RTSP port %d unavailable, using %d instead", wanted, port)
+        self.port = port
         s.listen(256)
         self.sock = s
         threading.Thread(target=self._accept, name="rtsp-accept", daemon=True).start()
