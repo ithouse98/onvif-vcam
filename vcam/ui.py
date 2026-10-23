@@ -326,7 +326,7 @@ class Handler(BaseHTTPRequestHandler):
 
 class PanelServer(ThreadingHTTPServer):
     daemon_threads = True
-    allow_reuse_address = True
+    allow_reuse_address = os.name != "nt"  # on Windows it would let two servers share a port
 
     def __init__(self, addr, app):
         self.app = app

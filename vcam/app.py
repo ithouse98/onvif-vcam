@@ -115,9 +115,12 @@ class App:
             self.rtsp_port = self.cfg["rtsp_port"] = self.rtsp.port
             for cam in self.cameras:
                 cam.protocols["RTSP"] = self.rtsp.port
+        moved = False
         for cam in list(self.cameras):
             try:
+                port = cam.http_port
                 self.http[cam.id] = serve(self, cam, self.bind)
+                moved |= cam.http_port != port
             except OSError as exc:
                 self.errors[cam.id] = f"HTTP port {cam.http_port}: {exc}"
                 log.error("%s: %s", cam.id, self.errors[cam.id])
@@ -125,7 +128,7 @@ class App:
                 del self.camera_by_id[cam.id]
                 continue
             self.events.start_camera(cam)
-        if self.config_path and not os.path.exists(self.config_path):
+        if self.config_path and (moved or not os.path.exists(self.config_path)):
             self.save_config()  # first run: later starts reuse (and the panel edits) this file
         if self.cfg.get("discovery", True):
             try:

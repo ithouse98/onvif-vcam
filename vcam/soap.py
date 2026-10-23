@@ -4,6 +4,7 @@ Core 5.1.1: device service entry point is fixed to /onvif/device_service.
 Core 5.8.2: SOAP 1.2 faults with ter: subcodes; Sender faults -> HTTP 400, Receiver -> 500.
 """
 
+import os
 import json
 import sys
 import logging
@@ -119,7 +120,7 @@ class Ctx:
 
 class OnvifHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
-    allow_reuse_address = True
+    allow_reuse_address = os.name != "nt"  # on Windows it would let two servers share a port
     request_queue_size = 128
 
     def __init__(self, addr, app, camera):
@@ -363,7 +364,25 @@ class OnvifHandler(BaseHTTPRequestHandler):
 
 
 def serve(app, camera, bind="0.0.0.0"):
-    srv = OnvifHTTPServer((bind, camera.http_port), app, camera)
+    """Bind the camera's HTTP port; if it is busy or Windows-reserved (WinError 10013/10048)
+    move to the next free one and pin it in the camera config so the address stays stable."""
+    used = {c.http_port for c in app.cameras if c is not camera}
+    used |= {app.rtsp_port, int(app.cfg.get("ui_port") or 0)}
+    wanted, port = camera.http_port, camera.http_port
+    while True:
+        try:
+            srv = OnvifHTTPServer((bind, port), app, camera)
+            break
+        except OSError as exc:
+            log.warning("%s: HTTP port %d unavailable: %s", camera.id, port, exc)
+            port += 1
+            while port in used:
+                port += 1
+            if port > wanted + 200:
+                raise
+    if port != wanted:
+        log.warning("%s: HTTP port %d unavailable, using %d instead", camera.id, wanted, port)
+        camera.http_port = camera.protocols["HTTP"] = camera.cfg["http_port"] = port
     t = threading.Thread(target=srv.serve_forever, name=f"http-{camera.id}", daemon=True)
     t.start()
     return srv
