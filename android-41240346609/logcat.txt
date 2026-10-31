@@ -1,0 +1,82 @@
+--------- beginning of kernel
+--------- beginning of main
+--------- beginning of system
+10-31 20:49:30.774   285   285 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
+10-31 20:49:30.803   285   285 I AndroidRuntime: Using default boot image
+10-31 20:49:30.803   285   285 I AndroidRuntime: Leaving lock profiling enabled
+10-31 20:49:30.937   286   286 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
+10-31 20:49:30.976   286   286 I AndroidRuntime: Using default boot image
+10-31 20:49:30.976   286   286 I AndroidRuntime: Leaving lock profiling enabled
+10-31 20:49:37.630   830   830 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+10-31 20:49:37.648   836   836 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+10-31 20:49:40.522  1438  1438 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 20:49:40.533  1438  1438 I AndroidRuntime: Using default boot image
+10-31 20:49:40.533  1438  1438 I AndroidRuntime: Leaving lock profiling enabled
+10-31 20:49:40.749  1438  1438 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-31 20:49:42.517  1438  1438 D AndroidRuntime: Shutting down VM
+10-31 20:49:55.319  3708  3810 I VCamAgent: Connecting to 10.0.2.2:8600…
+10-31 20:49:55.354  3708  3810 I VCamAgent: Connected to 10.0.2.2:8600, waiting for a viewer
+10-31 20:49:59.356  3708  3810 I VCamAgent: Streaming: Back camera
+10-31 20:49:59.431  3708  4385 W CameraX : Retry init. Start time 41796 current time 41824
+10-31 20:49:59.431  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:49:59.431  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:49:59.431  3708  4385 W CameraX : 	... 5 more
+10-31 20:49:59.972  3708  4385 W CameraX : Retry init. Start time 41796 current time 42365
+10-31 20:49:59.972  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:49:59.972  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:49:59.972  3708  4385 W CameraX : 	... 5 more
+10-31 20:50:00.512  3708  4385 W CameraX : Retry init. Start time 41796 current time 42905
+10-31 20:50:00.512  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:50:00.512  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:50:00.512  3708  4385 W CameraX : 	... 5 more
+10-31 20:50:01.051  3708  4385 W CameraX : Retry init. Start time 41796 current time 43445
+10-31 20:50:01.051  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:50:01.051  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:50:01.051  3708  4385 W CameraX : 	... 5 more
+10-31 20:50:01.591  3708  4385 W CameraX : Retry init. Start time 41796 current time 43985
+10-31 20:50:01.591  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:50:01.591  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:50:01.591  3708  4385 W CameraX : 	... 5 more
+10-31 20:50:02.135  3708  4385 E CameraX : The device might underreport the amount of the cameras. Finish the initialize task since we are already reaching the maximum number of retries.
+10-31 20:50:02.330  3708  4865 W VCamStreamer: encoder rejected format (extras=true): Error 0xfffffc0e
+10-31 20:50:02.423  3708  4865 I VCamStreamer: encoding 1280x720 @25, 4000 kbps
