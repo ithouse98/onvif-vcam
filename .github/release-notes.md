@@ -1,4 +1,4 @@
-## ONVIF VCam 1.3.1: setup program for the screen agent
+## ONVIF VCam 1.3.1: agent setup program + Android agent app
 
 ### New
 - **`ONVIF-VCam-Agent-Setup-1.3.1.exe` (45 MB):** copy this one file to a client PC and run it.
@@ -16,6 +16,14 @@
 - Running the setup again upgrades in place; the agent's identity, settings and logs are kept.
 - The setup can be shown in English or Persian (فارسی).
 
+### Android agent app (added to this release)
+- **`ONVIF-VCam-Agent-Android-1.3.1.apk`** (Android 8+) turns a phone's back / front camera into an
+  ONVIF camera through the VCam server, with no server change: the phone appears in Agents and its
+  cameras are "monitor 0 / 1". It uses CameraX and the phone's hardware H.264 encoder, and runs as a
+  foreground service, so it keeps streaming with the screen off. Settings: server IP (or
+  automatic), agent key, name, resolution, FPS and bitrate; optional start after reboot.
+- Signed with a public test key (see `android/keystore/README.md`).
+
 ### Fixed
 - The portable bundle was missing two GStreamer plugins: AVI files and HTTP sources failed. Both
   plugins are included again.
@@ -31,9 +39,15 @@
 - نصب بی‌صدا برای تعداد زیادی کامپیوتر:
   `ONVIF-VCam-Agent-Setup-1.3.1.exe /S /SERVER=192.168.1.10 /KEY=secret`
 
+### اپلیکیشن اندروید
+- **`ONVIF-VCam-Agent-Android-1.3.1.apk`**: دوربین گوشی اندروید (8 به بالا) را از طریق سرور VCam به
+  دوربین ONVIF تبدیل می‌کند. گوشی در تب «ایجنت‌ها» ظاهر می‌شود: «مانیتور 0» دوربین پشت و
+  «مانیتور 1» دوربین جلوست.
+
 ### Downloads
 - **ONVIF-VCam-1.3.1-Portable-win64.zip**: the VCam server, standalone and offline.
 - **ONVIF-VCam-Agent-Setup-1.3.1.exe**: the screen agent for other PCs (64-bit Windows 8.1+).
+- **ONVIF-VCam-Agent-Android-1.3.1.apk**: the agent app for Android phones (Android 8+).
 
 ---
 Created by **Behrouz Kazemi**, VMS Systems Specialist · IPS-Co. · Telegram: [@B_8241](https://t.me/B_8241)

@@ -46,6 +46,8 @@ with physical cameras. No hardware is needed, and the same footage plays every t
   puts chosen monitors side by side
 - **Screens of other PCs** (`agent://`): the screen agent runs as a service on the other PC, finds the
   server on the network, registers in the panel and streams its monitors on demand
+- **Android phones** (agent app): a phone's back / front camera as an ONVIF camera, with hardware
+  H.264, through the same agent hub
 - **USB webcams / capture cards** (`webcam://`): Windows Media Foundation (KS / DirectShow
   fallback), Linux V4L2. The device is opened once and feeds every stream of the camera
 
@@ -114,7 +116,8 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 | `SHELL.bat` | prompt with python / ffmpeg / ffprobe / ffplay / gst-launch-1.0 / gst-device-monitor-1.0 |
 
 **Screen agent for other PCs:** `ONVIF-VCam-Agent-Setup-<version>.exe` on the same release page
-(see [Screens of other PCs](#screens-of-other-pcs-agent)).
+(see [Screens of other PCs](#screens-of-other-pcs-agent)). **Android phones as cameras:**
+`ONVIF-VCam-Agent-Android-<version>.apk` (see [Android phones](#android-phones-as-cameras-agent-app)).
 
 The Windows launchers live in [`windows/`](windows). [`scripts/build_portable.sh`](scripts/build_portable.sh)
 rebuilds the bundle from conda-forge and PyPI.
@@ -321,6 +324,33 @@ Notes:
   silent uninstall: `"C:\ProgramData\ONVIF-VCam-Agent\uninstall.exe" /S`.
 * Agent log: `C:\ProgramData\ONVIF-VCam-Agent\logs\vcam-agent.log` (Start menu → ONVIF VCam Agent).
 * Linux / macOS agent: `python -m vcam.agent --server HOST` (X11 screen).
+
+### Android phones as cameras (agent app)
+
+Install **`ONVIF-VCam-Agent-Android-<version>.apk`** (from [Releases](../../releases), Android 8+)
+on a phone. The phone becomes a screen agent: the VCam server sees its cameras as the agent's
+"monitors" (0 = back camera, 1 = front camera), so the panel's Agents tab turns them into ONVIF
+cameras like any PC screen. No change on the server is needed.
+
+1. Open **VCam Agent** and enter the server IP (empty = find it by broadcast). Add the agent key
+   if one is set, choose resolution / FPS / max bitrate and press **Start**. Allow the camera.
+2. In the VCam panel → **Agents**, the phone is listed. Press **+ monitor 0** (back camera) or
+   **+ monitor 1** (front camera).
+
+How it works: CameraX + the phone's hardware H.264 encoder (MediaCodec) → MPEG-TS → agent hub, in
+a foreground service (persistent notification), so streaming continues with the screen off.
+
+Notes:
+* One camera streams at a time (Android phones rarely allow both cameras together).
+* **Allow running in the background** (button in the app). On some brands (Xiaomi, Huawei, Oppo…)
+  also set the app's battery mode to *No restrictions*, or the system stops it.
+* Keep the phone on a charger for long tests: continuous camera + encoder use heats it up.
+* "Start after restart": Android 14+ doesn't allow a camera service to start at boot. The
+  phone then shows a notification; one tap starts the agent.
+* The APK is signed with a public test key (`android/keystore`). Build it yourself with your own key
+  for production use (`android/keystore/README.md`).
+* Source: [`android/`](android). GitHub Actions builds it and tests it in the Android emulator
+  against a VCam server ([`.github/workflows/android.yml`](.github/workflows/android.yml)).
 
 ## Configuration file
 

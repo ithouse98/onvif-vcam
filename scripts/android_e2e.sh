@@ -26,7 +26,8 @@ if [ -n "$ID" ]; then
   ffmpeg -v error -ss 6 -i /tmp/phone.mkv -frames:v 1 -y "$RES/phone_frame.jpg"
   timeout 60 ffmpeg -v error -timeout 30000000 -rtsp_transport tcp -i "rtsp://admin:admin@127.0.0.1:8554/$CID/Profile_2" -t 6 -c copy -y /tmp/phone_sub.mkv 2>> "$RES/ffmpeg.txt"
   echo "sub: $(ffprobe -v error -count_frames -select_streams v -show_entries stream=codec_name,width,height,nb_read_frames -of csv=p=0 /tmp/phone_sub.mkv 2>&1)" >> "$RES/summary.txt"
-  curl -s -m 30 -o "$RES/snapshot.jpg" -w "snapshot HTTP %{http_code} %{size_download}\n" "http://127.0.0.1:8081/onvif/snapshot/Profile_1.jpg" >> "$RES/summary.txt"
+  HP=$($API/api/state | python3 -c "import json,sys; print([c['config']['http_port'] for c in json.load(sys.stdin)['cameras'] if c['config']['id']=='$CID'][0])")
+  curl -s -m 30 -o "$RES/snapshot.jpg" -w "snapshot HTTP %{http_code} %{size_download}\n" "http://127.0.0.1:$HP/onvif/snapshot/Profile_1.jpg" >> "$RES/summary.txt"
 fi
 adb exec-out screencap -p > "$RES/app_screen.png"
 adb logcat -d -s VCamAgent VCamStreamer AndroidRuntime CameraX > "$RES/logcat.txt" 2>&1

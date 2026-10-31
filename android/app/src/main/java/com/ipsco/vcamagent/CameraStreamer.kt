@@ -16,6 +16,7 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -82,7 +83,9 @@ class CameraStreamer(
             try {
                 val p = future.get()
                 provider = p
-                val sel = ResolutionSelector.Builder().setResolutionStrategy(
+                val sel = ResolutionSelector.Builder()
+                    .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)  // VMS cameras are 16:9
+                    .setResolutionStrategy(
                     ResolutionStrategy(Size(width, height), ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)
                 ).build()
                 val builder = Preview.Builder().setResolutionSelector(sel)
