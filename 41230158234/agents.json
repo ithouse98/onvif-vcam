@@ -1,0 +1,22 @@
+{
+  "id": "2b003e33-ff31-4110-8efb-5cbfc52616bf",
+  "online": true,
+  "name": "runnervmdaln5",
+  "ip": "127.0.0.1",
+  "os": "Windows 2025Server",
+  "version": "1.3.0",
+  "screens": [
+    {
+      "index": 0,
+      "name": "HyperVMonitor",
+      "width": 1024,
+      "height": 768,
+      "x": 0,
+      "y": 0,
+      "primary": true,
+      "hmonitor": 65537
+    }
+  ],
+  "last_seen": 1793472037,
+  "streams": 0
+}
