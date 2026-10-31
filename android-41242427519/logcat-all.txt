@@ -1,0 +1,200 @@
+10-31 21:14:27.397   294   294 D EmulatedCamera_QemuClient: Emulated camera list: 
+10-31 21:14:27.397   294   294 D EmulatedCamera_QemuClient: o.vts.coverage
+10-31 21:14:27.397   294   294 E EmulatedCamera_Factory: 0 cameras are being emulated. 0 of them are fake cameras.
+10-31 21:14:27.400   294   294 I CamPrvdr@2.4-legacy: Loaded "Emulated Camera Module" camera module
+10-31 21:14:27.418   294   294 I HidlServiceManagement: Registered android.hardware.camera.provider@2.4::ICameraProvider/legacy/0 (start delay of 662ms)
+10-31 21:14:27.418   294   294 I HidlServiceManagement: Removing namespace from process name android.hardware.camera.provider@2.4-service to provider@2.4-service.
+10-31 21:14:27.418   294   294 I LegacySupport: Registration complete for android.hardware.camera.provider@2.4::ICameraProvider/legacy/0.
+10-31 21:14:28.012     0     0 I init    : starting service 'cameraserver'...
+10-31 21:14:28.024     0     0 W libprocessgroup: Failed to open /dev/cpuset/camera-daemon/tasks: No such file or directory: No such file or directory
+10-31 21:14:28.030     0     0 W libprocessgroup: Failed to apply CameraServiceCapacity task profile: No such file or directory
+10-31 21:14:28.233   420   420 I cameraserver: ServiceManager: 0xf1500db0
+10-31 21:14:28.236   420   420 I CameraService: CameraService started (pid=420)
+10-31 21:14:28.236   420   420 I CameraService: CameraService process starting
+10-31 21:14:28.237   420   420 I CameraProviderManager: Connecting to new camera provider: internal/0, isRemote? 1
+10-31 21:14:28.240   420   420 I CameraProviderManager: Enumerating new camera device: device@3.5/internal/1
+10-31 21:14:28.240   295   360 I EmulatedCameraDeviceHwlImpl: Create: Created EmulatedCameraDeviceHwlImpl for camera 1
+10-31 21:14:28.240   295   360 I GCH_CameraDevice: Create: Created a camera device for public(1)
+10-31 21:14:28.243   420   420 I CameraProviderManager: Camera provider internal/0 ready with 1 camera devices
+10-31 21:14:28.244   420   420 I CameraProviderManager: Connecting to new camera provider: legacy/0, isRemote? 1
+10-31 21:14:28.244   420   420 I CameraProviderManager: Camera provider legacy/0 ready with 0 camera devices
+10-31 21:14:28.244   420   420 I CameraService: onDeviceStatusChanged: Status changed for cameraId=1, newStatus=1
+10-31 21:14:28.244   420   420 I CameraService: onDeviceStatusChanged: Unknown camera ID 1, a new camera is added
+10-31 21:14:28.245   420   420 I cameraserver: Waiting for activity service
+10-31 21:14:28.245   420   472 W CameraProviderManager: addProviderLocked: Camera provider HAL with name 'internal/0' already registered
+10-31 21:14:28.245   420   472 W CameraProviderManager: addProviderLocked: Camera provider HAL with name 'legacy/0' already registered
+10-31 21:14:30.026   494   533 I SystemConfig: Reading permissions from /vendor/etc/permissions/android.hardware.camera.front.xml
+10-31 21:14:30.027   494   533 I SystemConfig: Reading permissions from /vendor/etc/permissions/android.hardware.camera.full.xml
+10-31 21:14:30.027   494   533 I SystemConfig: Reading permissions from /vendor/etc/permissions/android.hardware.camera.flash-autofocus.xml
+10-31 21:14:30.027   494   533 I SystemConfig: Reading permissions from /vendor/etc/permissions/android.hardware.camera.ar.xml
+10-31 21:14:30.028   494   533 I SystemConfig: Reading permissions from /vendor/etc/permissions/android.hardware.camera.concurrent.xml
+10-31 21:14:30.030   494   533 I SystemConfig: Reading permissions from /vendor/etc/permissions/android.hardware.camera.raw.xml
+10-31 21:14:32.899   494   494 I PackageManager: /product/app/Camera2 changed; collecting certs
+10-31 21:14:33.088   494   494 W PackageSettings: No potential matches found for Intent { act=com.android.camera.action.CROP typ=image/bmp } while setting preferred com.google.android.apps.plus/.editor.PlusCropActivity
+10-31 21:14:33.088   494   494 W PackageSettings: No potential matches found for Intent { act=com.android.camera.action.CROP typ=image/jpeg } while setting preferred com.google.android.apps.plus/.editor.PlusCropActivity
+10-31 21:14:33.088   494   494 W PackageSettings: No potential matches found for Intent { act=com.android.camera.action.CROP typ=image/gif } while setting preferred com.google.android.apps.plus/.editor.PlusCropActivity
+10-31 21:14:33.088   494   494 W PackageSettings: No potential matches found for Intent { act=com.android.camera.action.CROP typ=image/png } while setting preferred com.google.android.apps.plus/.editor.PlusCropActivity
+10-31 21:14:33.088   494   494 W PackageSettings: No potential matches found for Intent { act=com.android.camera.action.CROP typ=image/webp } while setting preferred com.google.android.apps.plus/.editor.PlusCropActivity
+10-31 21:14:33.088   494   494 W PackageSettings: No potential matches found for Intent { act=com.android.camera.action.CROP typ=image/x-ms-bmp } while setting preferred com.google.android.apps.plus/.editor.PlusCropActivity
+10-31 21:14:33.089   494   494 W PackageSettings: No potential matches found for Intent { act=com.android.camera.action.CROP typ=image/vnd.wap.wbmp } while setting preferred com.google.android.apps.plus/.editor.PlusCropActivity
+10-31 21:14:33.208   420   420 I cameraserver: Waiting for sensor privacy service
+10-31 21:14:33.488   420   420 I HidlServiceManagement: Registered android.frameworks.cameraservice.service@2.1::ICameraService/default (start delay of 5681ms)
+10-31 21:14:33.488   420   420 I CameraService: CameraService pinged cameraservice proxy
+10-31 21:14:33.489   420   420 I cameraserver: ServiceManager: 0xf1500db0 done instantiate
+10-31 21:14:35.411   494   494 I ConditionProviders:  Allowing condition provider com.google.android.GoogleCamera
+10-31 21:14:35.512   494   494 I SystemServerTiming: StartCameraServiceProxy
+10-31 21:14:35.512   494   494 I SystemServiceManager: Starting com.android.server.camera.CameraServiceProxy
+10-31 21:14:35.515   494   494 D SystemServerTiming: StartCameraServiceProxy took to complete: 2ms
+10-31 21:14:35.548   494   494 I SystemServerTiming: OnBootPhase_480_com.android.server.camera.CameraServiceProxy
+10-31 21:14:35.548   494   494 D SystemServerTiming: OnBootPhase_480_com.android.server.camera.CameraServiceProxy took to complete: 0ms
+10-31 21:14:35.598   494   494 I SystemServerTiming: OnBootPhase_500_com.android.server.camera.CameraServiceProxy
+10-31 21:14:35.598   494   494 D SystemServerTiming: OnBootPhase_500_com.android.server.camera.CameraServiceProxy took to complete: 0ms
+10-31 21:14:35.813   494   494 I SystemServerTiming: OnBootPhase_520_com.android.server.camera.CameraServiceProxy
+10-31 21:14:35.813   494   494 D SystemServerTiming: OnBootPhase_520_com.android.server.camera.CameraServiceProxy took to complete: 0ms
+10-31 21:14:35.835   494   494 I SystemServerTiming: OnBootPhase_550_com.android.server.camera.CameraServiceProxy
+10-31 21:14:35.835   494   494 D SystemServerTiming: OnBootPhase_550_com.android.server.camera.CameraServiceProxy took to complete: 0ms
+10-31 21:14:36.308   494   494 I SystemServerTiming: OnBootPhase_600_com.android.server.camera.CameraServiceProxy
+10-31 21:14:36.308   494   494 D SystemServerTiming: OnBootPhase_600_com.android.server.camera.CameraServiceProxy took to complete: 0ms
+10-31 21:14:36.375   494   494 V StorageManagerService: Package com.android.camera2 does not have legacy storage
+10-31 21:14:36.680   494   494 I SystemServerTiming: ssm.onStartUser-0_com.android.server.camera.CameraServiceProxy
+10-31 21:14:36.684   494   494 D SystemServerTiming: ssm.onStartUser-0_com.android.server.camera.CameraServiceProxy took to complete: 5ms
+10-31 21:14:37.030   709   709 I CameraManagerGlobal: Connecting to camera service
+10-31 21:14:39.370   494   529 I ActivityManagerTiming: OnBootPhase_1000_com.android.server.camera.CameraServiceProxy
+10-31 21:14:39.370   494   529 D ActivityManagerTiming: OnBootPhase_1000_com.android.server.camera.CameraServiceProxy took to complete: 0ms
+10-31 21:14:40.787   494   535 I SystemServerTimingAsync: ssm.onUnlockingUser-0_com.android.server.camera.CameraServiceProxy
+10-31 21:14:40.787   494   535 D SystemServerTimingAsync: ssm.onUnlockingUser-0_com.android.server.camera.CameraServiceProxy took to complete: 0ms
+10-31 21:14:43.560   914   963 E AutoInstalls: Favorite not found: com.google.android.GoogleCamera/com.android.camera.CameraLauncher
+10-31 21:14:45.534   494  1979 W ActivityManager: Foreground service started from background can not have location/camera/microphone access: service com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.dataservice.superpacks.SuperpacksForegroundTaskService
+10-31 21:14:45.624   420   895 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10147 pid=1968
+10-31 21:14:45.629   420   895 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10147 pid=1968
+10-31 21:14:45.633   420   895 I chatty  : uid=1047(cameraserver) Binder:420_3 identical 1 line
+10-31 21:14:45.633   420   895 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10147 pid=1968
+10-31 21:14:47.140   494   552 I PackageDexOptimizer: Running dexopt (dexoptNeeded=1) on: /data/app/~~YzfKn0snq1AHQ4N9nGW6zQ==/com.ipsco.vcamagent-oNHd2pY5b5bLto5Jk3w4kQ==/base.apk pkg=com.ipsco.vcamagent isa=x86_64 dexoptFlags=boot_complete,profile_guided,public,enable_hidden_api_checks targetFilter=speed-profile oatDir=/data/app/~~YzfKn0snq1AHQ4N9nGW6zQ==/com.ipsco.vcamagent-oNHd2pY5b5bLto5Jk3w4kQ==/oat classLoaderContext=PCL[]{}
+10-31 21:14:47.141   424   424 V installd: DexInv: --- BEGIN '/data/app/~~YzfKn0snq1AHQ4N9nGW6zQ==/com.ipsco.vcamagent-oNHd2pY5b5bLto5Jk3w4kQ==/base.apk' ---
+10-31 21:14:48.027  2763  2763 I dex2oat32: /apex/com.android.art/bin/dex2oat32 --input-vdex-fd=-1 --output-vdex-fd=9 --updatable-bcp-packages-file=/system/etc/updatable-bcp-packages.txt --resolve-startup-const-strings=true --max-image-block-size=524288 --compiler-filter=speed-profile --classpath-dir=/data/app/~~YzfKn0snq1AHQ4N9nGW6zQ==/com.ipsco.vcamagent-oNHd2pY5b5bLto5Jk3w4kQ== --class-loader-context=PCL[]{} --generate-mini-debug-info --compact-dex-level=none --compilation-reason=install
+10-31 21:14:49.686  1902  2521 E ACS.ResponseHandler: #onFatalError: com.google.android.apps.gsa.shared.speech.b.o: errorCode: 13, engine: 2
+10-31 21:14:49.686  1902  2521 E ACS.ResponseHandler: com.google.android.apps.gsa.shared.util.b.e: ACS.ResponseHandler: #onFatalError: com.google.android.apps.gsa.shared.speech.b.o: errorCode: 13, engine: 2
+10-31 21:14:49.895   494   535 I SystemServerTimingAsync: ssm.onUnlockedUser-0_com.android.server.camera.CameraServiceProxy
+10-31 21:14:49.895   494   535 D SystemServerTimingAsync: ssm.onUnlockedUser-0_com.android.server.camera.CameraServiceProxy took to complete: 0ms
+10-31 21:14:52.001   494   536 I ActivityManager: Start proc 3353:com.android.camera2/u0a134 for broadcast {com.android.camera2/com.android.camera.SetActivitiesCameraReceiver}
+10-31 21:14:52.026  3353  3353 W android.camera: Unexpected CPU variant for X86 using defaults: x86_64
+10-31 21:14:52.055  3353  3353 I android.camera: The ClassLoaderContext is a special shared library.
+10-31 21:14:52.057  3353  3353 I android.camera: The ClassLoaderContext is a special shared library.
+10-31 21:14:52.057  3353  3353 D nativeloader: classloader namespace configured for unbundled product apk. library_path=/product/app/Camera2/lib/x86_64:/product/app/Camera2/Camera2.apk!/lib/x86_64:/product/lib64:/system/product/lib64
+10-31 21:14:52.074  3353  3353 V CAM_Profiler: [  0.000ms][ui] GUARD: CameraApp onCreate() - START
+10-31 21:14:52.134  3353  3353 I CAM_Profiler: [ 60.578ms][ui] GUARD: CameraApp onCreate() - [60.578ms] initializeTimeOfFirstRun
+10-31 21:14:52.134  3353  3353 V CAM_Profiler: [ 60.633ms][ui] GUARD: CameraApp onCreate() - [ 0.056ms] UsageStatistics.initialize
+10-31 21:14:52.134  3353  3353 V CAM_Profiler: [ 61.080ms][ui] GUARD: CameraApp onCreate() - [ 0.447ms] clearNotifications
+10-31 21:14:52.134  3353  3353 I CAM_Profiler: [ 61.080ms][ui] GUARD: CameraApp onCreate() - STOP
+10-31 21:14:52.135  3353  3353 W CAM_Log : Tag SetActivitiesCameraReceiver is 8 chars longer than limit.
+10-31 21:14:52.136   420   710 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10134 pid=3353
+10-31 21:14:52.136  3353  3353 I CAM_SetActivitiesCamera: number of camera: 1
+10-31 21:14:52.136  3353  3353 I CAM_SetActivitiesCamera: component state is 1
+10-31 21:14:53.255   420   710 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10122 pid=1363
+10-31 21:14:53.256   420   710 I chatty  : uid=1047(cameraserver) Binder:420_2 identical 2 lines
+10-31 21:14:53.256   420   710 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10122 pid=1363
+10-31 21:14:54.093  2763  2763 W dex2oat32: Verification of void androidx.camera.core.UseCaseGroup$Builder.<init>() took 219.308ms (82.08 bytecodes/s) (960B approximate peak alloc)
+10-31 21:14:54.304  2763  3480 W dex2oat32: Verification of java.util.List androidx.camera.core.internal.SupportedOutputSizesSorterLegacy.sortSupportedOutputSizes(java.util.List, androidx.camera.core.impl.UseCaseConfig) took 134.977ms (2304.09 bytecodes/s) (5944B approximate peak alloc)
+10-31 21:14:55.478  2763  2763 W dex2oat32: Verification of void com.ipsco.vcamagent.MainActivity.applyExtras(android.content.Intent) took 121.292ms (3017.49 bytecodes/s) (5408B approximate peak alloc)
+10-31 21:14:55.649  2763  2763 W dex2oat32: Verification of void com.ipsco.vcamagent.SettingsActivity.build() took 147.621ms (18486.49 bytecodes/s) (50504B approximate peak alloc)
+10-31 21:14:56.342  2763  2763 W dex2oat32: Verification of java.lang.Object androidx.camera.camera2.internal.Camera2CapturePipeline$TorchTask.lambda$preCapture$0$androidx-camera-camera2-internal-Camera2CapturePipeline$TorchTask(androidx.concurrent.futures.CallbackToFutureAdapter$Completer) took 101.015ms (128.69 bytecodes/s) (1080B approximate peak alloc)
+10-31 21:14:56.495  2763  2763 W dex2oat32: Verification of java.lang.Object androidx.camera.camera2.internal.TorchControl$$ExternalSyntheticLambda0.attachCompleter(androidx.concurrent.futures.CallbackToFutureAdapter$Completer) took 148.727ms (60.51 bytecodes/s) (936B approximate peak alloc)
+10-31 21:14:56.563  2763  3480 W dex2oat32: Verification of androidx.camera.core.SafeCloseImageReaderProxy androidx.camera.core.ImageAnalysisAbstractAnalyzer.createImageReaderProxy(int, int, int, int, int) took 116.663ms (265.72 bytecodes/s) (1504B approximate peak alloc)
+10-31 21:14:56.601  2763  2763 W dex2oat32: Verification of androidx.camera.core.impl.SessionConfig$Builder androidx.camera.core.Preview.createPipeline(java.lang.String, androidx.camera.core.impl.PreviewConfig, androidx.camera.core.impl.StreamSpec) took 105.092ms (2131.46 bytecodes/s) (5296B approximate peak alloc)
+10-31 21:14:57.034  2763  2763 W dex2oat32: Verification of void com.ipsco.vcamagent.CameraStreamer.onConnected$lambda$1(com.ipsco.vcamagent.CameraStreamer, com.google.common.util.concurrent.ListenableFuture) took 123.451ms (1539.06 bytecodes/s) (4664B approximate peak alloc)
+10-31 21:14:58.759  2763  2763 W dex2oat32: Compilation of void androidx.camera.core.FocusMeteringAction$Builder.<init>(androidx.camera.core.FocusMeteringAction) took 188.717ms
+10-31 21:14:59.901   424   424 V installd: DexInv: --- END '/data/app/~~YzfKn0snq1AHQ4N9nGW6zQ==/com.ipsco.vcamagent-oNHd2pY5b5bLto5Jk3w4kQ==/base.apk' (success) ---
+10-31 21:15:00.391   691   691 D AvrcpMediaPlayerList: Name of package changed: com.android.camera2
+10-31 21:15:00.433   494  1732 I ActivityManager: Killing 3353:com.android.camera2/u0a134 (adj 975): empty #17
+10-31 21:15:00.649   494  1699 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.SplashActivity} from uid 2000
+10-31 21:15:00.825   494   536 I ActivityManager: Start proc 4221:com.ipsco.vcamagent/u0a167 for pre-top-activity {com.ipsco.vcamagent/com.ipsco.vcamagent.SplashActivity}
+10-31 21:15:00.842  1621  1621 I MediaProvider: Invalidating LocalCallingIdentity cache for package com.ipsco.vcamagent. Reason: package android.intent.action.PACKAGE_ADDED
+10-31 21:15:00.844  1632  1632 I GsaVoiceInteractionSrv: O received Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) }
+10-31 21:15:00.854   691   691 D AvrcpMediaPlayerList: Name of package changed: com.ipsco.vcamagent
+10-31 21:15:00.868  1144  4110 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package:com.android.camera2 flg=0x45000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: FATAL EXCEPTION: main
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: Process: com.ipsco.vcamagent, PID: 4221
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.ipsco.vcamagent/com.ipsco.vcamagent.SplashActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at com.ipsco.vcamagent.Ui.styleWindow(Theme.kt:81)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at com.ipsco.vcamagent.SplashActivity.onCreate(SplashActivity.kt:27)
+10-31 21:15:00.983   494  1732 W ActivityTaskManager:   Force finishing activity com.ipsco.vcamagent/.SplashActivity
+10-31 21:15:01.291   494  1157 I ActivityManager: Process com.ipsco.vcamagent (pid 4221) has died: prcp TOP 
+10-31 21:15:01.485   494   529 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{dae4d8f u0 com.ipsco.vcamagent/.SplashActivity t-1 f}}
+10-31 21:15:02.390  1144  2144 W GCM     : Unexpected forwarded intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) }
+10-31 21:15:02.393  1144  2144 W GCM     : Unexpected forwarded intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) }
+10-31 21:15:02.404  1363  4107 I ChromeSync: [Sync,SyncIntentOperation] Handling the intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 cmp=com.google.android.gms/.chimera.GmsIntentOperationService (has extras) }.
+10-31 21:15:02.411  1363  4204 I FontsPackageChangeOp: Package com.ipsco.vcamagent has no metadata
+10-31 21:15:02.424  1363  4107 I ChromeSync: [Persistence,AffiliationManager] One of affiliation or grouping data for android://sor3eH2QJS6PbIKZFt3KxkHBM--ConZjMlzniifm-JtduS9XFITj1GadA-H59qHt_RhwuP-yCCH0zTEcn2GkQA==@com.ipsco.vcamagent/ was not found. Marking affiliation data as stale...
+10-31 21:15:03.810   494  2268 W ActivityManager: Foreground service started from background can not have location/camera/microphone access: service com.google.android.videos/com.google.android.apps.play.movies.common.service.pinning.TransferService
+10-31 21:15:04.255   420   579 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10147 pid=4557
+10-31 21:15:04.256   420   579 I chatty  : uid=1047(cameraserver) Binder:420_1 identical 2 lines
+10-31 21:15:04.256   420   579 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10147 pid=4557
+10-31 21:15:07.136   494  1280 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.MainActivity (has extras)} from uid 2000
+10-31 21:15:07.179   494   536 I ActivityManager: Start proc 4953:com.ipsco.vcamagent/u0a167 for pre-top-activity {com.ipsco.vcamagent/com.ipsco.vcamagent.MainActivity}
+10-31 21:15:07.237  4953  4953 W Bundle  : 	at com.ipsco.vcamagent.MainActivity.applyExtras(MainActivity.kt:108)
+10-31 21:15:07.237  4953  4953 W Bundle  : 	at com.ipsco.vcamagent.MainActivity.onCreate(MainActivity.kt:65)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: FATAL EXCEPTION: main
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: Process: com.ipsco.vcamagent, PID: 4953
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.ipsco.vcamagent/com.ipsco.vcamagent.MainActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at com.ipsco.vcamagent.Ui.styleWindow(Theme.kt:81)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.build(MainActivity.kt:114)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.onCreate(MainActivity.kt:66)
+10-31 21:15:07.242   494   634 W ActivityTaskManager:   Force finishing activity com.ipsco.vcamagent/.MainActivity
+10-31 21:15:07.743   494   529 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{1c3d7ca u0 com.ipsco.vcamagent/.MainActivity t10 f}}
+10-31 21:15:07.749   494   529 W ActivityTaskManager: Activity pause timeout for ActivityRecord{1c3d7ca u0 com.ipsco.vcamagent/.MainActivity t10 f}}
+10-31 21:15:08.394   420   579 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10122 pid=1363
+10-31 21:15:08.395   420   579 I chatty  : uid=1047(cameraserver) Binder:420_1 identical 2 lines
+10-31 21:15:08.395   420   579 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10122 pid=1363
+10-31 21:15:08.860   494  1740 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.packageinstaller/com.android.packageinstaller.PackageInstalledReceiver
+10-31 21:15:08.860   494   535 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.gms/.games.chimera.GamesSystemBroadcastReceiverProxy
+10-31 21:15:08.860   494   535 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.gms/.gass.chimera.PackageChangeBroadcastReceiver
+10-31 21:15:08.860   494   535 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
+10-31 21:15:08.860   494   535 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.googlequicksearchbox/com.google.android.apps.gsa.googlequicksearchbox.GelStubAppWatcher
+10-31 21:15:08.860   494   535 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.ims/.receivers.RcsAutoStartReceiver
+10-31 21:15:08.948   420   420 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10122 pid=1363
+10-31 21:15:08.948   420   420 I chatty  : uid=1047(cameraserver) /system/bin/cameraserver identical 2 lines
+10-31 21:15:08.949   420   420 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10122 pid=1363
+10-31 21:15:16.523   420  4218 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10122 pid=1363
+10-31 21:15:16.523   420  4218 I chatty  : uid=1047(cameraserver) Binder:420_6 identical 2 lines
+10-31 21:15:16.523   420  4218 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10122 pid=1363
+10-31 21:15:17.919   494   529 W ActivityTaskManager: Activity destroy timeout for ActivityRecord{1c3d7ca u0 com.ipsco.vcamagent/.MainActivity t10 f}}
+10-31 21:17:09.163   494  2744 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.MainActivity (has extras)} from uid 2000
+10-31 21:17:19.341   494  1732 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.SettingsActivity} from uid 2000
+10-31 21:17:19.843   494   529 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{4796bd4 u0 com.ipsco.vcamagent/.MainActivity t11}
+10-31 21:17:19.843   494   529 W ActivityTaskManager: Activity pause timeout for ActivityRecord{4796bd4 u0 com.ipsco.vcamagent/.MainActivity t11}
+10-31 21:17:21.590   494   634 W WindowManager:   Force finishing activity com.ipsco.vcamagent/.SettingsActivity
+10-31 21:17:21.592   494   634 W WindowManager:   Force finishing activity com.ipsco.vcamagent/.MainActivity
+10-31 21:17:21.596   494   634 I ActivityManager: Killing 4953:com.ipsco.vcamagent/u0a167 (adj 0): crash
+10-31 21:17:23.054   494  1732 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.MainActivity (has extras)} from uid 2000
+10-31 21:17:23.085   494   536 I ActivityManager: Start proc 6035:com.ipsco.vcamagent/u0a167 for pre-top-activity {com.ipsco.vcamagent/com.ipsco.vcamagent.MainActivity}
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: FATAL EXCEPTION: main
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: Process: com.ipsco.vcamagent, PID: 6035
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.ipsco.vcamagent/com.ipsco.vcamagent.MainActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at com.ipsco.vcamagent.Ui.styleWindow(Theme.kt:81)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.build(MainActivity.kt:114)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.onCreate(MainActivity.kt:66)
+10-31 21:17:23.142   494  1857 W ActivityTaskManager:   Force finishing activity com.ipsco.vcamagent/.MainActivity
+10-31 21:17:23.153   494  2268 I ActivityManager: Process com.ipsco.vcamagent (pid 6035) has died: prcp TOP 
+10-31 21:17:23.642   494   529 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{e811075 u0 com.ipsco.vcamagent/.MainActivity t-1 f}}
+10-31 21:17:25.178   494  1280 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.MainActivity (has extras)} from uid 2000
+10-31 21:17:25.212   494   536 I ActivityManager: Start proc 6078:com.ipsco.vcamagent/u0a167 for pre-top-activity {com.ipsco.vcamagent/com.ipsco.vcamagent.MainActivity}
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: FATAL EXCEPTION: main
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: Process: com.ipsco.vcamagent, PID: 6078
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.ipsco.vcamagent/com.ipsco.vcamagent.MainActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at com.ipsco.vcamagent.Ui.styleWindow(Theme.kt:81)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.build(MainActivity.kt:114)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.onCreate(MainActivity.kt:66)
+10-31 21:17:25.248   494  1118 W ActivityTaskManager:   Force finishing activity com.ipsco.vcamagent/.MainActivity
+10-31 21:17:25.748   494   529 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{2b4f4be u0 com.ipsco.vcamagent/.MainActivity t13 f}}
+10-31 21:17:25.752   494   529 W ActivityTaskManager: Activity pause timeout for ActivityRecord{2b4f4be u0 com.ipsco.vcamagent/.MainActivity t13 f}}
+10-31 21:17:27.312   494   990 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.MainActivity (has extras)} from uid 2000
+10-31 21:17:29.419   494  1857 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.MainActivity (has extras)} from uid 2000
+10-31 21:17:31.513   494  1280 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.MainActivity (has extras)} from uid 2000
+10-31 21:17:33.603   494  1280 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.MainActivity (has extras)} from uid 2000
+10-31 21:17:34.623   494  1280 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.ipsco.vcamagent/.SettingsActivity} from uid 2000
+10-31 21:17:35.125   494   529 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{5f71e1 u0 com.ipsco.vcamagent/.MainActivity t14}
+10-31 21:17:35.125   494   529 W ActivityTaskManager: Activity pause timeout for ActivityRecord{5f71e1 u0 com.ipsco.vcamagent/.MainActivity t14}
+10-31 21:17:35.777   494   529 W ActivityTaskManager: Activity destroy timeout for ActivityRecord{2b4f4be u0 com.ipsco.vcamagent/.MainActivity t13 f}}
+10-31 21:17:36.802   494  1118 W WindowManager:   Force finishing activity com.ipsco.vcamagent/.SettingsActivity
+10-31 21:17:36.804   494  1118 W WindowManager:   Force finishing activity com.ipsco.vcamagent/.MainActivity
+10-31 21:17:36.808   494  1118 I ActivityManager: Killing 6078:com.ipsco.vcamagent/u0a167 (adj 0): crash
