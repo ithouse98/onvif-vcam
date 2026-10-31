@@ -1,0 +1,161 @@
+[Authentication - Core 5.9]
+  PASS  PRE_AUTH GetSystemDateAndTime without credentials -> 200
+  PASS  PRE_AUTH GetCapabilities without credentials -> 200
+  PASS  protected op without credentials -> 401 + Digest challenge
+  PASS  bad WS-UsernameToken -> 400 env:Sender ter:NotAuthorized
+  PASS  valid WS-UsernameToken digest -> 200
+  PASS  HTTP Digest (RFC 2617) -> 200 GetUsers
+  PASS  access policy: User level cannot WRITE_SYSTEM
+
+[Faults - Core 5.8.2]
+  PASS  unsupported op -> env:Receiver ter:ActionNotSupported
+  PASS  unknown profile -> ter:InvalidArgVal/ter:NoProfile
+  PASS  remove fixed scope -> ter:OperationProhibited/ter:FixedScope
+  PASS  delete fixed profile -> ter:DeletionOfFixedProfile
+  PASS  invalid resolution -> ter:ConfigModify
+  PASS  malformed XML -> 400 ter:WellFormed
+
+[Media2 - ver20 / H.265]
+  PASS  Media2 GetServiceCapabilities
+  PASS  Media2 GetProfiles Type=All has configurations
+  PASS  Media2 GetProfiles without Type omits configurations
+  PASS  Media2 encoder options list H264/H265/JPEG
+  PASS  Media2 GetStreamUri RtspUnicast
+  PASS  Media2 GetVideoEncoderInstances
+  PASS  Media2 SetVideoEncoderConfiguration -> H265 1280x720
+  PASS  RTSP H.265 stream decodes (RFC 7798)
+
+[WS-Discovery - Core 7]
+  PASS  Probe(dn:NetworkVideoTransmitter) -> ProbeMatch
+  PASS  ProbeMatch has XAddrs, urn:uuid, Profile/Streaming scope
+  PASS  Probe(tds:Device) -> ProbeMatch
+  PASS  Probe scope onvif://www.onvif.org/Profile matches (rfc3986 prefix)
+  PASS  Probe scope onvif://www.onvif.org/hardware/Virt does NOT match
+  PASS  Probe for NetworkVideoDisplay does NOT match
+
+[Events - push (WS-BaseNotification)]
+  PASS  Subscribe -> SubscriptionReference
+  PASS  Notify received (Initialized property events)
+  PASS  motion trigger -> Notify with State=true Changed
+  PASS  Unsubscribe push subscription
+
+[RTSP - Streaming spec 5.2]
+  PASS  OPTIONS lists required methods
+  PASS  DESCRIBE without credentials -> 401 Digest
+  PASS  Require backchannel -> 551 Option not supported
+  PASS  wrong RTSP password is rejected
+  PASS  SDP: H264 packetization-mode=1 + sprop-parameter-sets
+  PASS  RTP multicast stream decodes
+  PASS  RTSP over HTTP tunnel on RTSP port
+  PASS  RTSP over HTTP tunnel on ONVIF HTTP port
+
+[Snapshot]
+  PASS  snapshot is a JPEG
+
+40/40 checks passed
+xaddrs: {'device': 'http://127.0.0.1:8080/onvif/device_service', 'media': 'http://127.0.0.1:8080/onvif/media2_service', 'events': 'http://127.0.0.1:8080/onvif/events_service'}
+
+[Device service - Profile S 7.1-7.6]
+  PASS  GetSystemDateAndTime
+  PASS  GetCapabilities
+  PASS  GetServices(IncludeCapability)
+        services: ['device', 'media', 'media', 'events']
+  PASS  GetServiceCapabilities
+  PASS  GetWsdlUrl
+  PASS  GetDeviceInformation
+        ONVIF-VCam / VirtualCamera-S / fw 1.0.0 / sn 1179F2E1E4A950F7
+  PASS  GetScopes
+  PASS  AddScopes
+  PASS  RemoveScopes
+  PASS  GetDiscoveryMode
+  PASS  SetDiscoveryMode
+  PASS  GetHostname
+  PASS  SetHostname
+  PASS  GetDNS
+  PASS  GetNTP
+  PASS  GetNetworkInterfaces
+  PASS  GetNetworkProtocols
+  PASS  GetNetworkDefaultGateway
+  PASS  GetUsers
+  PASS  CreateUsers
+  PASS  SetUser
+  PASS  DeleteUsers
+  PASS  GetRelayOutputs
+
+[Media service ver10 - Profile S 7.8-7.13]
+  PASS  GetProfiles
+        Profile_1  MainStream  H264 1920x1080 @25 4096kbps
+        Profile_2  SubStream   H264 640x360 @15 512kbps
+        Profile_3  MJPEG       JPEG 640x352 @10 768kbps
+  PASS  GetProfile
+  PASS  GetStreamUri RTP-Unicast/UDP
+  PASS  GetStreamUri RTP-Unicast/TCP
+  PASS  GetStreamUri RTP-Unicast/RTSP
+  PASS  GetStreamUri RTP-Unicast/HTTP
+         rtsp://127.0.0.1:8554/cam1/Profile_1
+  PASS  GetStreamUri RTP-Multicast/UDP
+  PASS  GetSnapshotUri
+  PASS  GetVideoSources
+  PASS  GetVideoSourceConfigurations
+  PASS  GetVideoSourceConfiguration
+  PASS  GetVideoSourceConfigurationOptions
+  PASS  GetCompatibleVideoSourceConfigurations
+  PASS  GetVideoEncoderConfigurations
+  PASS  GetVideoEncoderConfiguration
+  PASS  GetVideoEncoderConfigurationOptions
+        JPEG option declared: True | H264 profiles: ['Baseline', 'Main', 'High']
+  PASS  GetCompatibleVideoEncoderConfigurations
+  PASS  GetGuaranteedNumberOfVideoEncoderInstances
+  PASS  SetVideoEncoderConfiguration (sub -> 10fps 400kbps)
+        read back: 10 fps, 400 kbps
+  PASS  CreateProfile
+  PASS  AddVideoSourceConfiguration
+  PASS  AddVideoEncoderConfiguration
+  PASS  AddMetadataConfiguration
+  PASS  GetMetadataConfigurations
+  PASS  GetMetadataConfigurationOptions
+  PASS  RemoveMetadataConfiguration
+  PASS  DeleteProfile
+  PASS  SetSynchronizationPoint
+  PASS  GetAudioSources (empty)
+
+[Event service - Profile S 7.7]
+  PASS  GetEventProperties
+  PASS  Events GetServiceCapabilities
+  PASS  CreatePullPointSubscription (PullPointManager)
+  PASS  PullMessages
+        tns1:VideoSource/MotionAlarm                 Initialized  {'State': 'false'}
+        tns1:RuleEngine/CellMotionDetector/Motion    Initialized  {'IsMotion': 'false'}
+  PASS  SetSynchronizationPoint (events)
+  PASS  Renew
+  PASS  Unsubscribe
+
+59 passed, 0 failed
+  PASS  panel requires login (401)
+  PASS  panel page served
+  PASS  GET /api/state
+  PASS  GET /api/videos
+  PASS  upload video
+  PASS  upload rejects bad file name
+  PASS  add rejects empty source
+  PASS  add rejects unknown codec
+  PASS  add rejects missing file (not saved)
+  PASS  add camera x2
+  PASS  new cameras running with unique ports
+  PASS  new camera streams 1280x720
+  PASS  edit camera
+  PASS  edit keeps UUID and port (VMS sees the same device)
+  PASS  edited camera streams H.265 960x540
+  PASS  disable closes the camera's ONVIF port
+  PASS  enable reopens it
+  PASS  motion trigger
+  PASS  snapshot JPEG
+  PASS  set advertise IP
+  PASS  clone x3: running, distinct ports and UUIDs
+  PASS  every clone answers ONVIF on its own port
+  PASS  3 clone viewers share one encoder
+  PASS  all clone streams decode
+  PASS  delete cameras
+  PASS  logs endpoint
+
+26/26 panel checks passed
