@@ -7,7 +7,7 @@
 Virtual ONVIF Profile S / T camera with WS-Discovery, RTSP streaming, events and a web control panel. Fully offline and portable.</p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-1.3.0-0f6fb3">
+  <img alt="version" src="https://img.shields.io/badge/version-1.3.1-0f6fb3">
   <img alt="ONVIF" src="https://img.shields.io/badge/ONVIF-Profile%20S%20%2F%20T-38bdf8">
   <img alt="platform" src="https://img.shields.io/badge/Windows%20x64-portable%20%26%20offline-2fbf71">
   <img alt="GStreamer" src="https://img.shields.io/badge/engine-GStreamer-e8202a">
@@ -94,7 +94,7 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 
 ## Download & run (Windows)
 
-1. Download **`ONVIF-VCam-1.3.0-Portable-win64.zip`** from [Releases](../../releases) and extract it
+1. Download **`ONVIF-VCam-1.3.1-Portable-win64.zip`** from [Releases](../../releases) and extract it
    (e.g. to `C:\ONVIF-VCam`).
 2. Run **`FIREWALL.bat`** once as administrator.
 3. Run **`START.bat`**. The control panel opens at `http://127.0.0.1:8000` (login `admin` / `admin`).
@@ -107,11 +107,14 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 | `START-DEBUG.bat` | run with a console and verbose log |
 | `SERVICE-INSTALL.bat` / `SERVICE-UNINSTALL.bat` | install / remove the Windows service + tray icon (as administrator) |
 | `TRAY.bat` | start the tray icon by hand |
-| `AGENT-INSTALL.bat` / `AGENT-UNINSTALL.bat` | **on another PC:** install / remove the screen agent service |
+| `AGENT-INSTALL.bat` / `AGENT-UNINSTALL.bat` | **on another PC:** install / remove the screen agent service (or use the separate agent setup) |
 | `AGENT-RUN.bat` | run the agent in a window (quick test, no service) |
 | `AUTOSTART-ON.bat` / `AUTOSTART-OFF.bat` | start at user logon (alternative to the service) |
 | `TEST.bat` | automated test suites (125 checks) |
 | `SHELL.bat` | prompt with python / ffmpeg / ffprobe / ffplay / gst-launch-1.0 / gst-device-monitor-1.0 |
+
+**Screen agent for other PCs:** `ONVIF-VCam-Agent-Setup-<version>.exe` on the same release page
+(see [Screens of other PCs](#screens-of-other-pcs-agent)).
 
 The Windows launchers live in [`windows/`](windows). [`scripts/build_portable.sh`](scripts/build_portable.sh)
 rebuilds the bundle from conda-forge and PyPI.
@@ -294,8 +297,11 @@ start, restart on failure) and a tray icon for every user:
 
 ![Agents tab](docs/images/agents.jpg)
 
-1. Copy the same folder to the other PC and run **`AGENT-INSTALL.bat`** as administrator. Enter the
-   server IP, or press Enter to find it by broadcast. If a key is set in the panel, enter it too.
+1. On the other PC run **`ONVIF-VCam-Agent-Setup-<version>.exe`** (from [Releases](../../releases),
+   45 MB). The setup installs into `C:\ProgramData\ONVIF-VCam-Agent` and asks for the server IP
+   (empty = find it by broadcast), port and agent key. It then registers and starts the service, and
+   adds an uninstall entry under Windows "Installed apps". Alternatively copy the portable folder and
+   run `AGENT-INSTALL.bat`.
 2. The agent runs as a service, starts with Windows, and appears in the panel's **Agents** tab with
    its monitors.
 3. Click **+ monitor N** or **+ all monitors**: a new ONVIF camera streams that screen. Or pick
@@ -310,6 +316,10 @@ Notes:
   the server transcodes it to every profile the VMS asks for.
 * The capture runs while a user is logged in to the other PC. When the agent goes offline, its
   cameras retry and resume by themselves.
+* Silent install for many PCs (GPO, PDQ, SCCM…):
+  `ONVIF-VCam-Agent-Setup-<version>.exe /S /SERVER=192.168.1.10 /KEY=secret [/PORT=8600] [/NAME=PC-01]`;
+  silent uninstall: `"C:\ProgramData\ONVIF-VCam-Agent\uninstall.exe" /S`.
+* Agent log: `C:\ProgramData\ONVIF-VCam-Agent\logs\vcam-agent.log` (Start menu → ONVIF VCam Agent).
 * Linux / macOS agent: `python -m vcam.agent --server HOST` (X11 screen).
 
 ## Configuration file

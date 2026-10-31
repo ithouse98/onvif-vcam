@@ -138,7 +138,10 @@ class AgentService(_Base):
     def SvcDoRun(self):
         prepare_env()
         from vcam import winsession
-        log = os.path.join(ROOT, "vcam-agent.log")
+        # installer layout: a logs folder writable by users (the agent runs as the logged-in user,
+        # the program files stay admin-only because SYSTEM runs them)
+        logs = os.path.join(ROOT, "logs")
+        log = os.path.join(logs if os.path.isdir(logs) else ROOT, "vcam-agent.log")
         cmd = [python_exe(), "-m", "vcam.agent", "--config", os.path.join(ROOT, "agent.json"),
                "--log-file", log]
         env = {"PYTHONPATH": APP, "PYTHONUTF8": "1", "PYTHONNOUSERSITE": "1",

@@ -25,7 +25,7 @@ MAMBA_ROOT_PREFIX=$PWD/dist/tools/root dist/tools/bin/micromamba create -y --pla
     adaptivedemux2 d3d11 d3d winscreencap mediafoundation winks directshow pbtypes autodetect "
   for f in Library/lib/gstreamer-1.0/*; do
     n=$(basename "$f"); n=${n#gst}; n=${n%.*}
-    case "$keep" in *" $n "*) [[ $f == *.dll ]] || rm -rf "$f";; *) rm -rf "$f";; esac
+    case " $(echo $keep) " in *" $n "*) [[ $f == *.dll ]] || rm -rf "$f";; *) rm -rf "$f";; esac
   done
   rm -rf Library/libexec/gstreamer-1.0/gst-hotdoc-plugins-scanner.exe Library/libexec/gstreamer-1.0/gst-plugins-doc-cache-generator )
 # test client (onvif-zeep-async) as Windows wheels, unpacked into site-packages

@@ -10,8 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt-get update -q && sudo apt-get install -yq ffmpeg zip bzip2
+      - run: sudo apt-get update -q && sudo apt-get install -yq ffmpeg zip bzip2 nsis
       - run: bash scripts/build_portable.sh
+      - run: bash scripts/build_agent_setup.sh
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -20,4 +21,4 @@ jobs:
           [[ "$TAG" == v* ]] || TAG=v$(python3 -c "import vcam;print(vcam.__version__)")
           gh release view "$TAG" >/dev/null 2>&1 || \
             gh release create "$TAG" --title "ONVIF VCam ${TAG#v}" -F .github/release-notes.md
-          gh release upload "$TAG" dist/*-Portable-win64.zip --clobber
+          gh release upload "$TAG" dist/*-Portable-win64.zip dist/ONVIF-VCam-Agent-Setup-*.exe --clobber

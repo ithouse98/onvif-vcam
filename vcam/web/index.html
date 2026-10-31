@@ -364,7 +364,8 @@ function render(){
 function renderAgents(){
   const ags = S.agents||[], hub = S.agent_hub||{}, on = ags.filter(a=>a.online).length;
   $('#agCount').textContent = ags.length ? `(${on}/${ags.length})` : '';
-  const help = `<p class="hint">برای استریم صفحه نمایش یک کامپیوتر دیگر: همین پوشه را روی آن کامپیوتر کپی کنید و <b>AGENT-INSTALL.bat</b> را با Run as administrator اجرا کنید.
+  const help = `<p class="hint">برای استریم صفحه نمایش یک کامپیوتر دیگر: <b>ONVIF-VCam-Agent-Setup.exe</b> (از صفحه Releases) را روی آن کامپیوتر نصب کنید
+    (یا همین پوشه را کپی و <b>AGENT-INSTALL.bat</b> را با Run as administrator اجرا کنید).
     ایجنت به‌صورت سرویس ویندوز اجرا می‌شود، این سرور را خودکار پیدا می‌کند (یا آدرس <span class="ltr">${esc(S.settings.primary_ip)}${hub.port&&hub.port!==8600?':'+hub.port:''}</span> را وارد کنید) و اینجا ظاهر می‌شود.
     پورت ایجنت: <span class="ltr">${hub.port||'غیرفعال'}</span> · کلید ایجنت: ${hub.key_set?'تنظیم شده ✓':'تنظیم نشده (هر ایجنتی پذیرفته می‌شود؛ در «شبکه و دسترسی» تنظیم کنید)'}</p>`;
   $('#tp-agents').innerHTML = help + (ags.length ? `<table><tr><th>وضعیت</th><th>کامپیوتر</th><th>IP</th><th>سیستم‌عامل</th><th>مانیتورها</th><th>استریم</th><th>ساخت دوربین</th><th></th></tr>
