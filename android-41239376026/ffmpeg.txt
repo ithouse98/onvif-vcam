@@ -1,0 +1,8 @@
+[rtsp @ 0x5aad5e45df80] method DESCRIBE failed: 503Service Unavailable
+[in#0 @ 0x5aad5e45dcc0] Error opening input: Server returned 5XX Server Error reply
+Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam1/Profile_1.
+Error opening input files: Server returned 5XX Server Error reply
+[rtsp @ 0x644c48f3bf80] method DESCRIBE failed: 503Service Unavailable
+[in#0 @ 0x644c48f3bcc0] Error opening input: Server returned 5XX Server Error reply
+Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam1/Profile_2.
+Error opening input files: Server returned 5XX Server Error reply
