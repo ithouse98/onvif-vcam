@@ -1,0 +1,2 @@
+2026-10-31 18:25:32 service process start: C:\vc\ONVIF-VCam-1.3.0\runtime\python.exe ['C:\\vc\\ONVIF-VCam-1.3.0\\app\\vcam\\winservice.py', '--run', 'agent']
+2026-10-31 18:26:10 service process exit
