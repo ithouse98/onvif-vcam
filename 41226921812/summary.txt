@@ -1,0 +1,37 @@
+== standalone
+panel up: True
+40/40 checks passed
+59 passed, 0 failed
+26/26 panel checks passed
+screen : 1024,768,201  
+composite_0+0 : C:\results\composite_0+0.mkv: No such file or directory  [in#0 @ 0000015A1D7E7FC0] method DESCRIBE failed: 404 (Stream Not Found) [in#0 @ 0000015A1D79D000] Error opening input: Server returned 404 Not Found Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam3/Profile_1. Error opening input files: Server returned 404 Not Found
+composite_all : C:\results\composite_all.mkv: No such file or directory  [in#0 @ 00000144A990DE00] method DESCRIBE failed: 404 (Stream Not Found) [in#0 @ 00000144A9909FC0] Error opening input: Server returned 404 Not Found Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam4/Profile_1. Error opening input files: Server returned 404 Not Found
+== sessions
+this process session: 2
+ SESSIONNAME               USERNAME                 ID  STATE   TYPE        DEVICE 
+ services                                            0  Disc                        
+>console                   runneradmin               2  Active                      
+ 31c5ce94259d4006a9e4                            65536  Listen                      
+ rdp-tcp                                         65537  Listen                      
+== service
+ONVIF VCam: installed and running
+ONVIF VCam: running
+panel up (service): False
+sc:         STATE              : 1  STOPPED 
+service_file : C:\results\service_file.mkv: No such file or directory  [tcp @ 0000016EE763F780] Connection to tcp://127.0.0.1:8554?timeout=20000000 failed: Error number -138 occurred [in#0 @ 0000016EE762E200] Error opening input: Error number -138 occurred Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam1/Profile_2. Error opening input files: Error number -138 occurred
+service_screen : C:\results\service_screen.mkv: No such file or directory  [tcp @ 000001EAF93AF240] Connection to tcp://127.0.0.1:8554?timeout=20000000 failed: Error number -138 occurred [in#0 @ 000001EAF93A0680] Error opening input: Error number -138 occurred Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam2/Profile_1. Error opening input files: Error number -138 occurred
+service snapshot failed: No connection could be made because the target machine actively refused it.
+devices via service: 
+== agent
+ONVIF VCam Screen Agent: installed and running
+ONVIF VCam Screen Agent: running
+agent did not register
+== tray
+tray alive after 8s: True
+tray_screen : C:\results\tray_screen.mkv: No such file or directory  [tcp @ 000001F76E193CC0] Connection to tcp://127.0.0.1:8554?timeout=20000000 failed: Error number -138 occurred [in#0 @ 000001F76E1DE9C0] Error opening input: Error number -138 occurred Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam2/Profile_1. Error opening input files: Error number -138 occurred
+== uninstall
+ONVIF-VCam-Agent: removed
+ONVIF VCam Screen Agent: not installed
+ONVIF-VCam: removed
+ONVIF VCam: not installed
+panel down after uninstall: True
