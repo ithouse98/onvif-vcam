@@ -1,0 +1,37 @@
+
+TimeCreated : 10/31/2026 6:33:50 PM
+Id          : 7036
+Message     : The ONVIF VCam service entered the stopped state.
+
+TimeCreated : 10/31/2026 6:33:45 PM
+Id          : 7036
+Message     : The ONVIF VCam Screen Agent service entered the stopped state.
+
+TimeCreated : 10/31/2026 6:33:06 PM
+Id          : 7036
+Message     : The ONVIF VCam Screen Agent service entered the running state.
+
+TimeCreated : 10/31/2026 6:33:06 PM
+Id          : 7045
+Message     : A service was installed in the system.
+              
+              Service Name:  ONVIF VCam Screen Agent
+              Service File Name:  "C:\vc\ONVIF-VCam-1.3.0\runtime\python.exe" "C:\vc\ONVIF-VCam-1.3.0\app\vcam\winservice.py" --run agent
+              Service Type:  user mode service
+              Service Start Type:  auto start
+              Service Account:  LocalSystem
+
+TimeCreated : 10/31/2026 6:32:40 PM
+Id          : 7036
+Message     : The ONVIF VCam service entered the running state.
+
+TimeCreated : 10/31/2026 6:32:40 PM
+Id          : 7045
+Message     : A service was installed in the system.
+              
+              Service Name:  ONVIF VCam
+              Service File Name:  "C:\vc\ONVIF-VCam-1.3.0\runtime\python.exe" "C:\vc\ONVIF-VCam-1.3.0\app\vcam\winservice.py" --run vcam
+              Service Type:  user mode service
+              Service Start Type:  auto start
+              Service Account:  LocalSystem
+
