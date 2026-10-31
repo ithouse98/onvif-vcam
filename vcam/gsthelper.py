@@ -222,9 +222,11 @@ def composite_desc(parts, srcs, fps):
     w, h = w + w % 2, h + h % 2  # I420 / x264 need even sizes
     branches, pads = [], []
     for i, ((m, x, y), src) in enumerate(zip(parts, srcs)):
-        branches.append(f"{src} ! videoconvert ! queue max-size-buffers=3 leaky=downstream ! mix.sink_{i}")
+        # no ignore-inactive-pads / leaky queues: until the first desktop frame arrives every pad
+        # is "inactive" and the compositor would end the stream (seen on real Windows)
+        branches.append(f"{src} ! videoconvert ! queue ! mix.sink_{i}")
         pads.append(f"sink_{i}::xpos={x - x0} sink_{i}::ypos={y - y0}")
-    return (" ".join(branches) + " compositor name=mix background=black ignore-inactive-pads=true "
+    return (" ".join(branches) + " compositor name=mix background=black "
             + " ".join(pads) + f" ! video/x-raw,width={w},height={h},framerate={fps}/1")
 
 
