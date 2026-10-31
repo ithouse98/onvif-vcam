@@ -78,7 +78,8 @@ class Ui(val ctx: Context, val p: Palette = Themes.current(ctx)) {
         a.window.navigationBarColor = p.bg2
         if (Build.VERSION.SDK_INT >= 30) {
             val f = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-            a.window.insetsController?.setSystemBarsAppearance(if (p.light) f else 0, f)
+            // via decorView: window.insetsController NPEs on API 30 before setContentView
+            a.window.decorView.windowInsetsController?.setSystemBarsAppearance(if (p.light) f else 0, f)
         } else if (p.light) {
             @Suppress("DEPRECATION")
             a.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
