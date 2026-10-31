@@ -1,0 +1,2 @@
+ONVIF VCam Screen Agent: installed and running
+ONVIF VCam Screen Agent: running
