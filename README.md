@@ -147,6 +147,9 @@ Stream spec: `ENC[:WxH][@FPS][:KBPS][:gop=N]` with `ENC` = `H264 | H265 | JPEG`,
 
 ### Screen and webcam cameras
 
+![A Windows desktop received over RTSP from a screen:// camera](docs/images/screen-capture.jpg)
+
+
 | Source | Meaning |
 |---|---|
 | `screen://` | primary monitor, 25 fps |
