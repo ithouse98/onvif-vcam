@@ -1,0 +1,5 @@
+21:13:23 INFO    vcam           stream engine: gstreamer
+21:13:23 INFO    vcam.rtsp      RTSP server listening on tcp/8554
+21:13:23 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.208, 172.17.0.1)
+21:13:23 INFO    vcam.agents    agent hub listening on tcp/8600 (discovery udp/8600), no agent key set
+21:13:23 INFO    vcam.ui        control panel on http://10.1.0.208:8000/
