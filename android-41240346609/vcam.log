@@ -1,0 +1,98 @@
+20:48:26 INFO    vcam           stream engine: gstreamer
+20:48:26 INFO    vcam.rtsp      RTSP server listening on tcp/8554
+20:48:26 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.71, 172.17.0.1)
+20:48:26 INFO    vcam.agents    agent hub listening on tcp/8600 (discovery udp/8600), no agent key set
+20:48:26 INFO    vcam.ui        control panel on http://10.1.0.71:8000/
+20:49:55 INFO    vcam.agents    agent Google sdk_gphone_x86_64 (127.0.0.1) connected, 2 screen(s)
+20:49:56 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:7e7a4915-d016-5193-8888-264ba2f89f22)
+20:49:56 INFO    vcam           cam1: online at port 8080 (agent://27a4a20a-df81-408b-8c0b-24b0ddef509a/0)
+20:49:59 INFO    vcam.gst       agent://27a4a20a-df81-408b-8c0b-24b0ddef509a/0: starting GStreamer source
+20:49:59 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:50:03 INFO    vcam.rtsp      SETUP 6A1E83AB5D80 cam1/Profile_1 tcp from 127.0.0.1 (rtsp)
+20:50:15 INFO    vcam.events    cam1: motion START
+20:50:15 INFO    vcam.rtsp      session 6A1E83AB5D80 cam1/Profile_1 tcp closed (connection closed) after 12s, 1246 RTP packets sent, client 127.0.0.1 [Lavf62.3.100]
+20:50:15 INFO    vcam.source    0/H264 640x360@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=768 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:50:15 INFO    vcam.rtsp      SETUP 2D5BAE8215D4 cam1/Profile_2 tcp from 127.0.0.1 (rtsp)
+20:50:22 INFO    vcam.rtsp      session 2D5BAE8215D4 cam1/Profile_2 tcp closed (connection closed) after 6s, 631 RTP packets sent, client 127.0.0.1 [Lavf62.3.100]
+20:50:25 INFO    vcam.events    cam1: motion stop
+20:50:25 INFO    vcam.agents    agent Google sdk_gphone_x86_64 (127.0.0.1) disconnected
+20:50:25 WARNING vcam.gst       agent://27a4a20a-df81-408b-8c0b-24b0ddef509a/0: GStreamer source stopped (source ended)
+20:50:25 WARNING vcam.source    0/H264 1280x720@25 encoder exited (source ended); restarting in 1s
+20:50:26 ERROR   vcam.source    0/H264 1280x720@25 source error: agent 'Google sdk_gphone_x86_64' is offline
+Traceback (most recent call last):
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 272, in _run
+    self._run_once()
+    ~~~~~~~~~~~~~~^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 296, in _run_once
+    return self._run_gst()
+           ~~~~~~~~~~~~~^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 321, in _run_gst
+    src = self.manager.gst_source(self.camera)
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 487, in gst_source
+    g = self.gst[camera.source] = gst.GstSource(self, camera.source, pos)
+                                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/gst.py", line 269, in __init__
+    self._start()
+    ~~~~~~~~~~~^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/gst.py", line 277, in _start
+    src = agents.HUB.open_stream(src)
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/agents.py", line 344, in open_stream
+    self.screens(agent_id)  # raises the offline error
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/agents.py", line 337, in screens
+    raise RuntimeError(f"agent '{name}' is offline")
+RuntimeError: agent 'Google sdk_gphone_x86_64' is offline
+20:50:26 WARNING vcam.source    0/H264 1280x720@25 encoder exited (source ended); restarting in 2s
+20:50:28 ERROR   vcam.source    0/H264 1280x720@25 source error: agent 'Google sdk_gphone_x86_64' is offline
+Traceback (most recent call last):
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 272, in _run
+    self._run_once()
+    ~~~~~~~~~~~~~~^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 296, in _run_once
+    return self._run_gst()
+           ~~~~~~~~~~~~~^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 321, in _run_gst
+    src = self.manager.gst_source(self.camera)
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 487, in gst_source
+    g = self.gst[camera.source] = gst.GstSource(self, camera.source, pos)
+                                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/gst.py", line 269, in __init__
+    self._start()
+    ~~~~~~~~~~~^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/gst.py", line 277, in _start
+    src = agents.HUB.open_stream(src)
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/agents.py", line 344, in open_stream
+    self.screens(agent_id)  # raises the offline error
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/agents.py", line 337, in screens
+    raise RuntimeError(f"agent '{name}' is offline")
+RuntimeError: agent 'Google sdk_gphone_x86_64' is offline
+20:50:28 WARNING vcam.source    0/H264 1280x720@25 encoder exited (source ended); restarting in 4s
+20:50:30 INFO    vcam.source    0/H264 1280x720@25 idle, stopping encoder
+20:50:35 WARNING vcam.source    0/H264 640x360@25 encoder exited (source ended); restarting in 1s
+20:50:36 ERROR   vcam.source    0/H264 640x360@25 source error: agent 'Google sdk_gphone_x86_64' is offline
+Traceback (most recent call last):
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 272, in _run
+    self._run_once()
+    ~~~~~~~~~~~~~~^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 296, in _run_once
+    return self._run_gst()
+           ~~~~~~~~~~~~~^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 321, in _run_gst
+    src = self.manager.gst_source(self.camera)
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/source.py", line 487, in gst_source
+    g = self.gst[camera.source] = gst.GstSource(self, camera.source, pos)
+                                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/gst.py", line 269, in __init__
+    self._start()
+    ~~~~~~~~~~~^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/gst.py", line 277, in _start
+    src = agents.HUB.open_stream(src)
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/agents.py", line 344, in open_stream
+    self.screens(agent_id)  # raises the offline error
+    ~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/runner/work/onvif-vcam/onvif-vcam/vcam/agents.py", line 337, in screens
+    raise RuntimeError(f"agent '{name}' is offline")
+RuntimeError: agent 'Google sdk_gphone_x86_64' is offline
+20:50:36 WARNING vcam.source    0/H264 640x360@25 encoder exited (source ended); restarting in 2s
+20:50:38 INFO    vcam.source    0/H264 640x360@25 idle, stopping encoder
