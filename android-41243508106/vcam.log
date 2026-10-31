@@ -1,0 +1,32 @@
+21:27:03 INFO    vcam           stream engine: gstreamer
+21:27:03 INFO    vcam.rtsp      RTSP server listening on tcp/8554
+21:27:03 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.22, 172.17.0.1)
+21:27:03 INFO    vcam.agents    agent hub listening on tcp/8600 (discovery udp/8600), no agent key set
+21:27:03 INFO    vcam.ui        control panel on http://10.1.0.22:8000/
+21:28:42 INFO    vcam.agents    agent Google sdk_gphone_x86_64 (127.0.0.1) connected, 3 screen(s)
+21:28:44 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:3991296e-7e80-5a28-83b6-aa829783e8a6)
+21:28:44 INFO    vcam           cam1: online at port 8080 (agent://f3b6b1d0-b6a2-44af-ba43-1b856d04de15/0)
+21:28:47 INFO    vcam.gst       agent://f3b6b1d0-b6a2-44af-ba43-1b856d04de15/0: starting GStreamer source
+21:28:47 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+21:28:51 INFO    vcam.rtsp      SETUP 6D1A153470F3 cam1/Profile_1 tcp from 127.0.0.1 (rtsp)
+21:29:03 INFO    vcam.events    cam1: motion START
+21:29:05 INFO    vcam.rtsp      session 6D1A153470F3 cam1/Profile_1 tcp closed (connection closed) after 13s, 1242 RTP packets sent, client 127.0.0.1 [Lavf62.3.100]
+21:29:05 INFO    vcam.source    0/H264 640x360@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=768 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+21:29:05 INFO    vcam.rtsp      SETUP 5A2EEEA50E6D cam1/Profile_2 tcp from 127.0.0.1 (rtsp)
+21:29:11 INFO    vcam.rtsp      session 5A2EEEA50E6D cam1/Profile_2 tcp closed (connection closed) after 6s, 631 RTP packets sent, client 127.0.0.1 [Lavf62.3.100]
+21:29:12 WARNING vcam.gst       agent://f3b6b1d0-b6a2-44af-ba43-1b856d04de15/0: GStreamer source stopped (source ended)
+21:29:13 WARNING vcam.source    0/H264 1280x720@25 encoder exited (source ended); restarting in 1s
+21:29:13 INFO    vcam.events    cam1: motion stop
+21:29:14 INFO    vcam.gst       agent://f3b6b1d0-b6a2-44af-ba43-1b856d04de15/0: starting GStreamer source
+21:29:14 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+21:29:21 INFO    vcam.source    0/H264 1280x720@25 idle, stopping encoder
+21:29:22 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+21:29:22 INFO    vcam.rtsp      SETUP F5B8204BFC30 cam1/Profile_1 tcp from 127.0.0.1 (rtsp)
+21:29:26 WARNING vcam.source    0/H264 640x360@25 encoder exited (source ended); restarting in 1s
+21:29:27 INFO    vcam.source    0/H264 640x360@25 idle, stopping encoder
+21:29:30 INFO    vcam.rtsp      session F5B8204BFC30 cam1/Profile_1 tcp closed (connection closed) after 8s, 1178 RTP packets sent, client 127.0.0.1 [Lavf62.3.100]
+21:29:47 INFO    vcam.source    0/H264 1280x720@25 idle, stopping encoder
+21:29:55 INFO    vcam.agents    agent Google sdk_gphone_x86_64 (127.0.0.1) disconnected
+21:29:55 WARNING vcam.gst       agent://f3b6b1d0-b6a2-44af-ba43-1b856d04de15/0: GStreamer source stopped (source ended)
+21:30:03 INFO    vcam.events    cam1: motion START
+21:30:13 INFO    vcam.events    cam1: motion stop
