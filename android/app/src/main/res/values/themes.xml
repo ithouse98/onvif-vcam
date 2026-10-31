@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- splash: painted before the first frame, so no white flash -->
+    <style name="Splash" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_splash</item>
+        <item name="android:statusBarColor">#070B1A</item>
+        <item name="android:navigationBarColor">#1A0733</item>
+    </style>
+</resources>

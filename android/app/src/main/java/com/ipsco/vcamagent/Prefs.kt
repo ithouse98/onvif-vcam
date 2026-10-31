@@ -22,7 +22,7 @@ class Prefs(ctx: Context) {
     var name: String
         get() = p.getString("name", null) ?: "${Build.MANUFACTURER} ${Build.MODEL}".trim()
         set(v) = p.edit().putString("name", v.trim()).apply()
-    var height: Int                       // 480 / 720 / 1080 (16:9 landscape)
+    var height: Int                       // 480 / 720 / 1080 (16:9)
         get() = p.getInt("height", 720)
         set(v) = p.edit().putInt("height", v).apply()
     var fps: Int
@@ -37,6 +37,17 @@ class Prefs(ctx: Context) {
     var enabled: Boolean                  // the user pressed Start (service should run)
         get() = p.getBoolean("enabled", false)
         set(v) = p.edit().putBoolean("enabled", v).apply()
+    /** auto (the VCam panel picks by monitor index) | back | front | screen */
+    var source: String
+        get() = p.getString("source", "auto") ?: "auto"
+        set(v) = p.edit().putString("source", v).apply()
+    /** system | en | fa */
+    var lang: String
+        get() = p.getString("lang", "system") ?: "system"
+        set(v) = p.edit().putString("lang", v).apply()
+    var theme: String
+        get() = p.getString("theme", "cyber") ?: "cyber"
+        set(v) = p.edit().putString("theme", v).apply()
 
     val width: Int get() = height * 16 / 9
 }
