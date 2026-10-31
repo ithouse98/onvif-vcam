@@ -340,7 +340,7 @@ class OnvifHandler(BaseHTTPRequestHandler):
             vec = cam.vecs.get(prof.vec) if prof and prof.vec else None
         try:
             from .source import snapshot
-            jpg = snapshot(cam, vec, self.app.sources.epoch)
+            jpg = snapshot(cam, vec, self.app.sources)
         except Exception as exc:
             log.warning("snapshot failed: %s", exc)
             return self._send(503, b"snapshot unavailable", "text/plain")

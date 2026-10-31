@@ -46,6 +46,8 @@ header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88
 .btn.dan:hover{border-color:var(--bad);color:var(--bad)}
 .btn.sm{padding:3px 9px;font-size:12.5px}
 .btn:disabled{opacity:.5;cursor:default}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg .btn.on{background:var(--acc2);border-color:var(--acc2);color:#fff}
 main{max-width:1400px;margin:0 auto;padding:16px}
 .notice{border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent);
   padding:10px 14px;border-radius:var(--r);margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
@@ -191,17 +193,35 @@ footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
       <label class="inl" style="align-self:end"><input type="checkbox" id="fEnabled" checked> فعال</label>
     </div></fieldset>
 
-    <fieldset><legend>منبع ویدیو</legend>
+    <fieldset><legend>منبع تصویر</legend>
       <div class="f" style="grid-template-columns:1fr">
-        <label>از کتابخانه ویدیو
-          <select id="fLib" onchange="if(this.value)fSrc.value=this.value"></select></label>
-        <label>یا مسیر فایل / آدرس RTSP<input id="fSrc" class="ltr" required placeholder="D:\videos\clip.mp4  یا  rtsp://user:pass@ip/stream"></label>
-        <div class="row">
-          <input type="file" id="fUp" accept="video/*,.mkv,.ts,.h264,.h265" hidden onchange="upload(this.files[0])">
-          <button class="btn sm" type="button" onclick="fUp.click()">⬆ آپلود ویدیو به کتابخانه</button>
-          <progress id="upBar" value="0" max="1" hidden></progress>
-          <span class="hint" id="libDir"></span>
+        <div class="seg" id="fType">
+          <button class="btn sm" type="button" data-t="file">🎞 فایل ویدیو</button>
+          <button class="btn sm" type="button" data-t="screen">🖥 صفحه نمایش</button>
+          <button class="btn sm" type="button" data-t="webcam">📷 وب‌کم / دوربین USB</button>
+          <button class="btn sm" type="button" data-t="url">🌐 آدرس شبکه (RTSP/HTTP)</button>
         </div>
+        <div data-src="file" class="f" style="grid-template-columns:1fr">
+          <label>از کتابخانه ویدیو
+            <select id="fLib" onchange="if(this.value)fSrc.value=this.value"></select></label>
+          <div class="row">
+            <input type="file" id="fUp" accept="video/*,.mkv,.ts,.h264,.h265" hidden onchange="upload(this.files[0])">
+            <button class="btn sm" type="button" onclick="fUp.click()">⬆ آپلود ویدیو به کتابخانه</button>
+            <progress id="upBar" value="0" max="1" hidden></progress>
+            <span class="hint" id="libDir"></span>
+          </div>
+        </div>
+        <div data-src="screen" class="f">
+          <label>مانیتور<select id="fScreen" onchange="srcFromDevice()"></select></label>
+          <label>FPS ضبط<input id="fScrFps" type="number" min="1" max="60" value="25" onchange="srcFromDevice()"></label>
+          <span class="hint" style="grid-column:1/-1">تصویر صفحه نمایش همین سیستم (همراه با نشانگر ماوس) به‌صورت یک دوربین ONVIF پخش می‌شود.</span>
+        </div>
+        <div data-src="webcam" class="f">
+          <label>دوربین<select id="fCam" onchange="srcFromDevice()"></select></label>
+          <div class="row" style="align-self:end"><button class="btn sm" type="button" onclick="loadDevices(true)">↻ جستجوی دوباره</button></div>
+          <span class="hint" id="devHint" style="grid-column:1/-1">وب‌کم یا دوربین USB متصل به این سیستم. هر دوربین فقط یک بار باز می‌شود و همه استریم‌ها از آن تغذیه می‌شوند.</span>
+        </div>
+        <label><span id="fSrcLbl">مسیر فایل</span><input id="fSrc" class="ltr" required placeholder="D:\videos\clip.mp4"></label>
       </div>
     </fieldset>
 
@@ -299,7 +319,7 @@ function render(){
   const running = S.cameras.filter(c=>c.running).length;
   $('#stats').innerHTML = `<span>دوربین فعال <b>${running}/${S.cameras.length}</b></span>
     <span>اتصال <b>${S.sessions.length}</b></span><span>انکودر <b>${S.encoders.length}</b></span>
-    <span>آدرس <b class="ltr">${esc(S.settings.primary_ip)}</b></span><span>زمان اجرا <b>${fmtUp(S.uptime_s)}</b></span>`;
+    <span>آدرس <b class="ltr">${esc(S.settings.primary_ip)}</b></span><span>موتور <b class="ltr">${esc(S.engine||'')}</b></span><span>زمان اجرا <b>${fmtUp(S.uptime_s)}</b></span>`;
 
   const ips = S.settings.ips;
   $('#notice').innerHTML = (!S.settings.advertise_ip && ips.length > 1) ? `<div class="notice">
@@ -344,7 +364,7 @@ function card(c){
     <div class="cb">
       ${c.error?`<div class="err">${esc(c.error)}</div>`:''}
       ${S.encoders.filter(e=>e.source===cf.source && e.error).map(e=>`<div class="err">انکودر ${esc(e.label)}: ${esc(e.error)}</div>`).join('')}
-      <div class="row"><span class="k">منبع</span><span class="url ltr" title="${esc(cf.source)}">${esc(String(cf.source).split(/[\\/]/).pop()||cf.source)}</span></div>
+      <div class="row"><span class="k">منبع</span><span class="url ltr" title="${esc(cf.source)}">${esc(srcType(cf.source)==='file' ? (String(cf.source).split(/[\\/]/).pop()||cf.source) : cf.source)}</span></div>
       ${r?`<div class="row"><span class="k">ONVIF</span><span class="url ltr">${esc(r.device_service)}</span>
         <button class="cp" onclick="copy('${esc(r.device_service)}')">⧉</button></div>
         <div class="hint ltr" style="text-align:right">${esc(r.source_info)}</div>
@@ -410,6 +430,39 @@ async function loadVideos(sel){
     $('#fLib').value = hit ? hit.path : '';
   }catch(e){ toast(e.message,1) }
 }
+let devs = null;
+const SRC_HINT = {file:['مسیر فایل','D:\\videos\\clip.mp4'], url:['آدرس استریم','rtsp://user:pass@192.168.1.10/stream1'],
+                  screen:['منبع (خودکار)','screen://'], webcam:['منبع (خودکار)','webcam://0']};
+function srcType(s){ s = String(s||''); return s.startsWith('screen://')?'screen':s.startsWith('webcam://')?'webcam':
+  /^[a-z][a-z0-9+.-]*:\/\//i.test(s)?'url':'file'; }
+function setType(t, keep){
+  document.querySelectorAll('#fType .btn').forEach(b=>b.classList.toggle('on', b.dataset.t===t));
+  document.querySelectorAll('[data-src]').forEach(d=>d.hidden = d.dataset.src!==t);
+  $('#fSrcLbl').textContent = SRC_HINT[t][0]; $('#fSrc').placeholder = SRC_HINT[t][1];
+  if (keep) return;
+  if (t==='file') $('#fSrc').value = $('#fLib').value || '';
+  else if (t==='url') $('#fSrc').value = '';
+  else loadDevices().then(srcFromDevice);
+}
+function srcFromDevice(){
+  const t = document.querySelector('#fType .btn.on')?.dataset.t;
+  if (t==='screen'){ const i = $('#fScreen').value, f = +$('#fScrFps').value || 25;
+    $('#fSrc').value = 'screen://' + (i==='' ? '' : i) + (f!==25 ? '?fps='+f : ''); }
+  if (t==='webcam'){ $('#fSrc').value = $('#fCam').value ? 'webcam://' + $('#fCam').value : ''; }
+}
+async function loadDevices(force){
+  if (devs && !force) return devs;
+  $('#devHint').textContent = 'در حال جستجوی دستگاه‌ها…';
+  try{ devs = await api('GET','/api/devices'); }catch(e){ devs = {webcams:[],screens:[],error:e.message}; }
+  $('#fScreen').innerHTML = '<option value="">نمایشگر اصلی</option>' +
+    (devs.screens||[]).map(m=>`<option value="${m.index}">${esc(m.name||('Monitor '+(m.index+1)))}${m.width?` (${m.width}×${m.height})`:''}</option>`).join('');
+  $('#fCam').innerHTML = (devs.webcams||[]).map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+  $('#devHint').textContent = devs.error ? 'خطا: '+devs.error :
+    (devs.webcams||[]).length ? (devs.webcams.length+' دوربین پیدا شد. هر دوربین فقط یک بار باز می‌شود و همه استریم‌ها از آن تغذیه می‌شوند.')
+                              : 'هیچ وب‌کم / دوربین USB پیدا نشد. دوربین را وصل کنید و «جستجوی دوباره» را بزنید.';
+  return devs;
+}
+document.addEventListener('click', e=>{ const b = e.target.closest('#fType .btn'); if (b) setType(b.dataset.t); });
 function openEditor(id){
   editing = id || null; $('#edErr').textContent = '';
   const cf = id ? S.cameras.find(x=>x.config.id===id).config : {};
@@ -422,6 +475,12 @@ function openEditor(id){
   $('#fSrc').value = cf.source || '';
   const m = cf.motion || {}; $('#mOn').checked = m.enabled !== false; $('#mOnS').value = m.on_seconds||10; $('#mOffS').value = m.off_seconds||50;
   $('#profs').innerHTML = ''; (cf.profiles || DEF).forEach(p=>$('#profs').append(profRow(p)));
+  const st = srcType(cf.source); setType(st, true);
+  if (st==='screen' || st==='webcam') loadDevices().then(()=>{
+    const v = decodeURIComponent(String(cf.source).split('://')[1]||'');
+    if (st==='screen'){ const [i,q] = v.split('?'); $('#fScreen').value = i||''; $('#fScrFps').value = (q||'').replace('fps=','')||25; }
+    else if (v && ![...$('#fCam').options].some(o=>o.value===v)) $('#fCam').insertAdjacentHTML('afterbegin', `<option value="${esc(v)}">${esc(v)}</option>`), $('#fCam').value = v;
+    else $('#fCam').value = v; });
   loadVideos(cf.source).then(()=>{ if(!cf.source && videos.length){ $('#fLib').value = videos[0].path; $('#fSrc').value = videos[0].path; } });
   ed.showModal();
 }

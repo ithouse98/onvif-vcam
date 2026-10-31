@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import shutil
 import subprocess
 import threading
 from dataclasses import dataclass, field, asdict
@@ -43,10 +44,21 @@ def probe(path: str) -> MediaInfo:
         if key not in _probe_cache:
             _probe_cache[key] = _probe(path)
         return MediaInfo(**vars(_probe_cache[key]))
+    if "://" in path and path.split("://")[0] in ("screen", "webcam", "test"):
+        # a webcam in use by its stream cannot be opened again (Windows): probe it once
+        if path not in _probe_cache:
+            _probe_cache[path] = _probe(path)
+        return MediaInfo(**vars(_probe_cache[path]))
     return _probe(path)
 
 
 def _probe(path: str) -> MediaInfo:
+    from . import gst
+    if gst.is_device(path) or not shutil.which("ffprobe"):
+        r = gst.probe(path)  # screen / webcam: the capture size and rate
+        return MediaInfo(path=path, codec=path.split("://")[0] if gst.is_device(path) else "video",
+                         width=int(r["width"]), height=int(r["height"]),
+                         fps=float(r["fps"]) or 25.0, duration=float(r["duration"]))
     if not path.startswith(("rtsp://", "rtmp://", "http://", "https://", "udp://", "srt://")) \
             and not os.path.isfile(path):
         raise FileNotFoundError(path)

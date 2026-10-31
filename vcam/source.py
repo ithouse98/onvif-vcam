@@ -1,8 +1,10 @@
-"""Turns a video file into a paced, packetized, multi-consumer live stream.
+"""Turns a video source into a paced, packetized, multi-consumer live stream.
 
-One ffmpeg process per (camera, encoder configuration). ffmpeg only decodes/encodes; all
-framing, timing and RTP packetization is done here, so the RTSP server can serve any number
-of unicast/multicast/tunnelled clients from a single encoder (like a real camera does).
+Engines: "gstreamer" (default) runs one GStreamer process per source with one encoder branch per
+configuration (vcam.gst); "ffmpeg" runs one ffmpeg process per (source, configuration). The
+encoder only decodes/encodes; all framing, timing and RTP packetization is done here, so the RTSP
+server can serve any number of unicast/multicast/tunnelled clients from a single encoder (like a
+real camera does). Screen and webcam sources always use GStreamer.
 """
 
 import base64
@@ -14,12 +16,13 @@ import threading
 import time
 from collections import deque
 
-from . import rtp
+from . import gst, rtp
 from .util import NO_WINDOW
 
 log = logging.getLogger("vcam.source")
 
-LIVE_PREFIXES = ("rtsp://", "rtmp://", "http://", "https://", "udp://", "srt://", "tcp://")
+LIVE_PREFIXES = ("rtsp://", "rtmp://", "http://", "https://", "udp://", "srt://", "tcp://") + \
+    gst.DEVICE_PREFIXES
 
 
 class Frame:
@@ -54,13 +57,17 @@ def ffmpeg_cmd(path, vec, preset="veryfast", threads=0, loop=True, start_pos=0.0
         else:
             cmd += ["-c:v", "copy", "-f", "mjpeg"]
         return cmd + ["pipe:1"]
-    fps = vec.fps
-    fps_s = f"{fps:g}"
+    pix = "yuvj420p" if enc == "JPEG" else "yuv420p"
+    vf = f"fps={vec.fps:g},scale={vec.width}:{vec.height}:flags=bicubic,setsar=1,format={pix}"
+    return cmd + ["-vf", vf] + encoder_args(vec, preset, threads) + ["pipe:1"]
+
+
+def encoder_args(vec, preset="veryfast", threads=0):
+    """ffmpeg output options for one encoder config (shared with the GStreamer H.265 branch)."""
+    enc = vec.encoding
     br = max(32, int(vec.bitrate_kbps))
     buf = br if vec.cbr else br * 2
-    pix = "yuvj420p" if enc == "JPEG" else "yuv420p"
-    vf = f"fps={fps_s},scale={vec.width}:{vec.height}:flags=bicubic,setsar=1,format={pix}"
-    cmd += ["-vf", vf]
+    cmd = []
     if threads:
         cmd += ["-threads", str(threads)]
     gop = max(1, int(vec.gop))
@@ -84,7 +91,7 @@ def ffmpeg_cmd(path, vec, preset="veryfast", threads=0, loop=True, start_pos=0.0
         q = int(round(31 - (max(1.0, min(10.0, vec.quality)) - 1) * (29 / 9)))
         cmd += ["-c:v", "mjpeg", "-huffman", "default", "-q:v", str(max(2, min(31, q))),
                 "-f", "mjpeg"]
-    return cmd + ["pipe:1"]
+    return cmd
 
 
 class AnnexBSplitter:
@@ -150,6 +157,11 @@ class StreamSource:
         # private copy: the encoder is shared by every camera with the same source + settings,
         # and apply_vec mutates a camera's config in place
         self.vec = copy.copy(vec)
+        if gst.is_device(camera.source):
+            self.vec.mode = "transcode"  # nothing to copy from a capture device
+        vec = self.vec
+        self.use_gst = gst.is_device(camera.source) or (manager.engine == "gstreamer"
+                                                        and vec.mode != "copy")
         self.key = (os.path.basename(camera.source) or camera.source,
                     "copy" if vec.mode == "copy" else
                     f"{vec.encoding} {vec.width}x{vec.height}@{vec.fps:g}")
@@ -265,7 +277,7 @@ class StreamSource:
             if time.time() - t_start > 10:
                 backoff = 1.0
             tail = " | ".join(self.stderr_tail)
-            log.warning("%s/%s ffmpeg exited%s; restarting in %.0fs", *self.key,
+            log.warning("%s/%s encoder exited%s; restarting in %.0fs", *self.key,
                         f" ({tail})" if tail else "", backoff)
             if not self.ready.is_set():
                 self.failed = tail or "encoder failed to start"
@@ -280,6 +292,8 @@ class StreamSource:
                 log.debug("ffmpeg[%s/%s]: %s", *self.key, s)
 
     def _run_once(self):
+        if self.use_gst:
+            return self._run_gst()
         dur = self.camera.info.duration
         pos = (time.time() - self.manager.epoch) % dur if dur > 1 else 0.0
         cmd = ffmpeg_cmd(self.camera.source, self.vec, self.manager.preset, self.manager.threads,
@@ -301,6 +315,21 @@ class StreamSource:
                 except OSError:
                     pass
             proc.wait()
+
+    def _run_gst(self):
+        desc, ff = gst.branch_desc(self.vec, self.manager.preset, self.manager.threads)
+        src = self.manager.gst_source(self.camera)
+        log.info("%s/%s starting GStreamer encoder: %s", *self.key, desc)
+        self.proc = branch = src.add(desc, ff)
+        try:
+            if self.encoding == "JPEG":
+                self._loop_jpeg(branch)
+            else:
+                self._loop_annexb(branch)
+        finally:
+            src.remove(branch)
+            if branch.error and branch.error != "stopped":
+                self.stderr_tail.append(branch.error)
 
     # pacing --------------------------------------------------------------
     def _pace_and_emit(self, payloads, key):
@@ -330,6 +359,12 @@ class StreamSource:
                 log.exception("consumer error")
 
     def _read(self, proc):
+        if isinstance(proc, gst.Branch):
+            while not self.stop_evt.is_set():
+                data = proc.read(1.0)
+                if data is not None:
+                    return data
+            return b""
         return proc.stdout.read(65536)
 
     # H.264 / H.265 -----------------------------------------------------------
@@ -420,8 +455,10 @@ class SourceManager:
         self.threads = int(cfg.get("encoder_threads", 0))
         self.idle_timeout = float(cfg.get("encoder_idle_timeout", 15))
         self.loop = bool(cfg.get("loop", True))
+        self.engine = cfg.get("_engine") or cfg.get("engine", "gstreamer")
         self.epoch = time.time()  # the shared 'live' timeline of every camera
         self.sources = {}
+        self.gst = {}  # source -> gst.GstSource (shared by its encoders and snapshots)
         self.lock = threading.Lock()
         self.stop_evt = threading.Event()
         threading.Thread(target=self._reaper, name="src-reaper", daemon=True).start()
@@ -440,6 +477,16 @@ class SourceManager:
                 self.sources[key] = src
             src.idle_since = time.time()
             return src
+
+    def gst_source(self, camera):
+        with self.lock:
+            g = self.gst.get(camera.source)
+            if g is None or not g.alive:
+                dur = camera.info.duration
+                pos = (time.time() - self.epoch) % dur if dur > 1 else 0.0
+                g = self.gst[camera.source] = gst.GstSource(self, camera.source, pos)
+            g.idle_since = time.time()
+            return g
 
     def stats(self):
         with self.lock:
@@ -468,6 +515,16 @@ class SourceManager:
                         p = src.proc
                         if p and p.poll() is None:
                             p.kill()
+                for key, g in list(self.gst.items()):
+                    n = g.branch_count()
+                    if not g.alive or (n == 0 and now - g.idle_since > self.idle_timeout):
+                        if g.alive:
+                            log.info("%s: idle, stopping GStreamer source", key)
+                        self.gst.pop(key).stop()
+                    elif n and now - g.last_data > 15:
+                        log.warning("%s: GStreamer source frozen for %.0fs, restarting", key,
+                                    now - g.last_data)
+                        self.gst.pop(key).stop()  # branches end -> encoders restart it
 
     def shutdown(self):
         self.stop_evt.set()
@@ -475,6 +532,9 @@ class SourceManager:
             for src in self.sources.values():
                 src.stop("shutdown")
             self.sources.clear()
+            for g in self.gst.values():
+                g.stop()
+            self.gst.clear()
 
 
 # --------------------------------------------------------------------------- snapshots
@@ -482,7 +542,7 @@ _snap_cache = {}
 _snap_lock = threading.Lock()
 
 
-def snapshot(camera, vec, epoch):
+def snapshot(camera, vec, manager):
     """JPEG still of what the camera is 'seeing' right now (position in the looping file)."""
     key = (camera.source, vec.width if vec else 0, vec.height if vec else 0)
     now = time.time()
@@ -492,6 +552,12 @@ def snapshot(camera, vec, epoch):
             return hit[1]
     w = vec.width if vec else camera.info.width
     h = vec.height if vec else camera.info.height
+    if manager.engine == "gstreamer" or gst.is_device(camera.source):
+        jpg = _gst_snapshot(manager, camera, w, h)
+        with _snap_lock:
+            _snap_cache[key] = (now, jpg)
+        return jpg
+    epoch = manager.epoch
     cmd = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin"]
     path = camera.source
     if not path.startswith(LIVE_PREFIXES) and camera.info.duration > 0:
@@ -505,3 +571,23 @@ def snapshot(camera, vec, epoch):
     with _snap_lock:
         _snap_cache[key] = (now, out.stdout)
     return out.stdout
+
+
+def _gst_snapshot(manager, camera, w, h):
+    # from the shared source process: same frame the streams show, webcam opened only once
+    src = manager.gst_source(camera)
+    branch = src.add(gst.snapshot_desc(w, h))
+    splitter = JpegSplitter()
+    deadline = time.time() + 15
+    try:
+        while time.time() < deadline:
+            data = branch.read(0.5)
+            if data == b"":
+                raise RuntimeError(branch.error or src.error or "source ended")
+            if data:
+                imgs = splitter.feed(data)
+                if imgs:
+                    return imgs[0]
+        raise RuntimeError(src.error or "timed out")
+    finally:
+        src.remove(branch)

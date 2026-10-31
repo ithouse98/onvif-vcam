@@ -69,7 +69,8 @@ def build_config(args):
         for _ in range(max(1, args.cameras)):
             for src in args.sources:
                 n += 1
-                base = os.path.splitext(os.path.basename(src))[0][:24] if "://" not in src else "stream"
+                base = os.path.splitext(os.path.basename(src))[0][:24] if "://" not in src else \
+                    src.split("://")[0] if src.startswith(("screen:", "webcam:", "test:")) else "stream"
                 cams.append({"id": f"cam{n}", "name": f"{args.name_prefix}{n}-{base}",
                              "source": src, "profiles": json.loads(json.dumps(profiles))})
         cfg["cameras"] = cams
@@ -79,7 +80,7 @@ def build_config(args):
     overrides = {
         "rtsp_port": args.rtsp_port, "http_port_base": args.http_port, "advertise_ip": args.advertise_ip,
         "bind": args.bind, "state_dir": args.state_dir, "x264_preset": args.preset,
-        "multicast_interface": args.multicast_iface, "ui_port": args.ui_port,
+        "multicast_interface": args.multicast_iface, "ui_port": args.ui_port, "engine": args.engine,
     }
     for k, v in overrides.items():
         if v is not None:
@@ -100,6 +101,7 @@ def build_config(args):
     cfg.setdefault("http_port_base", 8080)
     cfg.setdefault("state_dir", "./vcam-state")
     cfg.setdefault("ui_port", 8000)
+    cfg.setdefault("engine", "gstreamer")
     return cfg
 
 
@@ -107,7 +109,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser(
         prog="vcam", description="ONVIF virtual camera: serve video files as ONVIF Profile S/T "
                                  "devices (WS-Discovery, Device/Media/Media2/Events, RTSP).")
-    ap.add_argument("sources", nargs="*", help="video files (or rtsp/http URLs) - one camera each")
+    ap.add_argument("sources", nargs="*",
+                    help="one camera each: video files / folders, rtsp/http URLs, screen://[N] "
+                         "(screen capture), webcam://[N|name] (USB camera)")
     ap.add_argument("-c", "--config", help="JSON configuration file")
     ap.add_argument("-n", "--cameras", type=int, default=1,
                     help="clone the given sources N times (load testing)")
@@ -128,6 +132,9 @@ def main(argv=None):
     ap.add_argument("--no-motion", action="store_true", help="disable simulated motion events")
     ap.add_argument("--prestart", action="store_true", help="start encoders immediately")
     ap.add_argument("--preset", help="x264/x265 preset (default veryfast)")
+    ap.add_argument("--engine", choices=("gstreamer", "ffmpeg"),
+                    help="stream engine (default gstreamer; screen/webcam need gstreamer)")
+    ap.add_argument("--list-devices", action="store_true", help="list webcams and screens, exit")
     ap.add_argument("--state-dir", help="where configuration changes are persisted")
     ap.add_argument("--ui-port", type=int, help="web control panel port (default 8000, 0 = off)")
     ap.add_argument("--open", action="store_true", help="open the control panel in the browser")
@@ -155,6 +162,10 @@ def main(argv=None):
         if not shutil.which(tool):
             raise SystemExit(f"{tool} not found in PATH - install FFmpeg first")
 
+    if args.list_devices:
+        from . import gst
+        print(json.dumps(gst.devices(), indent=2))
+        return 0
     cfg = build_config(args)
     if args.print_config:
         print(json.dumps(cfg, indent=2))
@@ -171,6 +182,17 @@ def main(argv=None):
             webbrowser.open(panel)
         return 0
 
+    if cfg["engine"] == "gstreamer":
+        from . import gst
+        why = gst.available()
+        if why:
+            if any(gst.is_device(c.get("source", "")) for c in cfg.get("cameras", [])):
+                raise SystemExit(f"GStreamer is not available ({why}); it is required for "
+                                 "screen:// and webcam:// sources.")
+            log.warning("GStreamer not available (%s); using the ffmpeg engine", why)
+            cfg["_engine"] = "ffmpeg"  # effective only; config.json keeps the choice
+    engine = cfg.get("_engine") or cfg["engine"]
+    log.info("stream engine: %s", engine)
     from .app import App
     app = App(cfg)
     # LGPL/minimal ffmpeg builds lack libx264/libx265 and fail with "Unrecognized option 'preset'"
@@ -178,7 +200,7 @@ def main(argv=None):
     from .util import NO_WINDOW
     encoders = subprocess.run([shutil.which("ffmpeg"), "-hide_banner", "-encoders"],
                               capture_output=True, text=True, creationflags=NO_WINDOW).stdout
-    need = {"H264": "libx264", "H265": "libx265"}
+    need = {"H265": "libx265"} if engine == "gstreamer" else {"H264": "libx264", "H265": "libx265"}
     missing = sorted({need[v.encoding] for c in app.cameras for v in c.vecs.values()
                       if v.mode != "copy" and v.encoding in need and need[v.encoding] not in encoders})
     if missing:

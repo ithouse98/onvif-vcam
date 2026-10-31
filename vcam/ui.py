@@ -4,6 +4,7 @@ GET  /                               panel (vcam/web/index.html)
 GET  /api/state                      everything the panel shows
 GET  /api/logs?after=N               new log lines
 GET  /api/videos                     files in the videos folder (+ probe info)
+GET  /api/devices                    webcams and screens (GStreamer)
 PUT  /api/videos?name=x.mp4          upload (raw body)      DELETE /api/videos?name=x.mp4
 POST /api/cameras                    add  {..., "count": n}  PUT/DELETE /api/cameras/<id>
 POST /api/cameras/<id>/motion?state=1
@@ -129,13 +130,16 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, self.app.logbuf.since(int(q.get("after", 0))))
             if parts == ["api", "videos"]:
                 return self._send(200, self.videos())
+            if parts == ["api", "devices"]:
+                from . import gst
+                return self._send(200, gst.devices())
             if len(parts) == 4 and parts[:2] == ["api", "cameras"] and parts[3] == "snapshot.jpg":
                 cam = self.app.camera_by_id.get(parts[2])
                 if cam is None:
                     return self._err(404, "camera is not running")
                 prof = cam.profiles.get(q.get("profile", "")) or next(iter(cam.profiles.values()))
                 vec = cam.vecs.get(prof.vec) if prof else None
-                return self._send(200, snapshot(cam, vec, self.app.sources.epoch), "image/jpeg")
+                return self._send(200, snapshot(cam, vec, self.app.sources), "image/jpeg")
         except Exception as exc:
             log.warning("panel GET %s failed: %s", self.path, exc)
             return self._err(500, str(exc))
@@ -227,7 +231,7 @@ class Handler(BaseHTTPRequestHandler):
             if k in body:
                 out[k] = body[k]
         if "source" in out and not str(out["source"]).strip():
-            raise ValueError("source (video file or URL) is required")
+            raise ValueError("source (video file, URL, screen:// or webcam://) is required")
         if "profiles" in body:
             profs = []
             for p in body["profiles"][:8]:
@@ -313,7 +317,7 @@ class Handler(BaseHTTPRequestHandler):
                          "sessions": [s for s in st["rtsp_sessions"] if s["camera"] == cid]})
         users = app.cfg.get("users") or [{"username": "admin", "password": "admin"}]
         return {
-            "version": __version__, "uptime_s": st["uptime_s"],
+            "version": __version__, "uptime_s": st["uptime_s"], "engine": app.sources.engine,
             "settings": {"advertise_ip": app.advertise_host or "", "ips": list_ipv4(),
                          "primary_ip": app.primary_ip(), "rtsp_port": app.rtsp_port,
                          "discovery": app.cfg.get("discovery", True),

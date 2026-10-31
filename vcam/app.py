@@ -333,7 +333,7 @@ class App:
     def save_config(self):
         if not self.config_path:
             return
-        keep = {k: v for k, v in self.cfg.items() if k != "config_path"}
+        keep = {k: v for k, v in self.cfg.items() if k != "config_path" and not k.startswith("_")}
         tmp = self.config_path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as fh:
             json.dump(keep, fh, indent=2, ensure_ascii=False)
