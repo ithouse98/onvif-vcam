@@ -105,15 +105,7 @@ class CameraStreamer(
         }
         try {
             val size = req.resolution
-            val fmt = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, size.width, size.height).apply {
-                setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-                setInteger(MediaFormat.KEY_BIT_RATE, bitrateKbps * 1000)
-                setInteger(MediaFormat.KEY_FRAME_RATE, fps)
-                setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 2)
-                if (Build.VERSION.SDK_INT >= 29) setInteger(MediaFormat.KEY_PREPEND_HEADER_TO_SYNC_FRAMES, 1)
-            }
-            val c = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
-            c.configure(fmt, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+            val c = configureEncoder(size.width, size.height)
             val surface = c.createInputSurface()
             c.start()
             codec = c
@@ -124,6 +116,31 @@ class CameraStreamer(
             req.willNotProvideSurface()
             stop("encoder error: ${e.message}")
         }
+    }
+
+    /** Some encoders (e.g. the emulator's software AVC encoder) reject optional keys with
+     *  ERROR_UNSUPPORTED; retry with the plain format. SPS/PPS go before key frames anyway. */
+    private fun configureEncoder(w: Int, h: Int): MediaCodec {
+        var last: Exception? = null
+        for (extras in listOf(true, false)) {
+            val fmt = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, w, h).apply {
+                setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+                setInteger(MediaFormat.KEY_BIT_RATE, bitrateKbps * 1000)
+                setInteger(MediaFormat.KEY_FRAME_RATE, fps)
+                setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 2)
+                if (extras && Build.VERSION.SDK_INT >= 29) setInteger(MediaFormat.KEY_PREPEND_HEADER_TO_SYNC_FRAMES, 1)
+            }
+            val c = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
+            try {
+                c.configure(fmt, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+                return c
+            } catch (e: Exception) {
+                last = e
+                Log.w(tag, "encoder rejected format (extras=$extras): ${e.message}")
+                c.release()
+            }
+        }
+        throw last ?: IllegalStateException("no H.264 encoder")
     }
 
     private fun drain(c: MediaCodec) {
