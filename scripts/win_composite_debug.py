@@ -1,4 +1,4 @@
-"""CI diagnostics: run the multi-monitor capture pipeline with gst-launch for a few seconds."""
+"""CI diagnostics: run multi-monitor capture variants with gst-launch for a few seconds."""
 import os
 import subprocess
 import sys
@@ -7,17 +7,34 @@ sys.path.insert(0, os.path.join(sys.argv[1], "app"))
 from vcam import gsthelper as g  # noqa: E402
 
 g.Gst.init(None)
-for arg in ("all", "0+0"):
-    desc = g.screen_candidates(arg, 25)[0]
-    print(f"===== screen://{arg}\n{desc}\n", flush=True)
-    env = dict(os.environ, GST_DEBUG="3")
-    cmd = ["gst-launch-1.0", "-v"] + (desc + " ! videoconvert ! fakesink silent=false num-buffers=50").split()
+m = g.monitors()[0]
+h, w, hh = m.get("hmonitor"), m["width"], m["height"]
+sel = f"monitor-handle={h}" if h else "monitor-index=0"
+d3d = "video/x-raw(memory:D3D11Memory),framerate=25/1"
+variants = {
+    "current all": g.screen_candidates("all", 25)[0],
+    "current 0+0": g.screen_candidates("0+0", 25)[0],
+    "download first": (f"d3d11screencapturesrc {sel} show-cursor=true ! {d3d} ! d3d11download ! videoconvert ! "
+                       f"queue ! mix.sink_0 d3d11screencapturesrc {sel} show-cursor=true ! {d3d} ! d3d11download ! "
+                       f"videoconvert ! queue ! mix.sink_1 compositor name=mix background=black sink_1::xpos={w} ! "
+                       f"video/x-raw,width={2 * w},height={hh},framerate=25/1"),
+    "d3d11compositor": (f"d3d11screencapturesrc {sel} show-cursor=true ! {d3d} ! queue ! mix.sink_0 "
+                        f"d3d11screencapturesrc {sel} show-cursor=true ! {d3d} ! queue ! mix.sink_1 "
+                        f"d3d11compositor name=mix background=black sink_1::xpos={w} ! "
+                        f"video/x-raw(memory:D3D11Memory),width={2 * w},height={hh} ! d3d11download ! "
+                        "video/x-raw,framerate=25/1"),
+    "single + download": f"d3d11screencapturesrc {sel} show-cursor=true ! {d3d} ! d3d11download",
+}
+for name, desc in variants.items():
+    print(f"===== {name}\n{desc}\n", flush=True)
+    env = dict(os.environ, GST_DEBUG="2")
+    cmd = ["gst-launch-1.0.exe", "-v"] + (desc + " ! videoconvert ! fakesink num-buffers=60").split()
     try:
         p = subprocess.run(cmd, capture_output=True, text=True, timeout=15, env=env)
-        out, err = p.stdout, p.stderr
+        out, err, rc = p.stdout, p.stderr, p.returncode
     except subprocess.TimeoutExpired as e:
-        out, err = (e.stdout or b"").decode(errors="replace") if isinstance(e.stdout, bytes) else (e.stdout or ""), \
-                   (e.stderr or b"").decode(errors="replace") if isinstance(e.stderr, bytes) else (e.stderr or "")
-        print("TIMEOUT (still running after 15 s)")
-    print(out[-5000:])
-    print(err[-10000:], flush=True)
+        dec = lambda b: b.decode(errors="replace") if isinstance(b, bytes) else (b or "")  # noqa
+        out, err, rc = dec(e.stdout), dec(e.stderr), "TIMEOUT"
+    print(f"--- rc={rc}")
+    print("\n".join(l for l in out.splitlines() if "caps = " not in l or "mix" in l or "fakesink" in l)[-3000:])
+    print(err[-6000:], flush=True)
