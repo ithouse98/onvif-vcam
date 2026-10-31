@@ -1,0 +1,111 @@
+09:28:58 INFO    vcam           stream engine: gstreamer
+09:28:59 INFO    vcam.rtsp      RTSP server listening on tcp/8554
+09:28:59 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.102, 172.30.208.1)
+09:28:59 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:4a42a20a-ca38-5127-b907-4d2931ad58a5)
+09:28:59 INFO    vcam.discovery WS-Discovery Hello cam2 (urn:uuid:0be45b01-37a5-50cc-a639-a6ce3a177690)
+09:28:59 INFO    vcam.ui        control panel on http://10.1.0.102:8000/
+09:29:03 WARNING vcam.soap      cam1 127.0.0.1 GetDeviceInformation -> NotAuthorized (bad password)
+09:29:03 WARNING vcam.soap      cam1 127.0.0.1 CreateUsers -> fault ter:NotAuthorized/None Sender not Authorized
+09:29:03 WARNING vcam.soap      cam1 127.0.0.1 GetSystemLog -> fault ter:ActionNotSupported/None GetSystemLog is not supported by this device
+09:29:03 WARNING vcam.soap      cam1 127.0.0.1 GetProfile -> fault ter:InvalidArgVal/ter:NoProfile The requested profile token does not exist
+09:29:03 WARNING vcam.soap      cam1 127.0.0.1 RemoveScopes -> fault ter:OperationProhibited/ter:FixedScope Trying to remove fixed scope parameter
+09:29:03 WARNING vcam.soap      cam1 127.0.0.1 DeleteProfile -> fault ter:Action/ter:DeletionOfFixedProfile The fixed Profile cannot be deleted
+09:29:03 WARNING vcam.soap      cam1 127.0.0.1 SetVideoEncoderConfiguration -> fault ter:InvalidArgVal/ter:ConfigModify resolution 1234x777 not supported for H264
+09:29:03 INFO    vcam.media     cam1: VEC_3 changed ('JPEG', 640, 352, 10.0, None, None, None, 5, None) -> ('H265', 1280, 720, 20.0, 1500, 20, None, None, False) (encoder restarts, viewers reconnect)
+09:29:03 INFO    vcam.gst       C:\vc\ONVIF-VCam-1.2.0\videos\sample_1080p.mp4: starting GStreamer source
+09:29:03 INFO    vcam.source    sample_1080p.mp4/H265 1280x720@20 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=20/1,pixel-aspect-ratio=1/1 ! y4menc ! appsink name=out max-buffers=100 drop=false
+09:29:04 INFO    vcam.rtsp      SETUP EA39C0BB7A42 cam1/Profile_3 tcp from 127.0.0.1 (rtsp)
+09:29:05 INFO    vcam.rtsp      session EA39C0BB7A42 cam1/Profile_3 tcp closed (connection closed) after 1s, 211 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+09:29:05 INFO    vcam.media     cam1: VEC_3 changed ('H265', 1280, 720, 20.0, 1500, 20, None, None, False) -> ('JPEG', 640, 352, 10.0, None, None, None, 5, None) (encoder restarts, viewers reconnect)
+09:29:13 INFO    vcam.events    cam1: new push subscription cb315f24 from 127.0.0.1 filter=None until 2026-10-31T09:30:13.895Z
+09:29:19 INFO    vcam.events    cam1: motion START (manual)
+09:29:21 INFO    vcam.source    sample_1080p.mp4/H265 1280x720@20 idle, stopping encoder
+09:29:22 INFO    vcam.events    cam1: motion stop (manual)
+09:29:22 INFO    vcam.events    cam1: subscription cb315f24 unsubscribed by 127.0.0.1 after 8s
+09:29:23 INFO    vcam.source    sample_1080p.mp4/H264 1920x1080@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1920,height=1080,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+09:29:23 INFO    vcam.source    sample_1080p.mp4/H264 640x360@15 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=15/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=512 vbv-buf-capacity=2000 key-int-max=15 bframes=0 byte-stream=true aud=true option-string="min-keyint=15:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+09:29:24 INFO    vcam.rtsp      SETUP C00553A647D0 cam1/Profile_2 mcast from 127.0.0.1 (rtsp)
+09:29:27 INFO    vcam.rtsp      multicast 239.255.1.2:40014 stopped (no receivers)
+09:29:27 INFO    vcam.rtsp      session C00553A647D0 cam1/Profile_2 mcast closed (TEARDOWN) after 2s, 0 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+09:29:27 INFO    vcam.rtsp      RTSP-over-HTTP tunnel opened by 127.0.0.1 (cookie dbf279cc2814)
+09:29:27 INFO    vcam.rtsp      SETUP 6DC58066F134 cam1/Profile_2 tcp from 127.0.0.1 (tunnel)
+09:29:30 INFO    vcam.rtsp      session 6DC58066F134 cam1/Profile_2 tcp closed (connection closed) after 2s, 166 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+09:29:30 INFO    vcam.rtsp      RTSP-over-HTTP tunnel closed (dbf279cc2814)
+09:29:30 INFO    vcam.rtsp      RTSP-over-HTTP tunnel opened by 127.0.0.1 (cookie 893f39b9edf7)
+09:29:30 INFO    vcam.rtsp      SETUP 9004D8C2805F cam1/Profile_2 tcp from 127.0.0.1 (tunnel)
+09:29:33 INFO    vcam.rtsp      session 9004D8C2805F cam1/Profile_2 tcp closed (connection closed) after 2s, 168 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+09:29:33 INFO    vcam.rtsp      RTSP-over-HTTP tunnel closed (893f39b9edf7)
+09:29:36 INFO    vcam.events    cam2: motion START
+09:29:37 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:4a42a20a-ca38-5127-b907-4d2931ad58a5)
+09:29:37 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:4a42a20a-ca38-5127-b907-4d2931ad58a5)
+09:29:37 INFO    vcam.media     cam1: VEC_2 changed ('H264', 640, 360, 15.0, 512, 15, 'Main', None, False) -> ('H264', 640, 360, 10.0, 400, 15, 'Main', None, False) (encoder restarts, viewers reconnect)
+09:29:37 INFO    vcam.events    cam1: new pull subscription 6d6d9489 from 127.0.0.1 filter=None until 2026-10-31T09:30:37.907Z
+09:29:37 INFO    vcam.events    cam1: subscription 6d6d9489 renewed by 127.0.0.1 until 2026-10-31T09:30:37.918Z
+09:29:37 INFO    vcam.events    cam1: subscription 6d6d9489 unsubscribed by 127.0.0.1 after 0s
+09:29:38 INFO    vcam.ui        panel: uploaded uploaded_test.mp4 (29.7 MB)
+09:29:38 WARNING vcam.ui        panel PUT /api/videos?name=../../evil.exe failed: file name must end with .mp4, .mkv, .mov, .avi, .ts, .m4v, .h264, .h265, .hevc, .mjpeg
+09:29:38 WARNING vcam.ui        panel POST /api/cameras failed: source (video file, URL, screen:// or webcam://) is required
+09:29:38 WARNING vcam.ui        panel POST /api/cameras failed: unsupported codec VP9
+09:29:38 WARNING vcam.ui        panel POST /api/cameras failed: /no/such/file.mp4
+09:29:38 INFO    vcam.discovery WS-Discovery Hello cam3 (urn:uuid:a3b16719-a367-56ed-be45-d6d82105a3e0)
+09:29:38 INFO    vcam           cam3: online at port 8082 (C:\vc\ONVIF-VCam-1.2.0\videos\uploaded_test.mp4)
+09:29:38 INFO    vcam.discovery WS-Discovery Hello cam4 (urn:uuid:e6dc9147-b0ca-51d5-bc3c-68acfc7e1b4d)
+09:29:38 INFO    vcam           cam4: online at port 8083 (C:\vc\ONVIF-VCam-1.2.0\videos\uploaded_test.mp4)
+09:29:38 INFO    vcam.gst       C:\vc\ONVIF-VCam-1.2.0\videos\uploaded_test.mp4: starting GStreamer source
+09:29:38 INFO    vcam.source    uploaded_test.mp4/H264 1280x720@20 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=20/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=1500 vbv-buf-capacity=2000 key-int-max=20 bframes=0 byte-stream=true aud=true option-string="min-keyint=20:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+09:29:38 INFO    vcam.rtsp      SETUP 325D72E5E111 cam3/Profile_1 tcp from 10.1.0.102 (rtsp)
+09:29:39 INFO    vcam.source    sample_1080p.mp4/H264 1920x1080@25 idle, stopping encoder
+09:29:40 INFO    vcam.rtsp      session 325D72E5E111 cam3/Profile_1 tcp closed (connection closed) after 1s, 271 RTP packets sent, client 10.1.0.102 [Lavf63.1.102]
+09:29:40 INFO    vcam           cam3: offline (edited)
+09:29:40 INFO    vcam.discovery WS-Discovery Hello cam3 (urn:uuid:a3b16719-a367-56ed-be45-d6d82105a3e0)
+09:29:40 INFO    vcam           cam3: online at port 8082 (C:\vc\ONVIF-VCam-1.2.0\videos\uploaded_test.mp4)
+09:29:40 INFO    vcam.source    uploaded_test.mp4/H265 960x540@15 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=960,height=540,framerate=15/1,pixel-aspect-ratio=1/1 ! y4menc ! appsink name=out max-buffers=100 drop=false
+09:29:41 INFO    vcam.rtsp      SETUP 356AFA5279A9 cam3/Profile_1 tcp from 10.1.0.102 (rtsp)
+09:29:42 INFO    vcam.rtsp      session 356AFA5279A9 cam3/Profile_1 tcp closed (TEARDOWN) after 1s, 133 RTP packets sent, client 10.1.0.102 [Lavf63.1.102]
+09:29:42 INFO    vcam           cam4: offline (edited)
+09:29:45 INFO    vcam.discovery WS-Discovery Hello cam4 (urn:uuid:e6dc9147-b0ca-51d5-bc3c-68acfc7e1b4d)
+09:29:45 INFO    vcam           cam4: online at port 8083 (C:\vc\ONVIF-VCam-1.2.0\videos\uploaded_test.mp4)
+09:29:45 INFO    vcam.events    cam3: motion START (manual)
+09:29:46 INFO    vcam.events    cam2: motion stop
+09:29:46 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.102)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:4a42a20a-ca38-5127-b907-4d2931ad58a5)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam2 (urn:uuid:0be45b01-37a5-50cc-a639-a6ce3a177690)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam3 (urn:uuid:a3b16719-a367-56ed-be45-d6d82105a3e0)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam4 (urn:uuid:e6dc9147-b0ca-51d5-bc3c-68acfc7e1b4d)
+09:29:46 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.102, 172.30.208.1)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:4a42a20a-ca38-5127-b907-4d2931ad58a5)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam2 (urn:uuid:0be45b01-37a5-50cc-a639-a6ce3a177690)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam3 (urn:uuid:a3b16719-a367-56ed-be45-d6d82105a3e0)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam4 (urn:uuid:e6dc9147-b0ca-51d5-bc3c-68acfc7e1b4d)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam5 (urn:uuid:d28e338b-5901-5779-b59d-2acc65c1e8be)
+09:29:46 INFO    vcam           cam5: online at port 8084 (C:\vc\ONVIF-VCam-1.2.0\videos\uploaded_test.mp4)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam6 (urn:uuid:c5836457-6efa-5f71-be43-46bd7df411a1)
+09:29:46 INFO    vcam           cam6: online at port 8085 (C:\vc\ONVIF-VCam-1.2.0\videos\uploaded_test.mp4)
+09:29:46 INFO    vcam.discovery WS-Discovery Hello cam7 (urn:uuid:e51207a5-14c8-5b2a-8bbf-204c48bb94eb)
+09:29:46 INFO    vcam           cam7: online at port 8086 (C:\vc\ONVIF-VCam-1.2.0\videos\uploaded_test.mp4)
+09:29:46 INFO    vcam.source    uploaded_test.mp4/H264 640x360@10 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=10/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=768 vbv-buf-capacity=2000 key-int-max=10 bframes=0 byte-stream=true aud=true option-string="min-keyint=10:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+09:29:46 INFO    vcam.rtsp      SETUP F873C5960F2C cam6/Profile_2 tcp from 10.1.0.102 (rtsp)
+09:29:46 INFO    vcam.rtsp      SETUP D4D0F7B61820 cam7/Profile_2 tcp from 10.1.0.102 (rtsp)
+09:29:46 INFO    vcam.rtsp      SETUP E2040D819846 cam5/Profile_2 tcp from 10.1.0.102 (rtsp)
+09:29:49 INFO    vcam.source    sample_1080p.mp4/H264 640x360@15 idle, stopping encoder
+09:29:54 INFO    vcam.rtsp      session F873C5960F2C cam6/Profile_2 tcp closed (connection closed) after 7s, 479 RTP packets sent, client 10.1.0.102 [Lavf63.1.102]
+09:29:54 INFO    vcam.rtsp      session D4D0F7B61820 cam7/Profile_2 tcp closed (connection closed) after 7s, 479 RTP packets sent, client 10.1.0.102 [Lavf63.1.102]
+09:29:54 INFO    vcam.rtsp      session E2040D819846 cam5/Profile_2 tcp closed (connection closed) after 7s, 479 RTP packets sent, client 10.1.0.102 [Lavf63.1.102]
+09:29:54 INFO    vcam           cam3: offline (removed)
+09:29:54 INFO    vcam           cam4: offline (removed)
+09:29:54 INFO    vcam           cam5: offline (removed)
+09:29:54 INFO    vcam           cam6: offline (removed)
+09:29:55 INFO    vcam           cam7: offline (removed)
+09:29:57 INFO    vcam.source    uploaded_test.mp4/H264 1280x720@20 idle, stopping encoder
+09:29:57 INFO    vcam.gst       screen://: starting GStreamer source
+09:29:57 INFO    vcam.source    screen:///H264 1024x768@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1024,height=768,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+09:29:58 INFO    vcam.rtsp      SETUP 7010CD5AD1B8 cam2/Profile_1 tcp from 127.0.0.1 (rtsp)
+09:29:59 INFO    vcam.source    uploaded_test.mp4/H265 960x540@15 idle, stopping encoder
+09:30:05 INFO    vcam.source    C:\vc\ONVIF-VCam-1.2.0\videos\sample_1080p.mp4: idle, stopping GStreamer source
+09:30:09 INFO    vcam.rtsp      session 7010CD5AD1B8 cam2/Profile_1 tcp closed (connection closed) after 11s, 1543 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+09:30:09 INFO    vcam.source    screen:///H264 640x360@15 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=15/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=512 vbv-buf-capacity=2000 key-int-max=15 bframes=0 byte-stream=true aud=true option-string="min-keyint=15:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+09:30:09 INFO    vcam.rtsp      SETUP 393C72C91038 cam2/Profile_2 tcp from 127.0.0.1 (rtsp)
+09:30:11 INFO    vcam.source    uploaded_test.mp4/H264 640x360@10 idle, stopping encoder
+09:30:17 INFO    vcam.events    cam1: motion START
+09:30:20 INFO    vcam.rtsp      session 393C72C91038 cam2/Profile_2 tcp closed (connection closed) after 11s, 812 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+09:30:25 INFO    vcam.source    screen:///H264 1024x768@25 idle, stopping encoder
