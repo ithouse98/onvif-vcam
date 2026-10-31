@@ -1,0 +1,14 @@
+[tcp @ 00000245B9CF1A00] Connection to tcp://127.0.0.1:8554?timeout=20000000 failed: Error number -138 occurred
+[in#0 @ 00000245B9D3B9C0] Error opening input: Error number -138 occurred
+Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam2/Profile_1.
+Error opening input files: Error number -138 occurred
+C:\results\screen_Profile_1.mkv: No such file or directory
+[tcp @ 0000020C8EAD9300] Connection to tcp://127.0.0.1:8554?timeout=20000000 failed: Error number -138 occurred
+[in#0 @ 0000020C8EAD8DC0] Error opening input: Error number -138 occurred
+Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam2/Profile_2.
+Error opening input files: Error number -138 occurred
+C:\results\screen_Profile_2.mkv: No such file or directory
+snapshot failed: No connection could be made because the target machine actively refused it.
+[in#0 @ 00000215D801F240] Error opening input: No such file or directory
+Error opening input file C:\results\screen_Profile_1.mkv.
+Error opening input files: No such file or directory
