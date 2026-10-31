@@ -1,0 +1,23 @@
+
+==============================================================================
+ ONVIF Virtual Camera 1.3.0  -  2 device(s)  -  auth: admin/admin
+ by Behrouz Kazemi, VMS Systems Specialist  |  IPS-Co.  |  Telegram @B_8241
+==============================================================================
+ VirtualCam-1-sample_1080p  [h264 1920x1080@25 60.0s]
+   ONVIF   http://10.1.0.107:8080/onvif/device_service
+   RTSP    rtsp://10.1.0.107:8554/cam1/Profile_1                H264 1920x1080@25
+   RTSP    rtsp://10.1.0.107:8554/cam1/Profile_2                H264 640x360@15
+   RTSP    rtsp://10.1.0.107:8554/cam1/Profile_3                JPEG 640x352@10
+ VirtualCam-2-screen  [screen 1024x768@25 0.0s]
+   ONVIF   http://10.1.0.107:8081/onvif/device_service
+   RTSP    rtsp://10.1.0.107:8554/cam2/Profile_1                H264 1024x768@25
+   RTSP    rtsp://10.1.0.107:8554/cam2/Profile_2                H264 640x360@15
+   RTSP    rtsp://10.1.0.107:8554/cam2/Profile_3                JPEG 640x352@10
+ cam3: NOT RUNNING - screen://0+0: no video
+ cam4: NOT RUNNING - screen://all: no video
+
+ Control panel: http://10.1.0.107:8000/   (Ctrl+C or STOP.bat to stop)
+ Note: this PC has several adapters (10.1.0.107, 172.20.80.1). If a VMS sees the
+       camera on the wrong one, pick the right IP in the panel (Network).
+==============================================================================
+
