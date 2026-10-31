@@ -7,6 +7,12 @@ rem "START.bat silent": same, without opening the browser (used by autostart).
 rem Other arguments go straight to vcam; use START-DEBUG.bat to see console output.
 set "OPEN=--open"
 if /i "%~1"=="silent" (set "OPEN=") else if not "%~1"=="" goto custom
+rem Installed as a service (SERVICE-INSTALL.bat)? Then start the service instead.
+sc query ONVIF-VCam >nul 2>&1 && (
+    "%PY%" -m vcam.winservice start vcam >nul 2>&1
+    if defined OPEN start "" "%ROOT%PANEL.url"
+    exit /b 0
+)
 if exist "%ROOT%config.json" (
     start "" "%PYW%" -m vcam -c "%ROOT%config.json" --log-file "%ROOT%vcam.log" %OPEN%
 ) else (

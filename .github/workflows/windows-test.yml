@@ -23,6 +23,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 40
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: bundle
@@ -42,49 +43,24 @@ jobs:
           "%PY%" -m vcam.gsthelper check
           "%PY%" -m vcam.gsthelper devices
           "%PY%" -m vcam.gsthelper probe screen://
+          "%PY%" -m vcam.gsthelper probe screen://all
+          "%PY%" -m vcam.gsthelper probe screen://0+0
           "%PY%" -m vcam.gsthelper probe "%ROOT%\videos\sample_1080p.mp4"
           ) > C:\results\gst-check.txt 2>&1
           type C:\results\gst-check.txt
           exit /b 0
-      - name: Run vcam (file + screen cameras), test suites, screen recording
-        timeout-minutes: 25
+      - name: Standalone, service, agent and tray tests
+        timeout-minutes: 30
         shell: pwsh
         run: |
-          # one step: the runner kills processes left over when a step ends
-          $env:PATH = "$env:ROOT\runtime;$env:ROOT\runtime\Library\bin;$env:PATH"
-          $env:PYTHONPATH = "$env:ROOT\app"
-          $PY = "$env:ROOT\runtime\python.exe"
-          Start-Process -FilePath $PY -WorkingDirectory $env:ROOT `
-            -ArgumentList "-m","vcam","$env:ROOT\videos\sample_1080p.mp4","screen://","--mjpeg","-c","$env:ROOT\config.json","--log-file","$env:ROOT\vcam.log" `
-            -RedirectStandardOutput "C:\results\stdout.txt" -RedirectStandardError "C:\results\stderr.txt"
-          for ($i = 0; $i -lt 60; $i++) {
-            try { $c = New-Object Net.Sockets.TcpClient; $c.Connect("127.0.0.1", 8000); $c.Close(); break } catch { Start-Sleep 2 }
-          }
-          Start-Sleep 3
-          $t = "C:\results\tests.txt"
-          & $PY "$env:ROOT\app\tests\test_raw_soap.py" 127.0.0.1 8080 8554 admin admin *>> $t
-          & $PY "$env:ROOT\app\tests\test_with_onvif_client.py" 127.0.0.1 8080 admin admin *>> $t
-          & $PY "$env:ROOT\app\tests\test_panel.py" 127.0.0.1 8000 admin admin "$env:ROOT\videos\sample_1080p.mp4" *>> $t
-          Select-String -Path $t -Pattern "passed|FAIL" | ForEach-Object { $_.Line }
-
-          $null = Start-Job { 1..30 | ForEach-Object { Start-Process notepad; Start-Sleep 1 } }
-          $out = "C:\results\screen.txt"
-          foreach ($p in "Profile_1", "Profile_2") {
-            $a = "-v error -timeout 20000000 -rtsp_transport tcp -i rtsp://admin:admin@127.0.0.1:8554/cam2/$p -t 10 -c copy -y C:\results\screen_$p.mkv"
-            $pr = Start-Process ffmpeg -ArgumentList $a -NoNewWindow -PassThru -RedirectStandardError "C:\results\ff_$p.txt"
-            if (-not $pr.WaitForExit(60000)) { $pr.Kill(); "ffmpeg $p TIMEOUT" | Add-Content $out }
-            Get-Content "C:\results\ff_$p.txt" -ErrorAction SilentlyContinue | Add-Content $out
-            & ffprobe -v error -count_frames -select_streams v -show_entries stream=codec_name,width,height,nb_read_frames -of compact "C:\results\screen_$p.mkv" 2>&1 | Add-Content $out
-          }
-          try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8081/onvif/snapshot/Profile_1.jpg -TimeoutSec 30 -OutFile C:\results\screen_snapshot.jpg; "snapshot ok" | Add-Content $out } catch { "snapshot failed: $_" | Add-Content $out }
-          & ffmpeg -v error -ss 5 -i C:\results\screen_Profile_1.mkv -frames:v 1 -vf scale=960:-2 -y C:\results\screen_frame.jpg 2>&1 | Add-Content $out
-          Get-Content $out
+          # everything in one step: the runner kills processes left over when a step ends
+          & "${{ github.workspace }}\scripts\windows_ci_test.ps1" -Root $env:ROOT
+          Get-Content C:\results\summary.txt
           exit 0
       - name: Collect
         if: always()
         shell: pwsh
         run: |
-          Copy-Item "$env:ROOT\vcam.log" C:\results\ -ErrorAction SilentlyContinue
           Remove-Item C:\results\*.mkv -ErrorAction SilentlyContinue
           Get-ChildItem C:\results | Format-Table Name, Length
       - name: Publish results to ci-results branch

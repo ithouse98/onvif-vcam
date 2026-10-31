@@ -54,6 +54,10 @@ def probe(path: str) -> MediaInfo:
 
 def _probe(path: str) -> MediaInfo:
     from . import gst
+    if path.startswith("agent://"):
+        from . import agents
+        w, h, fps = agents.screen_info(path)
+        return MediaInfo(path=path, codec="agent", width=w, height=h, fps=fps, duration=0.0)
     if gst.is_device(path) or not shutil.which("ffprobe"):
         r = gst.probe(path)  # screen / webcam: the capture size and rate
         return MediaInfo(path=path, codec=path.split("://")[0] if gst.is_device(path) else "video",

@@ -4,7 +4,11 @@
     python -m vcam.gsthelper probe SOURCE
     python -m vcam.gsthelper devices
     python -m vcam.gsthelper check
+    python -m vcam.gsthelper push SOURCE --to HOST:PORT --token T [--auth A] [--bitrate K]
+  any command + --connect HOST:PORT --token T : stdin/stdout over that TCP connection instead of
+  pipes (the Windows service starts screen helpers in the user's session this way)
 
+`push` (screen agent): captures SOURCE, encodes H.264 in MPEG-TS and sends it to a VCam agent hub.
 `run` opens SOURCE once (decode / capture -> I420 -> tee) so every stream of a camera shares
 one decoder, one webcam handle and one timeline. Encoder branches (gst-launch syntax ending in an
 appsink named "out") are added / removed at runtime with JSON lines on stdin:
@@ -14,7 +18,9 @@ With "ffmpeg" the branch output (y4m) is piped through that encoder (libx265: GS
 have no software H.265 encoder). stdout carries frames: struct ">HI" (branch id, length) +
 payload; id 0 is a JSON event (caps, eos, branch_error, error).
 
-SOURCE: file path or URL (rtsp/http/...), screen://[N][?fps=F], webcam://[N|name], test://[pattern]
+SOURCE: file path or URL (rtsp/http/...), screen://[N|all|N+M+...][?fps=F], webcam://[N|name],
+test://[pattern]. screen://all = every monitor as arranged in Windows display settings,
+screen://0+1 = the listed monitors side by side, both composed into one picture.
 """
 
 import json
@@ -50,6 +56,8 @@ class Out:
     def __init__(self):
         self.f = sys.stdout.buffer
         self.lock = threading.Lock()
+        global OUT
+        OUT = self
 
     def frame(self, bid, data):
         try:
@@ -64,7 +72,38 @@ class Out:
         self.frame(0, json.dumps(ev).encode())
 
 
+class RawSockOut:
+    """push mode: branch output straight to the agent hub socket."""
+
+    def __init__(self, sock):
+        self.sock = sock
+        self.lock = threading.Lock()
+
+    def frame(self, _bid, data):
+        try:
+            with self.lock:
+                self.sock.sendall(data)
+        except OSError:
+            log("hub connection closed")
+            os._exit(0)
+
+    def event(self, **ev):
+        if ev.get("type") in ("error", "branch_error"):
+            log(f"error: {ev.get('msg')}")
+            os._exit(1)
+
+
+OUT = None          # framed output of `run`
+CONNECTED = False   # stdin/stdout are a TCP connection (session helper): logs travel as events
+
+
 def log(msg):
+    if CONNECTED and OUT is not None:
+        try:
+            OUT.event(type="log", msg=msg)
+        except Exception:  # noqa
+            pass
+        return
     try:
         sys.stderr.write(msg + "\n")
         sys.stderr.flush()
@@ -106,7 +145,27 @@ def video_devices():
     return out
 
 
+def _prop(props, key, default=None):
+    if props is None or not props.has_field(key):
+        return default
+    try:
+        return props.get_value(key)
+    except TypeError:
+        return default
+
+
 def monitors():
+    """[{index, name, width, height, x, y, primary, hmonitor}] in capture-index order. x/y are
+    desktop coordinates (D3D11 provider on Windows)."""
+    fake = os.environ.get("VCAM_TEST_MONITORS")  # tests: "1280x720+0+0,640x480+1280+0"
+    if fake:
+        out = []
+        for i, m in enumerate(fake.split(",")):
+            wh, x, y = m.split("+")
+            w, h = wh.split("x")
+            out.append({"index": i, "name": f"Test {i}", "width": int(w), "height": int(h),
+                        "x": int(x), "y": int(y), "primary": i == 0, "hmonitor": None})
+        return out
     mon = Gst.DeviceMonitor.new()
     mon.add_filter("Source/Monitor", None)
     mon.start()
@@ -119,8 +178,93 @@ def monitors():
         if caps and caps.get_size():
             s = caps.get_structure(0)
             w, h = s.get_int("width")[1], s.get_int("height")[1]
-        out.append({"index": i, "name": d.get_display_name(), "width": w, "height": h})
+        p = d.get_properties()
+        left, top = _prop(p, "desktop.coordinates.left"), _prop(p, "desktop.coordinates.top")
+        right, bottom = _prop(p, "desktop.coordinates.right"), _prop(p, "desktop.coordinates.bottom")
+        if None not in (left, top, right, bottom):
+            w, h = int(right) - int(left), int(bottom) - int(top)
+        out.append({"index": i, "name": d.get_display_name(), "width": w, "height": h,
+                    "x": int(left or 0), "y": int(top or 0),
+                    "primary": bool(_prop(p, "device.primary", i == 0)),
+                    "hmonitor": _prop(p, "device.hmonitor")})
     return out
+
+
+def _monitor_srcs(m, fps, test=False):
+    """Capture alternatives for one monitor (best first)."""
+    caps = f"video/x-raw,framerate={fps}/1"
+    if test:  # VCAM_TEST_MONITORS
+        return [f"videotestsrc is-live=true pattern={'ball' if m['index'] == 0 else 'smpte'} ! "
+                f"video/x-raw,width={m['width']},height={m['height']},framerate={fps}/1"]
+    c = []
+    if has("d3d11screencapturesrc"):
+        sel = (f"monitor-handle={int(m['hmonitor'])}" if m.get("hmonitor")
+               else f"monitor-index={m['index']}")
+        c.append(f"d3d11screencapturesrc {sel} show-cursor=true ! {caps}")
+    if has("gdiscreencapsrc"):
+        c.append(f"gdiscreencapsrc monitor={m['index']} cursor=true ! {caps}")
+    return c
+
+
+def composite_desc(parts, srcs, fps):
+    """parts: [(monitor, x, y)], srcs: one launch fragment per part -> one pipeline fragment whose
+    last chain is the compositor (the caller appends '! tail')."""
+    x0 = min(x for _, x, _ in parts)
+    y0 = min(y for _, _, y in parts)
+    w = max(x - x0 + m["width"] for m, x, _ in parts)
+    h = max(y - y0 + m["height"] for m, _, y in parts)
+    w, h = w + w % 2, h + h % 2  # I420 / x264 need even sizes
+    branches, pads = [], []
+    for i, ((m, x, y), src) in enumerate(zip(parts, srcs)):
+        branches.append(f"{src} ! videoconvert ! queue max-size-buffers=3 leaky=downstream ! mix.sink_{i}")
+        pads.append(f"sink_{i}::xpos={x - x0} sink_{i}::ypos={y - y0}")
+    return (" ".join(branches) + " compositor name=mix background=black ignore-inactive-pads=true "
+            + " ".join(pads) + f" ! video/x-raw,width={w},height={h},framerate={fps}/1")
+
+
+def screen_candidates(arg, fps):
+    test = bool(os.environ.get("VCAM_TEST_MONITORS"))
+    caps = f"video/x-raw,framerate={fps}/1"
+    multi = arg == "all" or "+" in arg
+    if not WIN and not test:
+        if sys.platform == "darwin":
+            return [f"avfvideosrc capture-screen=true ! {caps}"]
+        # X11: ximagesrc already covers the whole screen (every monitor) in one picture
+        c = []
+        if has("ximagesrc"):
+            c.append(f"ximagesrc use-damage=false show-pointer=true ! videorate ! {caps}")
+        if has("pipewiresrc"):
+            c.append(f"pipewiresrc ! videorate ! {caps}")
+        return c
+    mons = monitors()
+    if not multi:
+        idx = int(arg) if arg.lstrip("-").isdigit() else -1
+        if idx >= 0 and mons and idx >= len(mons):
+            raise RuntimeError(f"monitor {idx} not found ({len(mons)} monitor(s))")
+        if idx < 0:  # primary
+            prim = [m for m in mons if m["primary"]]
+            if prim:
+                return _monitor_srcs(prim[0], fps, test)
+            return [f"d3d11screencapturesrc show-cursor=true ! {caps}",
+                    f"gdiscreencapsrc cursor=true ! {caps}"]
+        return _monitor_srcs(mons[idx], fps, test) if mons else \
+            [f"d3d11screencapturesrc monitor-index={idx} show-cursor=true ! {caps}",
+             f"gdiscreencapsrc monitor={idx} cursor=true ! {caps}"]
+    if not mons:
+        raise RuntimeError("no monitors found for a multi-monitor capture")
+    if arg == "all":  # desktop layout as arranged in Windows display settings
+        parts = [(m, m["x"], m["y"]) for m in mons]
+    else:  # listed monitors side by side, top aligned
+        parts, x = [], 0
+        for tok in arg.split("+"):
+            if not tok.strip().isdigit() or int(tok) >= len(mons):
+                raise RuntimeError(f"monitor '{tok}' not found ({len(mons)} monitor(s))")
+            m = mons[int(tok)]
+            parts.append((m, x, 0))
+            x += m["width"]
+    per = [_monitor_srcs(m, fps, test) for m, _, _ in parts]
+    n = min(len(p) for p in per)  # same capture method for every monitor, best first
+    return [composite_desc(parts, [p[k] for p in per], fps) for k in range(n)]
 
 
 def has(name):
@@ -133,6 +277,9 @@ def source_candidates(src):
     if kind == "file":
         return [("desc", f'uridecodebin name=dec uri="{Gst.filename_to_uri(os.path.abspath(arg))}" '
                          'caps="video/x-raw(ANY)" expose-all-streams=false')], False
+    if kind == "uri" and arg.startswith("tcp://"):  # agent stream relayed by the hub (MPEG-TS)
+        host, _, port = arg[6:].strip("/").rpartition(":")
+        return [("desc", f"tcpclientsrc host={host} port={port} ! decodebin")], True
     if kind == "uri":
         return [("desc", f'uridecodebin name=dec uri="{arg}" caps="video/x-raw(ANY)" '
                          'expose-all-streams=false')], True
@@ -142,21 +289,7 @@ def source_candidates(src):
                          "video/x-raw,width=1280,height=720,framerate=25/1")], True
     if kind == "screen":
         fps = int(float(params.get("fps", 25)))
-        idx = int(arg) if arg.lstrip("-").isdigit() else -1
-        caps = f"video/x-raw,framerate={fps}/1"
-        c = []
-        if WIN:
-            if has("d3d11screencapturesrc"):
-                c.append(("desc", f"d3d11screencapturesrc monitor-index={idx} show-cursor=true ! {caps}"))
-            if has("gdiscreencapsrc"):
-                c.append(("desc", f"gdiscreencapsrc monitor={max(idx, 0)} cursor=true ! {caps}"))
-        elif sys.platform == "darwin":
-            c.append(("desc", f"avfvideosrc capture-screen=true ! {caps}"))
-        else:
-            if has("ximagesrc"):
-                c.append(("desc", f"ximagesrc use-damage=false show-pointer=true ! videorate ! {caps}"))
-            if has("pipewiresrc"):
-                c.append(("desc", f"pipewiresrc ! videorate ! {caps}"))
+        c = [("desc", d) for d in screen_candidates(arg.lower().replace(" ", ""), fps)]
         if not c:
             raise RuntimeError("no screen capture element in this GStreamer build")
         return c, True
@@ -192,7 +325,9 @@ def demote_hw_decoders():
 
 # --------------------------------------------------------------------------- worker
 class Worker:
-    def __init__(self, src, out, start=0.0, loop=True, probe=False):
+    def __init__(self, src, out, start=0.0, loop=True, probe=False, control=True, branch=None):
+        self.control = control and not probe   # read branch commands from stdin
+        self.initial_branch = branch
         self.src = src
         self.out = out
         self.start_pos = start
@@ -443,8 +578,10 @@ class Worker:
 
     def run(self, timeout=None):
         self.build()
-        if not self.probe_mode:
+        if self.control:
             threading.Thread(target=self._stdin, daemon=True).start()
+        if self.initial_branch:
+            self.add(1, self.initial_branch)
         if timeout:
             GLib.timeout_add_seconds(timeout, self._timeout)
         while self.pipeline.set_state(Gst.State.PLAYING) == Gst.StateChangeReturn.FAILURE:
@@ -472,8 +609,60 @@ class Worker:
 
 
 # --------------------------------------------------------------------------- entry
+def _arg(argv, name, default=None):
+    if name in argv:
+        i = argv.index(name)
+        val = argv[i + 1]
+        del argv[i:i + 2]
+        return val
+    return default
+
+
+def _connect(addr, token):
+    """Use a TCP connection to the parent as stdin/stdout."""
+    import io
+    import socket
+    global CONNECTED
+    host, port = addr.rsplit(":", 1)
+    s = socket.create_connection((host, int(port)), timeout=15)
+    s.settimeout(None)
+    s.sendall((json.dumps({"token": token}) + "\n").encode())
+    w = s.makefile("wb")
+    sys.stdout = io.TextIOWrapper(w, encoding="utf-8", write_through=True)
+    sys.stdin = io.TextIOWrapper(s.makefile("rb"), encoding="utf-8")
+    CONNECTED = True
+    return s
+
+
+def push(src, argv):
+    """Agent side: capture -> H.264 / MPEG-TS -> hub data connection."""
+    import socket
+    host, port = _arg(argv, "--to").rsplit(":", 1)
+    token, auth = _arg(argv, "--token", ""), _arg(argv, "--auth", "")
+    br = int(_arg(argv, "--bitrate", "6000"))
+    fps = int(float(urllib.parse.parse_qs(urllib.parse.urlsplit(src).query).get("fps", ["25"])[0]))
+    s = socket.create_connection((host, int(port)), timeout=15)
+    s.recv(4096)  # challenge line (not needed for data connections)
+    s.sendall((json.dumps({"type": "data", "stream": token, "auth": auth}) + "\n").encode())
+    s.settimeout(None)
+    branch = ("queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! "
+              f"x264enc tune=zerolatency speed-preset=veryfast bitrate={br} vbv-buf-capacity=1000 "
+              f"key-int-max={max(1, fps * 2)} bframes=0 byte-stream=true "
+              'option-string="repeat-headers=1:scenecut=0" ! h264parse config-interval=-1 ! '
+              "mpegtsmux ! appsink name=out max-buffers=200 drop=false")
+    w = Worker(src, RawSockOut(s), loop=False, control=False, branch=branch)
+    return w.run()
+
+
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
+    conn = _arg(argv, "--connect")
+    if conn:
+        _connect(conn, _arg(argv, "--token", ""))
+        if not argv or argv[0] != "run":  # probe / devices answer on the socket, log to a file
+            import tempfile
+            sys.stderr = open(os.path.join(tempfile.gettempdir(), "vcam-gsthelper.log"), "a",
+                              encoding="utf-8")
     Gst.init(None)
     demote_hw_decoders()
     cmd = argv.pop(0) if argv else "check"
@@ -486,12 +675,18 @@ def main(argv=None):
     if cmd == "devices":
         cams = [{"index": i, "name": d["name"], "api": d["apis"][0]}
                 for i, d in enumerate(video_devices())]
-        print(json.dumps({"webcams": cams, "screens": monitors()}))
+        print(json.dumps({"webcams": cams, "screens": monitors()}), flush=True)
         return 0
     if not argv:
         print(__doc__, file=sys.stderr)
         return 2
     src = argv.pop(0)
+    if cmd == "push":
+        try:
+            return push(src, argv)
+        except Exception as exc:  # noqa
+            log(f"error: {exc}")
+            return 1
     if cmd == "probe":
         try:
             w = Worker(src, None, probe=True)
@@ -499,7 +694,7 @@ def main(argv=None):
             res = w.result or {"error": "no video"}
         except Exception as exc:  # noqa
             res = {"error": str(exc)}
-        print(json.dumps(res))
+        print(json.dumps(res), flush=True)
         return 0 if "error" not in res else 1
     if cmd == "run":
         start = float(argv[argv.index("--start") + 1]) if "--start" in argv else 0.0

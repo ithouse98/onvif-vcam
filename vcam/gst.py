@@ -1,10 +1,13 @@
 """GStreamer engine, main-process side: one vcam.gsthelper process per source, shared by every
 encoder (branch) and snapshot of that source. See gsthelper.py for the wire protocol."""
 
+import io
 import json
 import logging
 import os
 import queue
+import secrets
+import socket
 import struct
 import subprocess
 import sys
@@ -16,7 +19,7 @@ from .util import NO_WINDOW
 
 log = logging.getLogger("vcam.gst")
 
-DEVICE_PREFIXES = ("screen://", "webcam://", "test://")
+DEVICE_PREFIXES = ("screen://", "webcam://", "test://", "agent://")
 _PKG_PARENT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -45,14 +48,101 @@ def _env():
     return env
 
 
-def run_helper(*args, timeout=30):
+def needs_user_session(src):
+    """Screen / webcam capture from a Windows service must run on the user's desktop."""
+    if not str(src).startswith(("screen://", "webcam://")):
+        return False
+    from . import winsession
+    return winsession.in_service_session()
+
+
+class SockProc:
+    """Popen-like view of a helper started in the user session, talking over a socket."""
+
+    def __init__(self, conn, rfile, proc):
+        self.conn, self.proc = conn, proc
+        self.stdout = rfile
+        self.stdin = conn.makefile("wb")
+        self.stderr = io.BytesIO()   # session helpers send their log lines as events
+        self.pid = proc.pid
+
+    @property
+    def returncode(self):
+        return self.proc.poll()
+
+    def poll(self):
+        return self.proc.poll()
+
+    def wait(self, timeout=None):
+        return self.proc.wait(timeout)
+
+    def kill(self):
+        self.proc.kill()
+        try:
+            self.conn.close()
+        except OSError:
+            pass
+
+
+def spawn(args, src=None):
+    """Start a helper -> Popen-like object with binary stdin/stdout/stderr."""
+    if src is not None and needs_user_session(src):
+        from . import winsession
+        sid = winsession.user_session()
+        if sid is None:
+            raise RuntimeError("no user is logged on to Windows: screen and webcam capture need a "
+                               "logged-in desktop")
+        lst = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        lst.bind(("127.0.0.1", 0))
+        lst.listen(1)
+        token = secrets.token_hex(12)
+        env = {k: v for k, v in _env().items()
+               if k in ("PYTHONPATH", "PYTHONHOME", "PYTHONUTF8", "PYTHONNOUSERSITE", "GST_DEBUG")}
+        env["PATH"] = os.pathsep.join(p for p in (os.path.dirname(_python()),
+                                                  os.path.join(os.path.dirname(_python()), "Library", "bin"))
+                                      if os.path.isdir(p))
+        proc = winsession.launch(helper_cmd(*args, "--connect", f"127.0.0.1:{lst.getsockname()[1]}",
+                                            "--token", token), sid, env=env,
+                                 cwd=os.path.dirname(_PKG_PARENT))
+        try:
+            lst.settimeout(40)
+            while True:
+                conn, _ = lst.accept()
+                conn.settimeout(None)
+                rfile = conn.makefile("rb")
+                try:
+                    if json.loads(rfile.readline(1024) or b"{}").get("token") == token:
+                        return SockProc(conn, rfile, proc)
+                except ValueError:
+                    pass
+                conn.close()
+        except OSError:
+            proc.kill()
+            raise RuntimeError("the capture helper did not start in the user session")
+        finally:
+            lst.close()
+    return subprocess.Popen(helper_cmd(*args), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, env=_env(), creationflags=NO_WINDOW, bufsize=0)
+
+
+def run_helper(*args, timeout=30, src=None):
     """One-shot helper call (check / probe / devices) -> parsed JSON."""
-    out = subprocess.run(helper_cmd(*args), capture_output=True, text=True, timeout=timeout,
-                         env=_env(), creationflags=NO_WINDOW, stdin=subprocess.DEVNULL)
+    if src is not None and needs_user_session(src):
+        p = spawn(list(args), src)
+        box = {}
+        t = threading.Thread(target=lambda: box.setdefault("out", p.stdout.read()), daemon=True)
+        t.start()
+        t.join(timeout)
+        p.kill()
+        text, err = (box.get("out") or b"").decode("utf-8", "replace"), ""
+    else:
+        out = subprocess.run(helper_cmd(*args), capture_output=True, text=True, timeout=timeout,
+                             env=_env(), creationflags=NO_WINDOW, stdin=subprocess.DEVNULL)
+        text, err = out.stdout, out.stderr
     try:
-        return json.loads(out.stdout.strip().splitlines()[-1])
+        return json.loads(text.strip().splitlines()[-1])
     except (ValueError, IndexError):
-        raise RuntimeError((out.stderr or out.stdout or "gstreamer helper failed").strip()[-400:])
+        raise RuntimeError((err or text or "gstreamer helper failed").strip()[-400:])
 
 
 def available():
@@ -179,11 +269,15 @@ class GstSource:
         self._start()
 
     def _start(self):
-        cmd = helper_cmd("run", self.source, "--start", f"{self.start_pos:.3f}")
-        log.info("%s: starting GStreamer source", self.source)
-        self.proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE, env=_env(), creationflags=NO_WINDOW,
-                                     bufsize=0)
+        src = self.source
+        if src.startswith("agent://"):  # remote PC: the agent hub relays its stream locally
+            from . import agents
+            if agents.HUB is None:
+                raise RuntimeError("agent hub is not running")
+            src = agents.HUB.open_stream(src)
+        log.info("%s: starting GStreamer source%s", self.source,
+                 " in the user session" if needs_user_session(src) else "")
+        self.proc = spawn(["run", src, "--start", f"{self.start_pos:.3f}"], src)
         self.last_data = time.time()
         threading.Thread(target=self._reader, args=(self.proc,), daemon=True,
                          name="gst-" + os.path.basename(self.source)).start()
@@ -246,6 +340,9 @@ class GstSource:
                 b.end(ev.get("msg"))
         elif t == "error":
             self.error = ev.get("msg")
+        elif t == "log":  # helper in the user session: no stderr pipe
+            self.stderr_tail.append(str(ev.get("msg")))
+            log.debug("gst[%s]: %s", self.source, ev.get("msg"))
 
     def add(self, desc, ffmpeg=None):
         with self.lock:
@@ -298,11 +395,11 @@ def _read_exact(f, n):
 
 
 def probe(src):
-    r = run_helper("probe", src, timeout=40)
+    r = run_helper("probe", src, timeout=40, src=src)
     if "error" in r:
         raise RuntimeError(f"{src}: {r['error']}")
     return r
 
 
 def devices():
-    return run_helper("devices", timeout=30)
+    return run_helper("devices", timeout=30, src="screen://")

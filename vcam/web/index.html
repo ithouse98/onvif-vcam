@@ -153,10 +153,12 @@ footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
   <div class="tabs">
     <div class="tab on" data-t="sess" onclick="tab(this)">اتصال‌های فعال (RTSP)</div>
     <div class="tab" data-t="enc" onclick="tab(this)">انکودرها</div>
+    <div class="tab" data-t="agents" onclick="tab(this)">ایجنت‌ها (کامپیوترهای دیگر) <span id="agCount"></span></div>
     <div class="tab" data-t="log" onclick="tab(this)">لاگ</div>
   </div>
   <div class="tp" id="tp-sess"></div>
   <div class="tp" id="tp-enc" hidden></div>
+  <div class="tp" id="tp-agents" hidden></div>
   <div class="tp" id="tp-log" hidden>
     <div class="row" style="margin-bottom:6px">
       <label class="inl"><input type="checkbox" id="logWarn"> فقط هشدار و خطا</label>
@@ -200,6 +202,7 @@ footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
           <button class="btn sm" type="button" data-t="screen">🖥 صفحه نمایش</button>
           <button class="btn sm" type="button" data-t="webcam">📷 وب‌کم / دوربین USB</button>
           <button class="btn sm" type="button" data-t="url">🌐 آدرس شبکه (RTSP/HTTP)</button>
+          <button class="btn sm" type="button" data-t="agent">🖧 صفحه کامپیوتر دیگر (ایجنت)</button>
         </div>
         <div data-src="file" class="f" style="grid-template-columns:1fr">
           <label>از کتابخانه ویدیو
@@ -214,12 +217,19 @@ footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
         <div data-src="screen" class="f">
           <label>مانیتور<select id="fScreen" onchange="srcFromDevice()"></select></label>
           <label>FPS ضبط<input id="fScrFps" type="number" min="1" max="60" value="25" onchange="srcFromDevice()"></label>
-          <span class="hint" style="grid-column:1/-1">تصویر صفحه نمایش همین سیستم (همراه با نشانگر ماوس) به‌صورت یک دوربین ONVIF پخش می‌شود.</span>
+          <span class="hint" style="grid-column:1/-1">تصویر صفحه نمایش همین سیستم (همراه با نشانگر ماوس) به‌صورت یک دوربین ONVIF پخش می‌شود.
+            با چند مانیتور می‌توانید همه را در یک تصویر عریض داشته باشید؛ ترکیب دلخواه را هم می‌توانید در کادر منبع بنویسید، مثلاً <span class="ltr">screen://0+2</span>.</span>
         </div>
         <div data-src="webcam" class="f">
           <label>دوربین<select id="fCam" onchange="srcFromDevice()"></select></label>
           <div class="row" style="align-self:end"><button class="btn sm" type="button" onclick="loadDevices(true)">↻ جستجوی دوباره</button></div>
           <span class="hint" id="devHint" style="grid-column:1/-1">وب‌کم یا دوربین USB متصل به این سیستم. هر دوربین فقط یک بار باز می‌شود و همه استریم‌ها از آن تغذیه می‌شوند.</span>
+        </div>
+        <div data-src="agent" class="f">
+          <label>کامپیوتر (ایجنت)<select id="fAgent" onchange="agentScreens();srcFromDevice()"></select></label>
+          <label>مانیتور<select id="fAgScr" onchange="srcFromDevice()"></select></label>
+          <label>FPS<input id="fAgFps" type="number" min="1" max="60" value="25" onchange="srcFromDevice()"></label>
+          <span class="hint" id="agHint" style="grid-column:1/-1">صفحه نمایش یک کامپیوتر دیگر در شبکه که ایجنت VCam روی آن نصب است (AGENT-INSTALL.bat).</span>
         </div>
         <label><span id="fSrcLbl">مسیر فایل</span><input id="fSrc" class="ltr" required placeholder="D:\videos\clip.mp4"></label>
       </div>
@@ -261,6 +271,10 @@ footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
       <label>نام کاربری<input id="sUser" class="ltr"></label>
       <label>رمز جدید<input id="sPass" type="password" class="ltr" placeholder="بدون تغییر"></label>
     </div></fieldset>
+    <fieldset><legend>ایجنت‌ها (کامپیوترهای دیگر)</legend>
+      <label>کلید ایجنت (اختیاری)<input id="sAgKey" class="ltr" placeholder="خالی = پذیرش همه ایجنت‌ها"></label>
+      <p class="hint">اگر کلید تنظیم شود، فقط ایجنت‌هایی که همین کلید را هنگام نصب وارد کرده‌اند پذیرفته می‌شوند.</p>
+    </fieldset>
     <p class="hint" id="sInfo"></p>
     <div class="err" id="stErr"></div>
   </div>
@@ -345,8 +359,40 @@ function render(){
     <td>${e.frames}</td><td>${e.mbytes} MB</td><td>${e.consumers}</td>
     <td>${e.error?`<span class="err">${esc(e.error)}</span>`:e.ready?'✓':'در حال شروع…'}</td></tr>`).join('')}</table>`
     : '<p class="hint">انکودرها فقط هنگام اتصال یک بیننده اجرا می‌شوند.</p>';
+  renderAgents();
+}
+function renderAgents(){
+  const ags = S.agents||[], hub = S.agent_hub||{}, on = ags.filter(a=>a.online).length;
+  $('#agCount').textContent = ags.length ? `(${on}/${ags.length})` : '';
+  const help = `<p class="hint">برای استریم صفحه نمایش یک کامپیوتر دیگر: همین پوشه را روی آن کامپیوتر کپی کنید و <b>AGENT-INSTALL.bat</b> را با Run as administrator اجرا کنید.
+    ایجنت به‌صورت سرویس ویندوز اجرا می‌شود، این سرور را خودکار پیدا می‌کند (یا آدرس <span class="ltr">${esc(S.settings.primary_ip)}${hub.port&&hub.port!==8600?':'+hub.port:''}</span> را وارد کنید) و اینجا ظاهر می‌شود.
+    پورت ایجنت: <span class="ltr">${hub.port||'غیرفعال'}</span> · کلید ایجنت: ${hub.key_set?'تنظیم شده ✓':'تنظیم نشده (هر ایجنتی پذیرفته می‌شود؛ در «شبکه و دسترسی» تنظیم کنید)'}</p>`;
+  $('#tp-agents').innerHTML = help + (ags.length ? `<table><tr><th>وضعیت</th><th>کامپیوتر</th><th>IP</th><th>سیستم‌عامل</th><th>مانیتورها</th><th>استریم</th><th>ساخت دوربین</th><th></th></tr>
+    ${ags.map(a=>`<tr><td>${a.online?'<span class="pill ok">آنلاین</span>':'<span class="pill">آفلاین</span>'}</td>
+      <td>${esc(a.name)}<div class="hint ltr">${esc(a.version?'v'+a.version:'')}</div></td><td class="ltr">${esc(a.ip||'')}</td><td class="ltr">${esc(a.os||'')}</td>
+      <td class="ltr">${a.screens.map(m=>`${m.index}: ${m.width}×${m.height}${m.primary?' ★':''}`).join('<br>')||'-'}</td><td>${a.streams}</td>
+      <td>${a.online ? a.screens.map(m=>`<button class="btn sm" onclick="addAgentCam('${esc(a.id)}','${m.index}')">+ مانیتور ${m.index}</button>`).join(' ') +
+          (a.screens.length>1?` <button class="btn sm" onclick="addAgentCam('${esc(a.id)}','all')">+ همه مانیتورها</button>`:'') : '-'}</td>
+      <td>${a.online?'':`<button class="btn sm dan" onclick="forgetAgent('${esc(a.id)}')">حذف</button>`}</td></tr>`).join('')}</table>`
+    : '<p class="hint">هنوز هیچ ایجنتی وصل نشده است.</p>');
+}
+async function addAgentCam(id, screen){
+  const a = (S.agents||[]).find(x=>x.id===id); if (!a) return;
+  try{ await api('POST','/api/cameras', {name: `${a.name}-${screen==='all'?'all':'M'+screen}`, source:`agent://${id}/${screen}`});
+       toast('دوربین ساخته شد'); sig=''; poll(); }catch(e){ toast(e.message,1) }
+}
+async function forgetAgent(id){
+  if (!confirm('این ایجنت از فهرست حذف شود؟')) return;
+  try{ await api('DELETE','/api/agents/'+id); sig=''; poll(); }catch(e){ toast(e.message,1) }
 }
 
+function srcLabel(src){
+  const t = srcType(src);
+  if (t==='file') return String(src).split(/[\\/]/).pop()||src;
+  if (t==='agent'){ const u = String(src).slice(8), aid = u.split('/')[0], a = (S.agents||[]).find(x=>x.id===aid);
+    return '🖧 ' + (a ? a.name : aid.slice(0,8)) + ' / ' + (decodeURIComponent(u.slice(aid.length+1)) || 'primary'); }
+  return src;
+}
 function card(c){
   const cf = c.config, r = c.runtime, id = esc(cf.id);
   const st = !cf.enabled && cf.enabled !== undefined ? '<span class="pill">غیرفعال</span>' :
@@ -364,7 +410,7 @@ function card(c){
     <div class="cb">
       ${c.error?`<div class="err">${esc(c.error)}</div>`:''}
       ${S.encoders.filter(e=>e.source===cf.source && e.error).map(e=>`<div class="err">انکودر ${esc(e.label)}: ${esc(e.error)}</div>`).join('')}
-      <div class="row"><span class="k">منبع</span><span class="url ltr" title="${esc(cf.source)}">${esc(srcType(cf.source)==='file' ? (String(cf.source).split(/[\\/]/).pop()||cf.source) : cf.source)}</span></div>
+      <div class="row"><span class="k">منبع</span><span class="url ltr" title="${esc(cf.source)}">${esc(srcLabel(cf.source))}</span></div>
       ${r?`<div class="row"><span class="k">ONVIF</span><span class="url ltr">${esc(r.device_service)}</span>
         <button class="cp" onclick="copy('${esc(r.device_service)}')">⧉</button></div>
         <div class="hint ltr" style="text-align:right">${esc(r.source_info)}</div>
@@ -432,8 +478,9 @@ async function loadVideos(sel){
 }
 let devs = null;
 const SRC_HINT = {file:['مسیر فایل','D:\\videos\\clip.mp4'], url:['آدرس استریم','rtsp://user:pass@192.168.1.10/stream1'],
-                  screen:['منبع (خودکار)','screen://'], webcam:['منبع (خودکار)','webcam://0']};
-function srcType(s){ s = String(s||''); return s.startsWith('screen://')?'screen':s.startsWith('webcam://')?'webcam':
+                  screen:['منبع (خودکار)','screen://'], webcam:['منبع (خودکار)','webcam://0'],
+                  agent:['منبع (خودکار)','agent://…']};
+function srcType(s){ s = String(s||''); return s.startsWith('screen://')?'screen':s.startsWith('webcam://')?'webcam':s.startsWith('agent://')?'agent':
   /^[a-z][a-z0-9+.-]*:\/\//i.test(s)?'url':'file'; }
 function setType(t, keep){
   document.querySelectorAll('#fType .btn').forEach(b=>b.classList.toggle('on', b.dataset.t===t));
@@ -442,6 +489,7 @@ function setType(t, keep){
   if (keep) return;
   if (t==='file') $('#fSrc').value = $('#fLib').value || '';
   else if (t==='url') $('#fSrc').value = '';
+  else if (t==='agent'){ fillAgents(); srcFromDevice(); }
   else loadDevices().then(srcFromDevice);
 }
 function srcFromDevice(){
@@ -449,13 +497,34 @@ function srcFromDevice(){
   if (t==='screen'){ const i = $('#fScreen').value, f = +$('#fScrFps').value || 25;
     $('#fSrc').value = 'screen://' + (i==='' ? '' : i) + (f!==25 ? '?fps='+f : ''); }
   if (t==='webcam'){ $('#fSrc').value = $('#fCam').value ? 'webcam://' + $('#fCam').value : ''; }
+  if (t==='agent'){ const a = $('#fAgent').value, sc = $('#fAgScr').value, f = +$('#fAgFps').value || 25;
+    $('#fSrc').value = a ? `agent://${a}/${sc}${f!==25?'?fps='+f:''}` : ''; }
+}
+function screenOpts(scr){
+  return '<option value="">نمایشگر اصلی</option>' +
+    scr.map(m=>`<option value="${m.index}">${m.index}: ${esc(m.name||('Monitor '+(m.index+1)))}${m.width?` (${m.width}×${m.height})`:''}${m.primary?' ★':''}</option>`).join('') +
+    (scr.length>1 ? `<option value="all">همه مانیتورها در یک تصویر (طبق چیدمان)</option>
+      <option value="${scr.map(m=>m.index).join('+')}">همه مانیتورها کنار هم (${scr.map(m=>m.index).join(' + ')})</option>` : '');
+}
+function fillAgents(sel){
+  const ags = S.agents||[];
+  $('#fAgent').innerHTML = ags.length ? ags.map(a=>`<option value="${esc(a.id)}">${a.online?'🟢':'⚪'} ${esc(a.name)} (${esc(a.ip||'')})</option>`).join('')
+                                      : '<option value="">— هیچ ایجنتی ثبت نشده —</option>';
+  if (sel) $('#fAgent').value = sel;
+  agentScreens();
+  $('#agHint').textContent = ags.length ? 'صفحه نمایش یک کامپیوتر دیگر در شبکه که ایجنت VCam روی آن نصب است.'
+    : 'هنوز ایجنتی وصل نشده. روی کامپیوتر مقصد همین پوشه را کپی و AGENT-INSTALL.bat را (Run as administrator) اجرا کنید.';
+}
+function agentScreens(){
+  const a = (S.agents||[]).find(x=>x.id===$('#fAgent').value);
+  $('#fAgScr').innerHTML = screenOpts(a ? a.screens : []);
 }
 async function loadDevices(force){
   if (devs && !force) return devs;
   $('#devHint').textContent = 'در حال جستجوی دستگاه‌ها…';
   try{ devs = await api('GET','/api/devices'); }catch(e){ devs = {webcams:[],screens:[],error:e.message}; }
-  $('#fScreen').innerHTML = '<option value="">نمایشگر اصلی</option>' +
-    (devs.screens||[]).map(m=>`<option value="${m.index}">${esc(m.name||('Monitor '+(m.index+1)))}${m.width?` (${m.width}×${m.height})`:''}</option>`).join('');
+  const scr = devs.screens||[];
+  $('#fScreen').innerHTML = screenOpts(scr) + (scr.length===2 ? `<option value="1+0">مانیتور 1 + مانیتور 0 کنار هم</option>` : '');
   $('#fCam').innerHTML = (devs.webcams||[]).map(c=>`<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
   $('#devHint').textContent = devs.error ? 'خطا: '+devs.error :
     (devs.webcams||[]).length ? (devs.webcams.length+' دوربین پیدا شد. هر دوربین فقط یک بار باز می‌شود و همه استریم‌ها از آن تغذیه می‌شوند.')
@@ -476,9 +545,15 @@ function openEditor(id){
   const m = cf.motion || {}; $('#mOn').checked = m.enabled !== false; $('#mOnS').value = m.on_seconds||10; $('#mOffS').value = m.off_seconds||50;
   $('#profs').innerHTML = ''; (cf.profiles || DEF).forEach(p=>$('#profs').append(profRow(p)));
   const st = srcType(cf.source); setType(st, true);
+  if (st==='agent'){ const u = String(cf.source).slice(8); const [aid, rest=''] = u.split(/\/(.*)/s);
+    const [sc, q=''] = rest.split('?'); fillAgents(aid);
+    if (![...$('#fAgScr').options].some(o=>o.value===sc)) $('#fAgScr').insertAdjacentHTML('beforeend', `<option value="${esc(sc)}">${esc(sc)}</option>`);
+    $('#fAgScr').value = sc; $('#fAgFps').value = (q.match(/fps=(\d+)/)||[])[1] || 25; }
   if (st==='screen' || st==='webcam') loadDevices().then(()=>{
     const v = decodeURIComponent(String(cf.source).split('://')[1]||'');
-    if (st==='screen'){ const [i,q] = v.split('?'); $('#fScreen').value = i||''; $('#fScrFps').value = (q||'').replace('fps=','')||25; }
+    if (st==='screen'){ const [i,q] = v.split('?');
+      if (i && ![...$('#fScreen').options].some(o=>o.value===i)) $('#fScreen').insertAdjacentHTML('beforeend', `<option value="${esc(i)}">${esc(i)}</option>`);
+      $('#fScreen').value = i||''; $('#fScrFps').value = (q||'').replace('fps=','')||25; }
     else if (v && ![...$('#fCam').options].some(o=>o.value===v)) $('#fCam').insertAdjacentHTML('afterbegin', `<option value="${esc(v)}">${esc(v)}</option>`), $('#fCam').value = v;
     else $('#fCam').value = v; });
   loadVideos(cf.source).then(()=>{ if(!cf.source && videos.length){ $('#fLib').value = videos[0].path; $('#fSrc').value = videos[0].path; } });
@@ -519,12 +594,12 @@ function openSettings(){
   const s = S.settings; $('#stErr').textContent = '';
   $('#sIp').innerHTML = `<option value="">خودکار — همه آداپترها (${esc(s.primary_ip)} اول)</option>` + s.ips.map(i=>`<option>${esc(i)}</option>`).join('');
   $('#sIp').value = s.advertise_ip || '';
-  $('#sUser').value = s.username; $('#sPass').value = '';
+  $('#sUser').value = s.username; $('#sPass').value = ''; $('#sAgKey').value = s.agent_key || '';
   $('#sInfo').innerHTML = `پورت RTSP: <span class="ltr">${s.rtsp_port}</span> · فایل پیکربندی: <span class="ltr">${esc(s.config_path||'—')}</span>`;
   st.showModal();
 }
 async function saveSettings(){
-  const body = {advertise_ip: $('#sIp').value};
+  const body = {advertise_ip: $('#sIp').value, agent_key: $('#sAgKey').value.trim()};
   if ($('#sPass').value) { body.username = $('#sUser').value.trim(); body.password = $('#sPass').value; }
   else if ($('#sUser').value.trim() !== S.settings.username){ $('#stErr').textContent='برای تغییر نام کاربری، رمز را هم وارد کنید.'; return; }
   try{ await api('PUT','/api/settings', body); st.close(); toast('اعمال شد'); sig=''; poll(); }catch(e){ $('#stErr').textContent = e.message }

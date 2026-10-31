@@ -8,6 +8,7 @@ import os
 import threading
 import time
 
+from .agents import AgentHub
 from .auth import Authenticator
 from .discovery import Discovery
 from .model import Camera, User
@@ -67,6 +68,7 @@ class App:
         self.http = {}
         self._index = 0
         cfg.setdefault("cameras", [])
+        self.agents = AgentHub(self, cfg)  # before the cameras: agent:// sources ask it for their size
         built = []
         for ccfg in cfg["cameras"]:
             self._ensure_identity(ccfg)
@@ -135,6 +137,9 @@ class App:
                 self.discovery.start()
             except OSError as exc:
                 log.error("WS-Discovery disabled: cannot bind udp/3702 (%s)", exc)
+        if self.cfg.get("agents_enabled", True):
+            self.agents.start()
+        threading.Thread(target=self._retry_devices, name="device-retry", daemon=True).start()
         for cam in self.cameras:
             for prof in cam.profiles.values():
                 vec = cam.vecs.get(prof.vec) if prof.vec else None
@@ -160,6 +165,7 @@ class App:
             cam.stop_evt.set()
         self.events.shutdown()
         self.rtsp.shutdown()
+        self.agents.shutdown()
         self.sources.shutdown()
         for srv in list(self.http.values()) + ([self.ui] if getattr(self, "ui", None) else []):
             try:
@@ -168,6 +174,36 @@ class App:
                 pass
 
     # ------------------------------------------------------------------ runtime management
+    def _retry_devices(self):
+        """Screen / webcam / agent cameras that could not start (no user logged on yet, webcam
+        unplugged, agent offline) are retried, so they come up once the device is there."""
+        while not self.stop_evt.wait(30):
+            with self.lock:
+                todo = [c for c in self.cfg["cameras"]
+                        if c.get("enabled", True) and c.get("id") not in self.camera_by_id
+                        and str(c.get("source", "")).startswith(("screen://", "webcam://", "agent://"))]
+            for ccfg in todo:
+                with self.lock:
+                    if ccfg.get("id") in self.camera_by_id or ccfg not in self.cfg["cameras"]:
+                        continue
+                    try:
+                        self._bring_up(ccfg)
+                    except Exception as exc:
+                        self.errors[ccfg["id"]] = str(exc)
+
+    def revive_agent_cameras(self, agent_id):
+        """An agent (re)connected: start its cameras that could not start while it was offline."""
+        prefix = f"agent://{agent_id}"
+        with self.lock:
+            for ccfg in self.cfg["cameras"]:
+                if (str(ccfg.get("source", "")).startswith(prefix) and ccfg.get("enabled", True)
+                        and ccfg.get("id") not in self.camera_by_id):
+                    try:
+                        self._bring_up(ccfg)
+                    except Exception as exc:
+                        self.errors[ccfg["id"]] = str(exc)
+                        log.warning("%s: cannot start: %s", ccfg["id"], exc)
+
     def _ensure_identity(self, ccfg):
         """Pin id / HTTP port / UUID in the config so edits never make a 'new' device."""
         ids = {c.get("id") for c in self.cfg["cameras"] if c is not ccfg}

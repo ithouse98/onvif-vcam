@@ -5,6 +5,7 @@ GET  /api/state                      everything the panel shows
 GET  /api/logs?after=N               new log lines
 GET  /api/videos                     files in the videos folder (+ probe info)
 GET  /api/devices                    webcams and screens (GStreamer)
+GET  /api/agents                     screen agents (remote PCs)   DELETE /api/agents/<id>
 PUT  /api/videos?name=x.mp4          upload (raw body)      DELETE /api/videos?name=x.mp4
 POST /api/cameras                    add  {..., "count": n}  PUT/DELETE /api/cameras/<id>
 POST /api/cameras/<id>/motion?state=1
@@ -130,6 +131,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, self.app.logbuf.since(int(q.get("after", 0))))
             if parts == ["api", "videos"]:
                 return self._send(200, self.videos())
+            if parts == ["api", "agents"]:
+                return self._send(200, self.app.agents.list())
             if parts == ["api", "devices"]:
                 from . import gst
                 return self._send(200, gst.devices())
@@ -156,6 +159,9 @@ class Handler(BaseHTTPRequestHandler):
                 body = self._json()
                 if "advertise_ip" in body:
                     self.app.set_network((body["advertise_ip"] or "").strip())
+                if "agent_key" in body:
+                    self.app.cfg["agent_key"] = (body["agent_key"] or "").strip()
+                    self.app.save_config()
                 if body.get("username"):
                     self.app.set_credentials(body["username"].strip(), body.get("password") or "")
                 return self._send(200, {"ok": True})
@@ -214,6 +220,9 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, {"ok": True})
             if len(parts) == 3 and parts[:2] == ["api", "cameras"]:
                 self.app.remove_camera(parts[2])
+                return self._send(200, {"ok": True})
+            if len(parts) == 3 and parts[:2] == ["api", "agents"]:
+                self.app.agents.forget(parts[2])
                 return self._send(200, {"ok": True})
         except KeyError:
             return self._err(404, "no such camera")
@@ -322,8 +331,11 @@ class Handler(BaseHTTPRequestHandler):
                          "primary_ip": app.primary_ip(), "rtsp_port": app.rtsp_port,
                          "discovery": app.cfg.get("discovery", True),
                          "username": users[0]["username"], "auth": app.cfg.get("auth", True),
-                         "config_path": app.config_path},
+                         "config_path": app.config_path, "agent_key": app.cfg.get("agent_key") or ""},
             "cameras": cams, "encoders": st["encoders"], "sessions": st["rtsp_sessions"],
+            "agents": app.agents.list(),
+            "agent_hub": {"port": app.agents.port if app.agents.sock else None,
+                          "key_set": bool(app.agents.key)},
             "soap_calls": sum(st["soap_calls"].values()), "time": time.time(),
         }
 

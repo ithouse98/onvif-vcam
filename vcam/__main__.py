@@ -20,6 +20,9 @@ from . import __version__
 log = logging.getLogger("vcam")
 
 
+CURRENT_APP = None  # the running App (the Windows service stops it through app.quit)
+
+
 def parse_stream(spec, name):
     """'H264:1920x1080@25:4096'  'H265:1280x720@15'  'JPEG:640x360@10'  'copy'."""
     if spec.lower() == "copy":
@@ -194,7 +197,8 @@ def main(argv=None):
     engine = cfg.get("_engine") or cfg["engine"]
     log.info("stream engine: %s", engine)
     from .app import App
-    app = App(cfg)
+    global CURRENT_APP
+    app = CURRENT_APP = App(cfg)
     # LGPL/minimal ffmpeg builds lack libx264/libx265 and fail with "Unrecognized option 'preset'"
     import subprocess
     from .util import NO_WINDOW
@@ -246,9 +250,12 @@ def main(argv=None):
 
     def _sig(*_):
         app.quit.set()
-    signal.signal(signal.SIGINT, _sig)
-    if hasattr(signal, "SIGTERM"):
-        signal.signal(signal.SIGTERM, _sig)
+    try:
+        signal.signal(signal.SIGINT, _sig)
+        if hasattr(signal, "SIGTERM"):
+            signal.signal(signal.SIGTERM, _sig)
+    except ValueError:  # not the main thread (Windows service): the service stops via app.quit
+        pass
     while not app.quit.wait(1):  # set by Ctrl+C, the panel's shutdown button or STOP.bat
         pass
     app.shutdown()
