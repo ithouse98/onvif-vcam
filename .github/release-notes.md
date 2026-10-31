@@ -17,11 +17,16 @@
 - The setup can be shown in English or Persian (فارسی).
 
 ### Android agent app (added to this release)
-- **`ONVIF-VCam-Agent-Android-1.3.1.apk`** (Android 8+) turns a phone's back / front camera into an
-  ONVIF camera through the VCam server, with no server change: the phone appears in Agents and its
-  cameras are "monitor 0 / 1". It uses CameraX and the phone's hardware H.264 encoder, and runs as a
-  foreground service, so it keeps streaming with the screen off. Settings: server IP (or
-  automatic), agent key, name, resolution, FPS and bitrate; optional start after reboot.
+- **`ONVIF-VCam-Agent-Android-1.3.1.apk`** (Android 8+) turns a phone's back / front camera, or its
+  own screen, into an ONVIF camera through the VCam server, with no server change: the phone appears
+  in Agents and its sources are "monitor 0 / 1 / last" (back, front, phone screen). It uses the
+  phone's hardware H.264 encoder and runs as a foreground service, so it keeps streaming in the
+  background.
+  - **Image source selector:** chosen by the panel, or fixed to back camera, front camera or phone
+    screen; changing it switches the running stream.
+  - **Cyber-desk look** with a splash screen (logo and copyright) and 6 colour themes.
+  - **Settings:** language (English / Persian), theme, resolution, FPS, bitrate, start after
+    reboot, background running.
 - Signed with a public test key (see `android/keystore/README.md`).
 
 ### Fixed
@@ -41,8 +46,10 @@
 
 ### اپلیکیشن اندروید
 - **`ONVIF-VCam-Agent-Android-1.3.1.apk`**: دوربین گوشی اندروید (8 به بالا) را از طریق سرور VCam به
-  دوربین ONVIF تبدیل می‌کند. گوشی در تب «ایجنت‌ها» ظاهر می‌شود: «مانیتور 0» دوربین پشت و
-  «مانیتور 1» دوربین جلوست.
+  دوربین ONVIF تبدیل می‌کند. گوشی در تب «ایجنت‌ها» ظاهر می‌شود: «مانیتور 0» دوربین پشت،
+  «مانیتور 1» دوربین جلو و مانیتور آخر صفحه خود گوشی است.
+- انتخاب منبع تصویر (از پنل، دوربین پشت، دوربین جلو یا صفحه گوشی)، ظاهر سایبری با صفحه آغازین و
+  ۶ تم رنگی، و تنظیمات زبان (فارسی / انگلیسی)، رزولوشن، FPS و اجرای خودکار.
 
 ### Downloads
 - **ONVIF-VCam-1.3.1-Portable-win64.zip**: the VCam server, standalone and offline.

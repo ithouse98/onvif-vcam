@@ -49,11 +49,10 @@ object ScreenCapture {
         d.getRealMetrics(m)
         val sw = m.widthPixels
         val sh = m.heightPixels
-        val long = minOf(prefs.width, maxOf(sw, sh))
-        fun r16(v: Double) = maxOf(16, (v / 16).toInt() * 16)
-        val w = if (sw >= sh) r16(long.toDouble()) else r16(long.toDouble() * sw / sh)
-        val h = if (sw >= sh) r16(long.toDouble() * sh / sw) else r16(long.toDouble())
-        return Triple(w, h, m.densityDpi)
+        // always a 16:9 frame (what VMS profiles expect): the mirror keeps the screen's aspect and
+        // pillarboxes a portrait screen instead of the server stretching it; rotation needs no resize
+        val w = maxOf(320, minOf(prefs.width, maxOf(sw, sh)) / 16 * 16)
+        return Triple(w, w * 9 / 16 / 16 * 16, m.densityDpi)
     }
 
     fun attach(surface: Surface, w: Int, h: Int, dpi: Int) {

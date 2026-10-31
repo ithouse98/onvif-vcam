@@ -71,10 +71,12 @@ class MainActivity : Activity() {
         super.onNewIntent(intent)
         setIntent(intent)
         val before = prefs.source
+        val lang = prefs.lang
         applyExtras(intent)
         build()
         if (prefs.source != before) onSourceChanged()
         if (pendingStart) startAgent()
+        if (prefs.lang != lang) recreate()   // the language lives in the activity's base context
     }
 
     override fun onResume() {

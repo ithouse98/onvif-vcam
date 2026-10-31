@@ -328,20 +328,30 @@ Notes:
 ### Android phones as cameras (agent app)
 
 Install **`ONVIF-VCam-Agent-Android-<version>.apk`** (from [Releases](../../releases), Android 8+)
-on a phone. The phone becomes a screen agent: the VCam server sees its cameras as the agent's
-"monitors" (0 = back camera, 1 = front camera), so the panel's Agents tab turns them into ONVIF
-cameras like any PC screen. No change on the server is needed.
+on a phone. The phone becomes a screen agent: the VCam server sees its image sources as the
+agent's "monitors" (0 = back camera, 1 = front camera, last = the phone's own screen), so the
+panel's Agents tab turns them into ONVIF cameras like any PC screen. No change on the server is
+needed.
 
 1. Open **VCam Agent** and enter the server IP (empty = find it by broadcast). Add the agent key
-   if one is set, choose resolution / FPS / max bitrate and press **Start**. Allow the camera.
-2. In the VCam panel → **Agents**, the phone is listed. Press **+ monitor 0** (back camera) or
-   **+ monitor 1** (front camera).
+   if one is set and press **Start**. Allow the camera.
+2. In the VCam panel → **Agents**, the phone is listed. Press **+ monitor 0** (back camera),
+   **+ monitor 1** (front camera) or the last monitor (phone screen).
+3. **Image source** in the app: *Chosen by the panel* (default) follows the monitor picked in the
+   panel; *Back camera*, *Front camera* or *Phone screen* force that source, and changing it
+   switches the running stream within a few seconds.
+4. **Phone screen** uses Android's screen capture: the app asks once ("Allow screen capture") each
+   time the agent starts; the capture keeps running with the app in the background.
+
+The app opens with a splash screen, has 6 colour themes (Cyber desk, Operational green, Data-center
+blue, Amber NOC, Night purple, Light) and English / Persian, chosen in **⚙ Settings** together with
+resolution, FPS, max bitrate and start after restart.
 
 How it works: CameraX + the phone's hardware H.264 encoder (MediaCodec) → MPEG-TS → agent hub, in
 a foreground service (persistent notification), so streaming continues with the screen off.
 
 Notes:
-* One camera streams at a time (Android phones rarely allow both cameras together).
+* One source streams at a time (Android phones rarely allow both cameras together).
 * **Allow running in the background** (button in the app). On some brands (Xiaomi, Huawei, Oppo…)
   also set the app's battery mode to *No restrictions*, or the system stops it.
 * Keep the phone on a charger for long tests: continuous camera + encoder use heats it up.
