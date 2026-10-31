@@ -1,0 +1,200 @@
+10-31 20:49:55.319  3708  3810 I VCamAgent: Connecting to 10.0.2.2:8600…
+10-31 20:49:55.354  3708  3810 I VCamAgent: Connected to 10.0.2.2:8600, waiting for a viewer
+10-31 20:49:55.499  1176  3672 W GCM     : Unexpected forwarded intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) }
+10-31 20:49:55.503  1176  2224 W GCM     : Unexpected forwarded intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) }
+10-31 20:49:55.581  1449  3322 I ChromeSync: [Sync,SyncIntentOperation] Handling the intent: Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 cmp=com.google.android.gms/.chimera.GmsIntentOperationService (has extras) }.
+10-31 20:49:55.583  1449  3727 I FontsPackageChangeOp: Package com.ipsco.vcamagent has no metadata
+10-31 20:49:55.613   494   494 D NotificationService: 0|com.ipsco.vcamagent|1|null|10167: granting content://settings/system/notification_sound
+10-31 20:49:55.613   494   494 D NotificationService: 0|com.ipsco.vcamagent|1|null|10167: granting content://settings/system/notification_sound
+10-31 20:49:55.620  1449  3322 I ChromeSync: [Persistence,AffiliationManager] One of affiliation or grouping data for android://sor3eH2QJS6PbIKZFt3KxkHBM--ConZjMlzniifm-JtduS9XFITj1GadA-H59qHt_RhwuP-yCCH0zTEcn2GkQA==@com.ipsco.vcamagent/ was not found. Marking affiliation data as stale...
+10-31 20:49:55.621   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: 0|com.ipsco.vcamagent|1|null|10167
+10-31 20:49:55.624   693   693 D InterruptionStateProvider: No heads up: unimportant notification: 0|com.ipsco.vcamagent|1|null|10167
+10-31 20:49:55.628   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: 0|com.ipsco.vcamagent|1|null|10167
+10-31 20:49:55.628   693   693 D InterruptionStateProvider: No heads up: unimportant notification: 0|com.ipsco.vcamagent|1|null|10167
+10-31 20:49:55.634   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: 0|com.ipsco.vcamagent|1|null|10167
+10-31 20:49:55.634   693   693 D InterruptionStateProvider: No heads up: unimportant notification: 0|com.ipsco.vcamagent|1|null|10167
+10-31 20:49:56.558   494  3091 W NotificationService: Toast already killed. pkg=com.ipsco.vcamagent token=android.os.BinderProxy@fd98006
+10-31 20:49:57.110   494   533 D ArtManagerInternalImpl: /data/misc/iorapd/com.ipsco.vcamagent/131/com.ipsco.vcamagent.MainActivity/compiled_traces/compiled_trace.pb doesn't exist
+10-31 20:49:57.110   494   533 I ActivityTaskManager: Displayed com.ipsco.vcamagent/.MainActivity: +1s40ms
+10-31 20:49:59.147   494  2305 I ActivityManager: Killing 3623:com.android.camera2/u0a134 (adj 975): empty #17
+10-31 20:49:59.356  3708  3810 I VCamAgent: Streaming: Back camera
+10-31 20:49:59.411  3708  4385 I CameraManagerGlobal: Connecting to camera service
+10-31 20:49:59.415   416   723 W ServiceManager: Permission failure: android.permission.CAMERA_OPEN_CLOSE_LISTENER from uid=10167 pid=3708
+10-31 20:49:59.423  3708  4385 D CameraRepository: Added camera: 1
+10-31 20:49:59.430  3708  4385 I Camera2CameraInfo: Device Level: INFO_SUPPORTED_HARDWARE_LEVEL_3
+10-31 20:49:59.431  3708  4385 D CameraValidator: Verifying camera lens facing on generic_x86_64_arm64, lensFacingInteger: null
+10-31 20:49:59.431  3708  4385 E CameraValidator: Camera LensFacing verification failed, existing cameras: [Camera@e5b6e12[id=1]]
+10-31 20:49:59.431  3708  4385 W CameraX : Retry init. Start time 41796 current time 41824
+10-31 20:49:59.431  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:49:59.431  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:49:59.431  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:49:59.431  3708  4385 W CameraX : 	... 5 more
+10-31 20:49:59.561   693   693 D InterruptionStateProvider: No bubble up: not allowed to bubble: 0|com.ipsco.vcamagent|1|null|10167
+10-31 20:49:59.561   693   693 D InterruptionStateProvider: No heads up: unimportant notification: 0|com.ipsco.vcamagent|1|null|10167
+10-31 20:49:59.826  3708  4498 D ProfileInstaller: Installing profile for com.ipsco.vcamagent
+10-31 20:49:59.971  3708  4385 D CameraRepository: Added camera: 1
+10-31 20:49:59.971  3708  4385 I Camera2CameraInfo: Device Level: INFO_SUPPORTED_HARDWARE_LEVEL_3
+10-31 20:49:59.971  3708  4385 D CameraValidator: Verifying camera lens facing on generic_x86_64_arm64, lensFacingInteger: null
+10-31 20:49:59.971  3708  4385 E CameraValidator: Camera LensFacing verification failed, existing cameras: [Camera@e76240d[id=1]]
+10-31 20:49:59.972  3708  4385 W CameraX : Retry init. Start time 41796 current time 42365
+10-31 20:49:59.972  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:49:59.972  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:49:59.972  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:49:59.972  3708  4385 W CameraX : 	... 5 more
+10-31 20:50:00.511  3708  4385 D CameraRepository: Added camera: 1
+10-31 20:50:00.511  3708  4385 I Camera2CameraInfo: Device Level: INFO_SUPPORTED_HARDWARE_LEVEL_3
+10-31 20:50:00.511  3708  4385 D CameraValidator: Verifying camera lens facing on generic_x86_64_arm64, lensFacingInteger: null
+10-31 20:50:00.511  3708  4385 E CameraValidator: Camera LensFacing verification failed, existing cameras: [Camera@f29451a[id=1]]
+10-31 20:50:00.512  3708  4385 W CameraX : Retry init. Start time 41796 current time 42905
+10-31 20:50:00.512  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:50:00.512  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:50:00.512  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:50:00.512  3708  4385 W CameraX : 	... 5 more
+10-31 20:50:00.614   494   523 W ActivityManager: Foreground service started from background can not have location/camera/microphone access: service com.google.android.videos/com.google.android.apps.play.movies.common.service.pinning.TransferService
+10-31 20:50:00.989   416   416 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10147 pid=4653
+10-31 20:50:00.992   416   416 I chatty  : uid=1047(cameraserver) /system/bin/cameraserver identical 2 lines
+10-31 20:50:00.992   416   416 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10147 pid=4653
+10-31 20:50:01.014   494   789 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.packageinstaller/com.android.packageinstaller.PackageInstalledReceiver
+10-31 20:50:01.014   494   534 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.gms/.games.chimera.GamesSystemBroadcastReceiverProxy
+10-31 20:50:01.014   494   534 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.gms/.gass.chimera.PackageChangeBroadcastReceiver
+10-31 20:50:01.014   494   534 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.gms/.chimera.GmsIntentOperationService$PersistentTrustedReceiver
+10-31 20:50:01.014   494   534 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.googlequicksearchbox/com.google.android.apps.gsa.googlequicksearchbox.GelStubAppWatcher
+10-31 20:50:01.014   494   534 W BroadcastQueue: Background execution not allowed: receiving Intent { act=android.intent.action.PACKAGE_ADDED dat=package:com.ipsco.vcamagent flg=0x4000010 (has extras) } to com.google.android.ims/.receivers.RcsAutoStartReceiver
+10-31 20:50:01.051  3708  4385 D CameraRepository: Added camera: 1
+10-31 20:50:01.051  3708  4385 I Camera2CameraInfo: Device Level: INFO_SUPPORTED_HARDWARE_LEVEL_3
+10-31 20:50:01.051  3708  4385 D CameraValidator: Verifying camera lens facing on generic_x86_64_arm64, lensFacingInteger: null
+10-31 20:50:01.051  3708  4385 E CameraValidator: Camera LensFacing verification failed, existing cameras: [Camera@e3b5c3[id=1]]
+10-31 20:50:01.051  3708  4385 W CameraX : Retry init. Start time 41796 current time 43445
+10-31 20:50:01.051  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:50:01.051  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:50:01.051  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:50:01.051  3708  4385 W CameraX : 	... 5 more
+10-31 20:50:01.261   416   416 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10116 pid=1449
+10-31 20:50:01.261   416   416 I chatty  : uid=1047(cameraserver) /system/bin/cameraserver identical 2 lines
+10-31 20:50:01.261   416   416 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10116 pid=1449
+10-31 20:50:01.591  3708  4385 D CameraRepository: Added camera: 1
+10-31 20:50:01.591  3708  4385 I Camera2CameraInfo: Device Level: INFO_SUPPORTED_HARDWARE_LEVEL_3
+10-31 20:50:01.591  3708  4385 D CameraValidator: Verifying camera lens facing on generic_x86_64_arm64, lensFacingInteger: null
+10-31 20:50:01.591  3708  4385 E CameraValidator: Camera LensFacing verification failed, existing cameras: [Camera@fff5558[id=1]]
+10-31 20:50:01.591  3708  4385 W CameraX : Retry init. Start time 41796 current time 43985
+10-31 20:50:01.591  3708  4385 W CameraX : androidx.camera.core.impl.CameraValidator$CameraIdListIncorrectException: Expected camera missing from device.
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:97)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.CameraX.lambda$initAndRetryRecursively$2$androidx-camera-core-CameraX(CameraX.java:334)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.CameraX$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at java.lang.Thread.run(Thread.java:923)
+10-31 20:50:01.591  3708  4385 W CameraX : Caused by: java.lang.IllegalArgumentException: No available camera can be found
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.CameraSelector.select(CameraSelector.java:94)
+10-31 20:50:01.591  3708  4385 W CameraX : 	at androidx.camera.core.impl.CameraValidator.validateCameras(CameraValidator.java:91)
+10-31 20:50:01.591  3708  4385 W CameraX : 	... 5 more
+10-31 20:50:02.134  3708  4385 D CameraRepository: Added camera: 1
+10-31 20:50:02.135  3708  4385 I Camera2CameraInfo: Device Level: INFO_SUPPORTED_HARDWARE_LEVEL_3
+10-31 20:50:02.135  3708  4385 D CameraValidator: Verifying camera lens facing on generic_x86_64_arm64, lensFacingInteger: null
+10-31 20:50:02.135  3708  4385 E CameraValidator: Camera LensFacing verification failed, existing cameras: [Camera@5422ae9[id=1]]
+10-31 20:50:02.135  3708  4385 E CameraX : The device might underreport the amount of the cameras. Finish the initialize task since we are already reaching the maximum number of retries.
+10-31 20:50:02.138  3708  3708 D CameraOrientationUtil: getRelativeImageRotation: destRotationDegrees=0, sourceRotationDegrees=90, isOppositeFacing=true, result=90
+10-31 20:50:02.138  3708  3708 D CameraOrientationUtil: getRelativeImageRotation: destRotationDegrees=0, sourceRotationDegrees=90, isOppositeFacing=true, result=90
+10-31 20:50:02.140  3708  3708 D DynamicRangeResolver: Resolved dynamic range for use case androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f4 to no compatible HDR dynamic ranges.
+10-31 20:50:02.141  3708  3708 D CameraOrientationUtil: getRelativeImageRotation: destRotationDegrees=0, sourceRotationDegrees=90, isOppositeFacing=true, result=90
+10-31 20:50:02.141  3708  3708 D DeferrableSurface: Surface created[total_surfaces=1, used_surfaces=0](androidx.camera.core.processing.SurfaceEdge$SettableSurface@32340ce}
+10-31 20:50:02.141  3708  3708 D DeferrableSurface: Surface created[total_surfaces=2, used_surfaces=0](androidx.camera.core.SurfaceRequest$2@1b69bda}
+10-31 20:50:02.141  3708  3708 D DeferrableSurface: New surface in use[total_surfaces=2, used_surfaces=1](androidx.camera.core.SurfaceRequest$2@1b69bda}
+10-31 20:50:02.141  3708  3708 D DeferrableSurface: use count+1, useCount=1 androidx.camera.core.SurfaceRequest$2@1b69bda
+10-31 20:50:02.141  3708  3708 D CameraOrientationUtil: getRelativeImageRotation: destRotationDegrees=0, sourceRotationDegrees=90, isOppositeFacing=true, result=90
+10-31 20:50:02.143  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} Use case androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f462062993 ACTIVE
+10-31 20:50:02.143  3708  4385 D UseCaseAttachState: Active and attached use case: [] for camera: 1
+10-31 20:50:02.143  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} Use cases [androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f462062993] now ATTACHED
+10-31 20:50:02.143  3708  4385 D UseCaseAttachState: All use case: [androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f462062993] for camera: 1
+10-31 20:50:02.144  3708  4385 D UseCaseAttachState: Active and attached use case: [androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f462062993] for camera: 1
+10-31 20:50:02.144  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} Resetting Capture Session
+10-31 20:50:02.144  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} Releasing session in state INITIALIZED
+10-31 20:50:02.144  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} Attempting to force open the camera.
+10-31 20:50:02.144  3708  4385 D CameraStateRegistry: tryOpenCamera(Camera@5422ae9[id=1]) [Available Cameras: 1, Already Open: false (Previous state: null)] --> SUCCESS
+10-31 20:50:02.144  3708  4385 D CameraStateRegistry: Recalculating open cameras:
+10-31 20:50:02.144  3708  4385 D CameraStateRegistry: Camera                                       State                 
+10-31 20:50:02.144  3708  4385 D CameraStateRegistry: -------------------------------------------------------------------
+10-31 20:50:02.144  3708  4385 D CameraStateRegistry: Camera@5422ae9[id=1]                         OPENING               
+10-31 20:50:02.144  3708  4385 D CameraStateRegistry: -------------------------------------------------------------------
+10-31 20:50:02.144  3708  4385 D CameraStateRegistry: Open count: 1 (Max allowed: 1)
+10-31 20:50:02.144  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} Opening camera.
+10-31 20:50:02.144  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} Transitioning camera internal state: INITIALIZED --> OPENING
+10-31 20:50:02.144  3708  4385 D CameraStateMachine: New public camera state CameraState{type=OPENING, error=null} from OPENING and null
+10-31 20:50:02.144  3708  4385 D CameraStateMachine: Publishing new public camera state CameraState{type=OPENING, error=null}
+10-31 20:50:02.144  3708  4385 D UseCaseAttachState: All use case: [androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f462062993] for camera: 1
+10-31 20:50:02.150   416   723 I CameraService: CameraService::connect call (PID -1 "com.ipsco.vcamagent", camera ID 1) for HAL version default and Camera API version 2
+10-31 20:50:02.156   416   723 I Camera2ClientBase: Camera 1: Opened. Client: com.ipsco.vcamagent (PID 3708, UID 10167)
+10-31 20:50:02.156   416   723 I CameraDeviceClient: CameraDeviceClient 1: Opened
+10-31 20:50:02.165   416   723 I CameraService: onTorchStatusChangedLocked: Torch status changed for cameraId=1, newStatus=0
+10-31 20:50:02.214   295   352 E libc    : Access denied finding property "persist.camera.profiler.open_close"
+10-31 20:50:02.275   416   723 I CameraProviderManager: Camera device device@3.5/internal/1 torch status is now NOT_AVAILABLE
+10-31 20:50:02.275   416   723 I CameraService: onTorchStatusChangedLocked: Torch status changed for cameraId=1, newStatus=0
+10-31 20:50:02.364   295   352 D GCH_CameraDeviceSession: FindLibraryPaths: Unable to open directory /vendor/lib64/camera/capture_sessions/ (No such file or directory)
+10-31 20:50:02.364   295   352 I GCH_CameraDeviceSession: Create: Created a device session for camera 1 with 0 physical cameras
+10-31 20:50:02.380   162   162 E SELinux : avc:  denied  { find } for interface=android.hardware.thermal::IThermal sid=u:r:hal_camera_default:s0 pid=295 scontext=u:r:hal_camera_default:s0 tcontext=u:object_r:hal_thermal_hwservice:s0 tclass=hwservice_manager permissive=0
+10-31 20:50:02.381   295   352 E GCH_HidlCameraDeviceSession: Initialize: Getting thermal failed.
+10-31 20:50:02.381   295   352 E GCH_HidlCameraDeviceSession: RegisterThermalChangedCallback: thermal was not initialized.
+10-31 20:50:02.381   295   352 W GCH_CameraDeviceSession: SetSessionCallback: Registering thermal callback failed: No such device(-19)
+10-31 20:50:02.409   416   416 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10116 pid=1449
+10-31 20:50:02.409  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} Use case androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f462062993 ACTIVE
+10-31 20:50:02.410  3708  4385 D UseCaseAttachState: Active and attached use case: [androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f462062993] for camera: 1
+10-31 20:50:02.410  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} CameraDevice.onOpened()
+10-31 20:50:02.410  3708  4385 D Camera2CameraImpl: {Camera@5422ae9[id=1]} Transitioning camera internal state: OPENING --> OPENED
+10-31 20:50:02.410  3708  4385 D CameraStateRegistry: Recalculating open cameras:
+10-31 20:50:02.410  3708  4385 D CameraStateRegistry: Camera                                       State                 
+10-31 20:50:02.410  3708  4385 D CameraStateRegistry: -------------------------------------------------------------------
+10-31 20:50:02.410  3708  4385 D CameraStateRegistry: Camera@5422ae9[id=1]                         OPEN                  
+10-31 20:50:02.410  3708  4385 D CameraStateRegistry: -------------------------------------------------------------------
+10-31 20:50:02.410  3708  4385 D CameraStateRegistry: Open count: 1 (Max allowed: 1)
+10-31 20:50:02.410  3708  4385 D CameraStateMachine: New public camera state CameraState{type=OPEN, error=null} from OPEN and null
+10-31 20:50:02.410  3708  4385 D CameraStateMachine: Publishing new public camera state CameraState{type=OPEN, error=null}
+10-31 20:50:02.410  3708  4385 D UseCaseAttachState: All use case: [androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f462062993] for camera: 1
+10-31 20:50:02.411  3708  4385 D UseCaseAttachState: Active and attached use case: [androidx.camera.core.Preview-650c0f18-90d8-4606-aae0-4fdaf701b7f462062993] for camera: 1
+10-31 20:50:02.411   416   416 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10116 pid=1449
+10-31 20:50:02.413   416   416 I chatty  : uid=1047(cameraserver) /system/bin/cameraserver identical 1 line
+10-31 20:50:02.413   416   416 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10116 pid=1449
+10-31 20:50:02.424  3708  4385 D SyncCaptureSessionBase: [androidx.camera.camera2.internal.SynchronizedCaptureSessionBaseImpl@7ebfc4] getSurface...done
+10-31 20:50:02.426  3708  4385 D DeferrableSurface: use count+1, useCount=2 androidx.camera.core.SurfaceRequest$2@1b69bda
+10-31 20:50:02.438   295  4877 E libc    : Access denied finding property "persist.camera.hdrplus.disable"
+10-31 20:50:02.439   295  4877 D GCH_RgbirdCaptureSession: IsStreamConfigurationSupported: RgbirdCaptureSession doesn't support 0 physical cameras
+10-31 20:50:02.439   295  4877 D GCH_DualIrCaptureSession: IsStreamConfigurationSupported: Only support two IR cameras but there are 0 cameras.
+10-31 20:50:02.439   416   416 I chatty  : uid=1047(cameraserver) /system/bin/cameraserver identical 2 lines
+10-31 20:50:02.440   416   416 D Camera3-Device: Set real time priority for request queue thread (tid 4887)
+10-31 20:50:02.441  3708  4385 D Camera2CaptureRequestBuilder: createCaptureRequest
+10-31 20:50:02.462  3708  4385 D CaptureSession: CameraCaptureSession.onConfigured() mState=OPENED
+10-31 20:50:02.463  3708  4385 D CaptureSession: CameraCaptureSession.onReady() OPENED
+10-31 20:50:02.208   295   295 W HwBinder:295_1: type=1400 audit(0.0:51): avc: denied { read } for name="u:object_r:default_prop:s0" dev="tmpfs" ino=8215 scontext=u:r:hal_camera_default:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-31 20:50:02.436   295   295 W HwBinder:295_2: type=1400 audit(0.0:52): avc: denied { read } for name="u:object_r:default_prop:s0" dev="tmpfs" ino=8215 scontext=u:r:hal_camera_default:s0 tcontext=u:object_r:default_prop:s0 tclass=file permissive=0
+10-31 20:50:03.757   686   686 D AvrcpMediaPlayerList: Name of package changed: com.android.camera2
+10-31 20:50:04.579  1176  3842 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package:com.android.camera2 flg=0x45000010 cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+10-31 20:50:08.681   416  1984 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10116 pid=1449
+10-31 20:50:08.682   416  1984 I chatty  : uid=1047(cameraserver) Binder:416_5 identical 2 lines
+10-31 20:50:08.682   416  1984 W ServiceManager: Permission failure: android.permission.SYSTEM_CAMERA from uid=10116 pid=1449
