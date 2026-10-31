@@ -1,0 +1,130 @@
+--------- beginning of kernel
+--------- beginning of main
+--------- beginning of system
+10-31 21:14:27.585   285   285 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
+10-31 21:14:27.645   285   285 I AndroidRuntime: Using default boot image
+10-31 21:14:27.645   285   285 I AndroidRuntime: Leaving lock profiling enabled
+10-31 21:14:27.844   286   286 D AndroidRuntime: >>>>>> START com.android.internal.os.ZygoteInit uid 0 <<<<<<
+10-31 21:14:27.962   286   286 I AndroidRuntime: Using default boot image
+10-31 21:14:27.962   286   286 I AndroidRuntime: Leaving lock profiling enabled
+10-31 21:14:36.218   848   848 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+10-31 21:14:36.247   856   856 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+10-31 21:14:40.540  1562  1562 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 21:14:40.584  1562  1562 I AndroidRuntime: Using default boot image
+10-31 21:14:40.584  1562  1562 I AndroidRuntime: Leaving lock profiling enabled
+10-31 21:14:41.185  1562  1562 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-31 21:14:43.883  1562  1562 D AndroidRuntime: Shutting down VM
+10-31 21:15:00.978  4221  4221 D AndroidRuntime: Shutting down VM
+--------- beginning of crash
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: FATAL EXCEPTION: main
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: Process: com.ipsco.vcamagent, PID: 4221
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.ipsco.vcamagent/com.ipsco.vcamagent.SplashActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3449)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3601)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:85)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:135)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:95)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2066)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7656)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.getInsetsController(PhoneWindow.java:3880)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at com.ipsco.vcamagent.Ui.styleWindow(Theme.kt:81)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at com.ipsco.vcamagent.SplashActivity.onCreate(SplashActivity.kt:27)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:7994)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:7978)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1309)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3422)
+10-31 21:15:00.979  4221  4221 E AndroidRuntime: 	... 11 more
+10-31 21:15:07.241  4953  4953 D AndroidRuntime: Shutting down VM
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: FATAL EXCEPTION: main
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: Process: com.ipsco.vcamagent, PID: 4953
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.ipsco.vcamagent/com.ipsco.vcamagent.MainActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3449)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3601)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:85)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:135)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:95)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2066)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7656)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.getInsetsController(PhoneWindow.java:3880)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at com.ipsco.vcamagent.Ui.styleWindow(Theme.kt:81)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.build(MainActivity.kt:114)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.onCreate(MainActivity.kt:66)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:7994)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:7978)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1309)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3422)
+10-31 21:15:07.242  4953  4953 E AndroidRuntime: 	... 11 more
+10-31 21:17:21.478  6010  6010 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 21:17:21.486  6010  6010 I AndroidRuntime: Using default boot image
+10-31 21:17:21.486  6010  6010 I AndroidRuntime: Leaving lock profiling enabled
+10-31 21:17:21.584  6010  6010 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-31 21:17:21.594  6010  6010 D AndroidRuntime: Shutting down VM
+10-31 21:17:23.136  6035  6035 D AndroidRuntime: Shutting down VM
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: FATAL EXCEPTION: main
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: Process: com.ipsco.vcamagent, PID: 6035
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.ipsco.vcamagent/com.ipsco.vcamagent.MainActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3449)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3601)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:85)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:135)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:95)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2066)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7656)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.getInsetsController(PhoneWindow.java:3880)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at com.ipsco.vcamagent.Ui.styleWindow(Theme.kt:81)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.build(MainActivity.kt:114)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.onCreate(MainActivity.kt:66)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:7994)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:7978)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1309)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3422)
+10-31 21:17:23.140  6035  6035 E AndroidRuntime: 	... 11 more
+10-31 21:17:25.247  6078  6078 D AndroidRuntime: Shutting down VM
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: FATAL EXCEPTION: main
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: Process: com.ipsco.vcamagent, PID: 6078
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.ipsco.vcamagent/com.ipsco.vcamagent.MainActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3449)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3601)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:85)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:135)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:95)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2066)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:223)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7656)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'android.view.WindowInsetsController com.android.internal.policy.DecorView.getWindowInsetsController()' on a null object reference
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.getInsetsController(PhoneWindow.java:3880)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at com.ipsco.vcamagent.Ui.styleWindow(Theme.kt:81)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.build(MainActivity.kt:114)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at com.ipsco.vcamagent.MainActivity.onCreate(MainActivity.kt:66)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:7994)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:7978)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1309)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3422)
+10-31 21:17:25.248  6078  6078 E AndroidRuntime: 	... 11 more
+10-31 21:17:36.743  6170  6170 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+10-31 21:17:36.744  6170  6170 I AndroidRuntime: Using default boot image
+10-31 21:17:36.744  6170  6170 I AndroidRuntime: Leaving lock profiling enabled
+10-31 21:17:36.800  6170  6170 D AndroidRuntime: Calling main entry com.android.commands.input.Input
+10-31 21:17:36.813  6170  6170 D AndroidRuntime: Shutting down VM
