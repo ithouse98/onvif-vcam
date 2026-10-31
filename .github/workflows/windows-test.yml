@@ -46,36 +46,27 @@ jobs:
           ) > C:\results\gst-check.txt 2>&1
           type C:\results\gst-check.txt
           exit /b 0
-      - name: Start vcam (file + screen cameras)
-        timeout-minutes: 5
+      - name: Run vcam (file + screen cameras), test suites, screen recording
+        timeout-minutes: 25
         shell: pwsh
         run: |
+          # one step: the runner kills processes left over when a step ends
           $env:PATH = "$env:ROOT\runtime;$env:ROOT\runtime\Library\bin;$env:PATH"
           $env:PYTHONPATH = "$env:ROOT\app"
-          Start-Process -FilePath "$env:ROOT\runtime\python.exe" -WorkingDirectory $env:ROOT `
+          $PY = "$env:ROOT\runtime\python.exe"
+          Start-Process -FilePath $PY -WorkingDirectory $env:ROOT `
             -ArgumentList "-m","vcam","$env:ROOT\videos\sample_1080p.mp4","screen://","--mjpeg","-c","$env:ROOT\config.json","--log-file","$env:ROOT\vcam.log" `
             -RedirectStandardOutput "C:\results\stdout.txt" -RedirectStandardError "C:\results\stderr.txt"
-          for ($i = 0; $i -lt 90; $i++) {
-            try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8000/ -TimeoutSec 2 | Out-Null; break } catch { Start-Sleep 2 }
+          for ($i = 0; $i -lt 60; $i++) {
+            try { $c = New-Object Net.Sockets.TcpClient; $c.Connect("127.0.0.1", 8000); $c.Close(); break } catch { Start-Sleep 2 }
           }
-          Get-Content C:\results\stdout.txt
-      - name: Test suites
-        timeout-minutes: 15
-        shell: cmd
-        run: |
-          call "%ROOT%\_env.cmd"
-          (
-          "%PY%" app\tests\test_raw_soap.py 127.0.0.1 8080 8554 admin admin
-          "%PY%" app\tests\test_with_onvif_client.py 127.0.0.1 8080 admin admin
-          "%PY%" app\tests\test_panel.py 127.0.0.1 8000 admin admin "%ROOT%\videos\sample_1080p.mp4"
-          ) > C:\results\tests.txt 2>&1
-          findstr /C:"passed" /C:"FAIL" C:\results\tests.txt
-          exit /b 0
-      - name: Screen camera stream + snapshot
-        timeout-minutes: 6
-        shell: pwsh
-        run: |
-          $env:PATH = "$env:ROOT\runtime;$env:ROOT\runtime\Library\bin;$env:PATH"
+          Start-Sleep 3
+          $t = "C:\results\tests.txt"
+          & $PY "$env:ROOT\app\tests\test_raw_soap.py" 127.0.0.1 8080 8554 admin admin *>> $t
+          & $PY "$env:ROOT\app\tests\test_with_onvif_client.py" 127.0.0.1 8080 admin admin *>> $t
+          & $PY "$env:ROOT\app\tests\test_panel.py" 127.0.0.1 8000 admin admin "$env:ROOT\videos\sample_1080p.mp4" *>> $t
+          Select-String -Path $t -Pattern "passed|FAIL" | ForEach-Object { $_.Line }
+
           $null = Start-Job { 1..30 | ForEach-Object { Start-Process notepad; Start-Sleep 1 } }
           $out = "C:\results\screen.txt"
           foreach ($p in "Profile_1", "Profile_2") {
@@ -88,6 +79,7 @@ jobs:
           try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8081/onvif/snapshot/Profile_1.jpg -TimeoutSec 30 -OutFile C:\results\screen_snapshot.jpg; "snapshot ok" | Add-Content $out } catch { "snapshot failed: $_" | Add-Content $out }
           & ffmpeg -v error -ss 5 -i C:\results\screen_Profile_1.mkv -frames:v 1 -vf scale=960:-2 -y C:\results\screen_frame.jpg 2>&1 | Add-Content $out
           Get-Content $out
+          exit 0
       - name: Collect
         if: always()
         shell: pwsh
