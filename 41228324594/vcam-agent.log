@@ -1,0 +1,3 @@
+18:17:49 INFO    vcam.agent  ONVIF VCam agent 1.3.0, id 20c50fd6-cebd-4bd3-9da4-dee11f329203
+18:17:49 INFO    vcam.agent  registered with 127.0.0.1:8600 as 'runnervmhao91' (1 screen(s))
+18:17:54 INFO    vcam.agent  streaming screen 0 at 25 fps
