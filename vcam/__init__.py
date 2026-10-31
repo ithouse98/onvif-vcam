@@ -1,4 +1,4 @@
-"""ONVIF Virtual Camera - turns video files into ONVIF Profile S/T compliant network cameras.
+"""ONVIF Virtual Camera - turns video files, screens and webcams into ONVIF Profile S/T cameras.
 
 Implements (per ONVIF Core 26.06, Streaming 26.06, Profile S 1.2):
   * WS-Discovery target service (Hello / Bye / Probe / Resolve)
@@ -11,5 +11,5 @@ Implements (per ONVIF Core 26.06, Streaming 26.06, Profile S 1.2):
     RTP/UDP multicast, RTCP sender reports, H.264 (RFC 6184), H.265 (RFC 7798), JPEG (RFC 2435)
 """
 
-__version__ = "1.1.1"
+__version__ = "1.2.0"
 __author__ = "Behrouz Kazemi (IPS-Co.)"

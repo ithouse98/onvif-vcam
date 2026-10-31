@@ -4,6 +4,7 @@
   "bind": "0.0.0.0",
   "advertise_ip": null,
   "state_dir": "./vcam-state",
+  "engine": "gstreamer",
 
   "auth": true,
   "rtsp_auth": true,

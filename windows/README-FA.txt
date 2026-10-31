@@ -1,11 +1,12 @@
-﻿ONVIF Virtual Camera 1.1.1 - نسخه پرتابل و آفلاین (Windows 64-bit)
+﻿ONVIF Virtual Camera 1.2.0 - نسخه پرتابل و آفلاین (Windows 64-bit)
 ================================================================
 طراحی و توسعه: بهروز کاظمی (Behrouz Kazemi) - VMS Systems Specialist
 IPS-Co.  ·  تلگرام: @B_8241
 © 1405 — تمام حقوق محفوظ است.
 
 
-کاملاً مستقل: پایتون، ffmpeg (با libx264/libx265)، فونت وزیر و همه کتابخانه‌ها داخل همین پوشه‌اند.
+کاملاً مستقل: پایتون، GStreamer (موتور استریم، ضبط صفحه و وب‌کم)، ffmpeg، فونت وزیر و همه کتابخانه‌ها داخل همین پوشه‌اند.
+منبع هر دوربین می‌تواند فایل ویدیو، صفحه نمایش (screen://)، وب‌کم / دوربین USB (webcam://) یا آدرس RTSP باشد.
 به نصب و اینترنت نیاز ندارد.
 
 فایل‌ها
@@ -17,7 +18,7 @@ IPS-Co.  ·  تلگرام: @B_8241
   AUTOSTART-OFF.bat    حذف اجرای خودکار
   FIREWALL.bat         باز کردن فایروال (یک بار، Run as administrator)
   TEST.bat             تست خودکار (40 + 59 + 26 چک) - وقتی برنامه در حال اجراست
-  SHELL.bat            خط فرمان با python / ffmpeg / ffprobe / ffplay
+  SHELL.bat            خط فرمان با python / ffmpeg / ffprobe / ffplay / gst-launch-1.0 / gst-device-monitor-1.0
   PANEL.url            میانبر پنل:  http://127.0.0.1:8000
   vcam.log             لاگ (خودکار در 4 فایل 5 مگابایتی می‌چرخد)
   config.json          تنظیمات دوربین‌ها (پنل خودش ذخیره می‌کند)
@@ -73,7 +74,9 @@ IPS-Co.  ·  تلگرام: @B_8241
   و پورت جدید را در vcam.log و پنل نشان می‌دهد. دوربین را در VMS با همان پورت اضافه کنید.
   بررسی:  netstat -ano | findstr :8554
           netsh interface ipv4 show excludedportrange protocol=tcp
+- ضبط صفحه در RDP: فقط وقتی پنجره RDP باز است کار می‌کند (Minimize = تصویر ثابت). به‌صورت سرویس ویندوز کار نمی‌کند.
+- وب‌کم پیدا نمی‌شود: در پنل «جستجوی دوباره» را بزنید؛ در Settings > Privacy > Camera دسترسی برنامه‌های دسکتاپ را روشن کنید.
 - SmartScreen: More info > Run anyway (یا قبل از Extract: zip > Properties > Unblock).
 - بازگشت به حالت اولیه: config.json و پوشه vcam-state را پاک کنید.
 
-مجوزها: ffmpeg (GPL)، Python (PSF)، فونت وزیرمتن (SIL OFL) - app\vcam\web\fonts
+مجوزها: GStreamer (LGPL/GPL)، ffmpeg (GPL)، Python (PSF)، PyGObject (LGPL)، فونت وزیرمتن (SIL OFL) - app\vcam\web\fonts

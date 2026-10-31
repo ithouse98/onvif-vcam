@@ -3,13 +3,14 @@
 </p>
 
 <h1 align="center">ONVIF VCam</h1>
-<p align="center"><b>Turn any video file into a standards-compliant ONVIF IP camera for VMS testing.</b><br>
+<p align="center"><b>Turn any video file, your screen or a USB webcam into a standards-compliant ONVIF IP camera for VMS testing.</b><br>
 Virtual ONVIF Profile S / T camera with WS-Discovery, RTSP streaming, events and a web control panel. Fully offline and portable.</p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-1.1.1-0f6fb3">
+  <img alt="version" src="https://img.shields.io/badge/version-1.2.0-0f6fb3">
   <img alt="ONVIF" src="https://img.shields.io/badge/ONVIF-Profile%20S%20%2F%20T-38bdf8">
   <img alt="platform" src="https://img.shields.io/badge/Windows%20x64-portable%20%26%20offline-2fbf71">
+  <img alt="GStreamer" src="https://img.shields.io/badge/engine-GStreamer-e8202a">
   <img alt="python" src="https://img.shields.io/badge/Python-3.9%2B%20stdlib%20only-3776ab">
 </p>
 
@@ -36,7 +37,17 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 - **Authentication:** WS-UsernameToken digest + HTTP Digest, ONVIF user levels and access policy
 - **SOAP faults** with correct ONVIF `ter:` sub-codes
 
+**Video sources**
+- **Video files** (looped seamlessly), **RTSP/HTTP streams** (re-publish a real camera)
+- **Screen capture** (`screen://`): the desktop of the PC, with the mouse pointer, as an ONVIF camera.
+  Windows: Direct3D 11 desktop duplication (GDI fallback); Linux: X11
+- **USB webcams / capture cards** (`webcam://`): Windows Media Foundation (KS / DirectShow
+  fallback), Linux V4L2. The device is opened once and feeds every stream of the camera
+
 **Streaming**
+- **Engine:** GStreamer by default: one process per source decodes or captures once and feeds every
+  encoder of that camera (main, sub, MJPEG, snapshots), so all streams show the same moment. The
+  previous ffmpeg engine stays selectable (`"engine": "ffmpeg"`)
 - **Codecs:** H.264, H.265 (HEVC) and MJPEG, transcoded from any file, or passed through untouched (`copy`)
 - **RTSP transports:** RTP/UDP, RTP/RTSP/TCP, RTSP-over-HTTP tunnel, RTP multicast
 - **RTP/RTCP:** RTCP sender reports, NAT-friendly UDP (symmetric RTP)
@@ -50,19 +61,21 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 - **Shared encoders:** clones share one encoder, so 20 viewers on 20 devices cost a single encode
 - **Robust under VMS behaviour:**
   - re-applied settings don't drop streams
-  - an encoder watchdog restarts a frozen ffmpeg
+  - an encoder watchdog restarts a frozen encoder or capture
   - the device keeps a stable address on hosts with several network adapters
 - **Diagnostics:** every RTSP session logs its client software, transport, duration and packet count
 
 **Web control panel** (port 8000, Persian UI, Vazirmatn font, works offline)
-- **Cameras:** add from the video library (with upload), a file path or an RTSP URL; edit, enable/disable, delete
+- **Cameras:** add from the video library (with upload), a file path, an RTSP URL, a screen or a
+  webcam (device list built in); edit, enable/disable, delete
 - **Live view:** snapshot previews with an on/off switch to save CPU; copy ONVIF/RTSP URLs in one click
 - **Monitoring:** active sessions, encoders and a live log
 - **Network:** choose the IP announced to the VMS; change credentials
 - **Themes:** data-center blue, operational green, dark, amber NOC, night purple, light
 
 **Portable Windows bundle**
-- **Self-contained:** Python 3.12 and a GPL ffmpeg (libx264/libx265) are inside one folder; nothing to install, no internet
+- **Self-contained:** Python 3.12, GStreamer 1.28 (x264, screen capture, webcam, PyGObject) and a GPL
+  ffmpeg (libx265, ffprobe) are inside one folder; nothing to install, no internet
 - **Background mode:** runs without a console window; stop from the panel, STOP.bat or autostart scripts; one-click firewall setup
 
 ![Themes](docs/images/themes.jpg)
@@ -73,7 +86,7 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 
 ## Download & run (Windows)
 
-1. Download **`ONVIF-VCam-1.1.1-Portable-win64.zip`** from [Releases](../../releases) and extract it
+1. Download **`ONVIF-VCam-1.2.0-Portable-win64.zip`** from [Releases](../../releases) and extract it
    (e.g. to `C:\ONVIF-VCam`).
 2. Run **`FIREWALL.bat`** once as administrator.
 3. Run **`START.bat`**. The control panel opens at `http://127.0.0.1:8000` (login `admin` / `admin`).
@@ -86,7 +99,7 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 | `START-DEBUG.bat` | run with a console and verbose log |
 | `AUTOSTART-ON.bat` / `AUTOSTART-OFF.bat` | start with Windows |
 | `TEST.bat` | automated test suites (125 checks) |
-| `SHELL.bat` | prompt with python / ffmpeg / ffprobe / ffplay |
+| `SHELL.bat` | prompt with python / ffmpeg / ffprobe / ffplay / gst-launch-1.0 / gst-device-monitor-1.0 |
 
 The Windows launchers live in [`windows/`](windows). [`scripts/build_portable.sh`](scripts/build_portable.sh)
 rebuilds the bundle from conda-forge and PyPI.
@@ -94,7 +107,10 @@ rebuilds the bundle from conda-forge and PyPI.
 ## Quick start (Python / any OS)
 
 ```bash
-# needs: python3 >= 3.9 and ffmpeg/ffprobe in PATH
+# needs: python3 >= 3.9, ffmpeg/ffprobe in PATH, and for the GStreamer engine (screen / webcam)
+# GStreamer 1.20+ with PyGObject, e.g.  conda install -c conda-forge gstreamer gst-plugins-base \
+#   gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav pygobject
+# Without GStreamer, file and RTSP cameras fall back to the ffmpeg engine.
 python -m vcam lobby.mp4
 ```
 
@@ -117,11 +133,35 @@ python -m vcam a.mp4 --main H265:2560x1440@20:3000:gop=40 --sub H264:640x360@10:
 python -m vcam a.mp4 --main copy --sub none           # pass the file's own bitstream through
 python -m vcam a.mp4 --mjpeg                          # add a JPEG (RFC 2435) profile
 python -m vcam rtsp://user:pw@10.0.0.64/stream1 --main copy   # re-publish a real camera
+python -m vcam screen://                              # the primary screen as a camera
+python -m vcam "screen://1?fps=15"                    # second monitor, captured at 15 fps
+python -m vcam webcam://0                             # first USB webcam
+python -m vcam "webcam://Logitech C920"               # webcam by (part of its) name
+python -m vcam --list-devices                         # webcams and monitors found
+python -m vcam a.mp4 --engine ffmpeg                  # previous engine
 python -m vcam -c config.example.json                 # full control (see file)
 python -m vcam a.mp4 --http-port 80 --rtsp-port 554   # camera-like ports (needs admin/root)
 ```
 
 Stream spec: `ENC[:WxH][@FPS][:KBPS][:gop=N]` with `ENC` = `H264 | H265 | JPEG`, or `copy`.
+
+### Screen and webcam cameras
+
+| Source | Meaning |
+|---|---|
+| `screen://` | primary monitor, 25 fps |
+| `screen://N?fps=F` | monitor N (0, 1, … as listed by `--list-devices` / the panel), F fps |
+| `webcam://` or `webcam://N` | first / N-th USB camera |
+| `webcam://NAME` | camera whose name contains NAME |
+
+The camera's resolution ladder follows the captured size, so a 1920×1080 screen offers 1080p, 720p,
+360p, … to the VMS. A webcam is opened only once, even with main + sub + MJPEG + snapshots and any
+number of clones. Notes:
+* Screen capture needs an interactive desktop session. It does not work from a Windows service or
+  session 0, and RDP sessions capture only while the RDP window is open (minimised = frozen).
+* H.264 and MJPEG are encoded by GStreamer (x264, jpegenc). For H.265, GStreamer prepares the frames
+  and libx265 (bundled ffmpeg) encodes them, since GStreamer builds ship no software H.265 encoder.
+* `copy` mode needs an encoded source and is ignored for screens and webcams.
 
 ## What is implemented (and where it comes from in the specs)
 
@@ -198,10 +238,12 @@ API: `tests/test_panel.py` exercises every endpoint (`vcam/ui.py` lists them).
   encoder or drops viewers. Only changes that alter the encoded stream do.
 * Every RTSP session close is logged with its duration, packets sent and the client User-Agent.
 * **Shared encoders:** cameras with the same source and effective settings (e.g. panel clones for
-  stress tests) share one ffmpeg encoder. 20 viewers on 20 clone devices cost one encode.
-* **Encoder watchdog:** an ffmpeg that produces no frames for 10 s (stalled RTSP relay, I/O hang)
-  is restarted, and viewers resync on the next key frame.
-* **Windowless mode** (`pythonw`, `START.bat`): ffmpeg runs without console windows and logs go
+  stress tests) share one encoder. 20 viewers on 20 clone devices cost one encode. With GStreamer,
+  all encoders of one source also share a single decoder / capture process.
+* **Encoder watchdog:** an encoder or GStreamer source that produces no frames for 10-15 s
+  (stalled RTSP relay, unplugged webcam, I/O hang) is restarted, and viewers resync on the next
+  key frame.
+* **Windowless mode** (`pythonw`, `START.bat`): encoders run without console windows and logs go
   to a rotating `vcam.log`. A second start only opens the panel; `--stop` / ⏻ shuts it down.
 
 ## Status page / API
@@ -214,12 +256,13 @@ running encoders and SOAP call counters. JSON at `/api/status`.
 See `config.example.json`. Per camera: `id`, `name`, `source`, `http_port`, identity fields
 (`manufacturer`, `model`, `firmware`, `serial`, `mac`, `location`, `hostname`), `users`,
 `motion`, and `profiles` (`name`, `encoding`, `width`, `height`, `fps`, `bitrate_kbps`,
-`gop`, `profile`, `quality`, `cbr`, `mode: transcode|copy`).
+`gop`, `profile`, `quality`, `cbr`, `mode: transcode|copy`). `source` is a file path, a URL,
+`screen://N?fps=F` or `webcam://N|NAME`.
 
 Global keys: `rtsp_port`, `http_port_base`, `bind`, `advertise_ip` (NAT / Docker),
 `discovery_interfaces`, `auth`, `rtsp_auth`, `digest_algorithms` (`["MD5","SHA-256"]`),
 `allow_basic`, `wsse_clock_tolerance` (seconds, 0 = off), `wsse_strict`, `snapshot_auth`,
-`x264_preset`, `encoder_idle_timeout`, `prestart_encoders`, `rtp_mtu`, `rtp_port_range`,
+`engine` (`gstreamer` | `ffmpeg`), `x264_preset`, `encoder_idle_timeout`, `prestart_encoders`, `rtp_mtu`, `rtp_port_range`,
 `max_profiles`, `media1_h265_as`, `state_dir`.
 
 ## Deployment notes
@@ -296,5 +339,8 @@ is taken, change `ui_port` in `config.json`.
 
 Third-party components in the portable bundle keep their own licences:
 - FFmpeg (GPL): source at https://ffmpeg.org and https://github.com/conda-forge/ffmpeg-feedstock
+- GStreamer (LGPL; gst-plugins-ugly x264 and gst-libav: GPL / LGPL): source at
+  https://gstreamer.freedesktop.org and https://github.com/conda-forge/gstreamer-feedstock
+- PyGObject (LGPL)
 - Python (PSF)
 - Vazirmatn font (SIL OFL)
