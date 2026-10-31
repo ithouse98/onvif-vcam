@@ -1,0 +1,2 @@
+ONVIF VCam: installed and running
+ONVIF VCam: running
