@@ -1,0 +1,3 @@
+stream|codec_name=h264|width=1024|height=768|nb_read_frames=251
+stream|codec_name=h264|width=640|height=360|nb_read_frames=151
+snapshot ok
