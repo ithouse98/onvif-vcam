@@ -1,0 +1,5 @@
+agent id: 59d785c4-6444-4725-8e92-de18d02efa4f
+camera: cam1 {"ok": true, "ids": ["cam1"]}
+main: /tmp/phone.mkv: No such file or directory
+sub: /tmp/phone_sub.mkv: No such file or directory
+snapshot HTTP 000 0
