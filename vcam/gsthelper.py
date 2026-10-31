@@ -190,8 +190,10 @@ def monitors():
     return out
 
 
-def _monitor_srcs(m, fps, test=False):
-    """Capture alternatives for one monitor (best first)."""
+def _monitor_srcs(m, fps, test=False, composite=False):
+    """Capture alternatives for one monitor (best first). composite: the branch feeds a
+    compositor; on real Windows the D3D11 capture must then download its GPU frames explicitly
+    (with system-memory caps right after the source the composite pipeline ends at once)."""
     caps = f"video/x-raw,framerate={fps}/1"
     if test:  # VCAM_TEST_MONITORS
         return [f"videotestsrc is-live=true pattern={'ball' if m['index'] == 0 else 'smpte'} ! "
@@ -200,7 +202,11 @@ def _monitor_srcs(m, fps, test=False):
     if has("d3d11screencapturesrc"):
         sel = (f"monitor-handle={int(m['hmonitor'])}" if m.get("hmonitor")
                else f"monitor-index={m['index']}")
-        c.append(f"d3d11screencapturesrc {sel} show-cursor=true ! {caps}")
+        if composite and has("d3d11download"):
+            c.append(f"d3d11screencapturesrc {sel} show-cursor=true ! "
+                     f"video/x-raw(memory:D3D11Memory),framerate={fps}/1 ! d3d11download")
+        else:
+            c.append(f"d3d11screencapturesrc {sel} show-cursor=true ! {caps}")
     if has("gdiscreencapsrc"):
         c.append(f"gdiscreencapsrc monitor={m['index']} cursor=true ! {caps}")
     return c
@@ -262,7 +268,7 @@ def screen_candidates(arg, fps):
             m = mons[int(tok)]
             parts.append((m, x, 0))
             x += m["width"]
-    per = [_monitor_srcs(m, fps, test) for m, _, _ in parts]
+    per = [_monitor_srcs(m, fps, test, composite=True) for m, _, _ in parts]
     n = min(len(p) for p in per)  # same capture method for every monitor, best first
     return [composite_desc(parts, [p[k] for p in per], fps) for k in range(n)]
 

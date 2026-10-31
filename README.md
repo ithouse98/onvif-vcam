@@ -292,6 +292,8 @@ start, restart on failure) and a tray icon for every user:
                                                                   main / sub / MJPEG / snapshot -> VMS
 ```
 
+![Agents tab](docs/images/agents.jpg)
+
 1. Copy the same folder to the other PC and run **`AGENT-INSTALL.bat`** as administrator. Enter the
    server IP, or press Enter to find it by broadcast. If a key is set in the panel, enter it too.
 2. The agent runs as a service, starts with Windows, and appears in the panel's **Agents** tab with

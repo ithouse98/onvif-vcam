@@ -12,7 +12,7 @@ h, w, hh = m.get("hmonitor"), m["width"], m["height"]
 sel = f"monitor-handle={h}" if h else "monitor-index=0"
 d3d = "video/x-raw(memory:D3D11Memory),framerate=25/1"
 variants = {
-    "current all": g.screen_candidates("all", 25)[0],
+    "current all": g.screen_candidates("all", 25)[0],  # fixed variant (download first)
     "current 0+0": g.screen_candidates("0+0", 25)[0],
     "download first": (f"d3d11screencapturesrc {sel} show-cursor=true ! {d3d} ! d3d11download ! videoconvert ! "
                        f"queue ! mix.sink_0 d3d11screencapturesrc {sel} show-cursor=true ! {d3d} ! d3d11download ! "
