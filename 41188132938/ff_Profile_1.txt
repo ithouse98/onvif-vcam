@@ -1,0 +1,4 @@
+[tcp @ 00000245B9CF1A00] Connection to tcp://127.0.0.1:8554?timeout=20000000 failed: Error number -138 occurred
+[in#0 @ 00000245B9D3B9C0] Error opening input: Error number -138 occurred
+Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam2/Profile_1.
+Error opening input files: Error number -138 occurred
