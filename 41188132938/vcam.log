@@ -1,0 +1,18 @@
+09:20:35 INFO    vcam           stream engine: gstreamer
+09:20:36 INFO    vcam.rtsp      RTSP server listening on tcp/8554
+09:20:36 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.54, 172.30.16.1)
+09:20:36 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:4a42a20a-ca38-5127-b907-4d2931ad58a5)
+09:20:36 INFO    vcam.discovery WS-Discovery Hello cam2 (urn:uuid:0be45b01-37a5-50cc-a639-a6ce3a177690)
+09:20:36 INFO    vcam.ui        control panel on http://10.1.0.54:8000/
+09:20:54 INFO    vcam.events    cam1: motion START
+09:21:04 INFO    vcam.events    cam1: motion stop
+09:21:13 INFO    vcam.events    cam2: motion START
+09:21:23 INFO    vcam.events    cam2: motion stop
+09:21:54 INFO    vcam.events    cam1: motion START
+09:22:04 INFO    vcam.events    cam1: motion stop
+09:22:13 INFO    vcam.events    cam2: motion START
+09:22:23 INFO    vcam.events    cam2: motion stop
+09:22:54 INFO    vcam.events    cam1: motion START
+09:23:04 INFO    vcam.events    cam1: motion stop
+09:23:13 INFO    vcam.events    cam2: motion START
+09:23:23 INFO    vcam.events    cam2: motion stop
