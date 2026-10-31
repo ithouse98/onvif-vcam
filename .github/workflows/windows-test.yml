@@ -1,8 +1,11 @@
 name: Windows test
 # Builds the portable bundle and runs it on a real Windows runner: file + screen-capture cameras,
-# the three test suites, and a recording / snapshot of the screen camera (uploaded as artifacts).
+# the three test suites, and a recording / snapshot of the screen camera. Results (text + images)
+# are committed to the "ci-results" branch under <run id>/.
 on:
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,6 +21,7 @@ jobs:
   test:
     needs: build
     runs-on: windows-latest
+    timeout-minutes: 40
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -28,55 +32,83 @@ jobs:
           Expand-Archive -Path (Get-ChildItem *-Portable-win64.zip).FullName -DestinationPath C:\vc
           $root = (Get-ChildItem C:\vc -Directory)[0].FullName
           "ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append
+          New-Item -ItemType Directory C:\results | Out-Null
       - name: GStreamer check / devices / probe
+        timeout-minutes: 5
         shell: cmd
         run: |
           call "%ROOT%\_env.cmd"
+          (
           "%PY%" -m vcam.gsthelper check
           "%PY%" -m vcam.gsthelper devices
           "%PY%" -m vcam.gsthelper probe screen://
           "%PY%" -m vcam.gsthelper probe "%ROOT%\videos\sample_1080p.mp4"
+          ) > C:\results\gst-check.txt 2>&1
+          type C:\results\gst-check.txt
           exit /b 0
       - name: Start vcam (file + screen cameras)
+        timeout-minutes: 5
         shell: pwsh
         run: |
           $env:PATH = "$env:ROOT\runtime;$env:ROOT\runtime\Library\bin;$env:PATH"
           $env:PYTHONPATH = "$env:ROOT\app"
           Start-Process -FilePath "$env:ROOT\runtime\python.exe" -WorkingDirectory $env:ROOT `
             -ArgumentList "-m","vcam","$env:ROOT\videos\sample_1080p.mp4","screen://","--mjpeg","-c","$env:ROOT\config.json","--log-file","$env:ROOT\vcam.log" `
-            -RedirectStandardOutput "$env:ROOT\stdout.txt" -RedirectStandardError "$env:ROOT\stderr.txt"
+            -RedirectStandardOutput "C:\results\stdout.txt" -RedirectStandardError "C:\results\stderr.txt"
           for ($i = 0; $i -lt 90; $i++) {
             try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8000/ -TimeoutSec 2 | Out-Null; break } catch { Start-Sleep 2 }
           }
-          Get-Content "$env:ROOT\stdout.txt"
+          Get-Content C:\results\stdout.txt
       - name: Test suites
+        timeout-minutes: 15
         shell: cmd
         run: |
           call "%ROOT%\_env.cmd"
+          (
           "%PY%" app\tests\test_raw_soap.py 127.0.0.1 8080 8554 admin admin
           "%PY%" app\tests\test_with_onvif_client.py 127.0.0.1 8080 admin admin
           "%PY%" app\tests\test_panel.py 127.0.0.1 8000 admin admin "%ROOT%\videos\sample_1080p.mp4"
+          ) > C:\results\tests.txt 2>&1
+          findstr /C:"passed" /C:"FAIL" C:\results\tests.txt
           exit /b 0
       - name: Screen camera stream + snapshot
-        shell: cmd
+        timeout-minutes: 6
+        shell: pwsh
         run: |
-          call "%ROOT%\_env.cmd"
-          start "" /b powershell -Command "for($i=0;$i -lt 40;$i++){ Start-Process notepad; Start-Sleep 1 }"
-          ffmpeg -v error -rtsp_transport tcp -i rtsp://admin:admin@127.0.0.1:8554/cam2/Profile_1 -t 10 -c copy -y screen_main.mkv
-          ffmpeg -v error -rtsp_transport tcp -i rtsp://admin:admin@127.0.0.1:8554/cam2/Profile_2 -t 10 -c copy -y screen_sub.mkv
-          ffprobe -v error -count_frames -select_streams v -show_entries stream=codec_name,width,height,nb_read_frames -of compact screen_main.mkv
-          ffprobe -v error -count_frames -select_streams v -show_entries stream=codec_name,width,height,nb_read_frames -of compact screen_sub.mkv
-          curl -s -o screen_snapshot.jpg -w "snapshot HTTP %%{http_code} %%{size_download} bytes\n" http://127.0.0.1:8081/onvif/snapshot/Profile_1.jpg
-          ffmpeg -v error -ss 5 -i screen_main.mkv -frames:v 1 -y screen_frame.jpg
-          type vcam.log
-          exit /b 0
-      - uses: actions/upload-artifact@v4
+          $env:PATH = "$env:ROOT\runtime;$env:ROOT\runtime\Library\bin;$env:PATH"
+          $null = Start-Job { 1..30 | ForEach-Object { Start-Process notepad; Start-Sleep 1 } }
+          $out = "C:\results\screen.txt"
+          foreach ($p in "Profile_1", "Profile_2") {
+            $a = "-v error -timeout 20000000 -rtsp_transport tcp -i rtsp://admin:admin@127.0.0.1:8554/cam2/$p -t 10 -c copy -y C:\results\screen_$p.mkv"
+            $pr = Start-Process ffmpeg -ArgumentList $a -NoNewWindow -PassThru -RedirectStandardError "C:\results\ff_$p.txt"
+            if (-not $pr.WaitForExit(60000)) { $pr.Kill(); "ffmpeg $p TIMEOUT" | Add-Content $out }
+            Get-Content "C:\results\ff_$p.txt" -ErrorAction SilentlyContinue | Add-Content $out
+            & ffprobe -v error -count_frames -select_streams v -show_entries stream=codec_name,width,height,nb_read_frames -of compact "C:\results\screen_$p.mkv" 2>&1 | Add-Content $out
+          }
+          try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8081/onvif/snapshot/Profile_1.jpg -TimeoutSec 30 -OutFile C:\results\screen_snapshot.jpg; "snapshot ok" | Add-Content $out } catch { "snapshot failed: $_" | Add-Content $out }
+          & ffmpeg -v error -ss 5 -i C:\results\screen_Profile_1.mkv -frames:v 1 -vf scale=960:-2 -y C:\results\screen_frame.jpg 2>&1 | Add-Content $out
+          Get-Content $out
+      - name: Collect
         if: always()
-        with:
-          name: windows-results
-          path: |
-            C:\vc\*\vcam.log
-            C:\vc\*\stderr.txt
-            C:\vc\*\screen_*.jpg
-            C:\vc\*\screen_*.mkv
-          retention-days: 7
+        shell: pwsh
+        run: |
+          Copy-Item "$env:ROOT\vcam.log" C:\results\ -ErrorAction SilentlyContinue
+          Remove-Item C:\results\*.mkv -ErrorAction SilentlyContinue
+          Get-ChildItem C:\results | Format-Table Name, Length
+      - name: Publish results to ci-results branch
+        if: always()
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $repo = "${{ github.repository }}"
+          gh api "repos/$repo/branches/ci-results" 2>$null | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+            $sha = gh api "repos/$repo/git/refs/heads/${{ github.ref_name }}" -q .object.sha
+            gh api -X POST "repos/$repo/git/refs" -f ref=refs/heads/ci-results -f sha=$sha | Out-Null
+          }
+          foreach ($f in Get-ChildItem C:\results -File) {
+            $b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($f.FullName))
+            $body = @{ message = "ci results ${{ github.run_id }}: $($f.Name)"; content = $b64; branch = "ci-results" } | ConvertTo-Json
+            $body | gh api -X PUT "repos/$repo/contents/${{ github.run_id }}/$($f.Name)" --input - | Out-Null
+          }
