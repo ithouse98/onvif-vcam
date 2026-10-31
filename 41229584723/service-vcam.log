@@ -1,0 +1,103 @@
+2026-10-31 18:32:40 service process start: C:\vc\ONVIF-VCam-1.3.0\runtime\python.exe ['C:\\vc\\ONVIF-VCam-1.3.0\\app\\vcam\\winservice.py', '--run', 'vcam']
+18:32:41 vcam service: running main ['-c', 'C:\\vc\\ONVIF-VCam-1.3.0\\config.json', '--log-file', 'C:\\vc\\ONVIF-VCam-1.3.0\\vcam.log']
+18:32:43 INFO    vcam           stream engine: gstreamer
+18:32:43 INFO    vcam.model     cam1: restored state from ./vcam-state\cam1.json
+18:32:44 ERROR   vcam           cam3: cannot start: screen://0+0: no video
+18:32:44 ERROR   vcam           cam4: cannot start: screen://all: no video
+18:32:44 INFO    vcam.rtsp      RTSP server listening on tcp/8554
+18:32:44 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.92, 172.20.112.1)
+18:32:44 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:1179f2e1-e4a9-50f7-a312-29c5fca03bf6)
+18:32:44 INFO    vcam.discovery WS-Discovery Hello cam2 (urn:uuid:0be45b01-37a5-50cc-a639-a6ce3a177690)
+18:32:44 INFO    vcam.agents    agent hub listening on tcp/8600 (discovery udp/8600), no agent key set
+18:32:44 INFO    vcam.ui        control panel on http://10.1.0.92:8000/
+
+==============================================================================
+ ONVIF Virtual Camera 1.3.0  -  2 device(s)  -  auth: admin/admin
+ by Behrouz Kazemi, VMS Systems Specialist  |  IPS-Co.  |  Telegram @B_8241
+==============================================================================
+ VirtualCam-1-sample_1080p  [h264 1920x1080@25 60.0s]
+   ONVIF   http://10.1.0.92:8080/onvif/device_service
+   RTSP    rtsp://10.1.0.92:8554/cam1/Profile_1                 H264 1920x1080@25
+   RTSP    rtsp://10.1.0.92:8554/cam1/Profile_2                 H264 640x360@10
+   RTSP    rtsp://10.1.0.92:8554/cam1/Profile_3                 JPEG 640x352@10
+ VirtualCam-2-screen  [screen 1024x768@25 0.0s]
+   ONVIF   http://10.1.0.92:8081/onvif/device_service
+   RTSP    rtsp://10.1.0.92:8554/cam2/Profile_1                 H264 1024x768@25
+   RTSP    rtsp://10.1.0.92:8554/cam2/Profile_2                 H264 640x360@15
+   RTSP    rtsp://10.1.0.92:8554/cam2/Profile_3                 JPEG 640x352@10
+ cam3: NOT RUNNING - screen://0+0: no video
+ cam4: NOT RUNNING - screen://all: no video
+
+ Control panel: http://10.1.0.92:8000/   (Ctrl+C or STOP.bat to stop)
+ Note: this PC has several adapters (10.1.0.92, 172.20.112.1). If a VMS sees the
+       camera on the wrong one, pick the right IP in the panel (Network).
+==============================================================================
+
+18:32:50 INFO    vcam.gst       C:\vc\ONVIF-VCam-1.3.0\videos\sample_1080p.mp4: starting GStreamer source
+18:32:50 INFO    vcam.source    sample_1080p.mp4/H264 640x360@10 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=10/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=400 vbv-buf-capacity=2000 key-int-max=15 bframes=0 byte-stream=true aud=true option-string="min-keyint=15:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+18:32:50 INFO    vcam.rtsp      SETUP 69DC9DE7A547 cam1/Profile_2 tcp from 127.0.0.1 (rtsp)
+18:32:55 INFO    vcam.rtsp      session 69DC9DE7A547 cam1/Profile_2 tcp closed (connection closed) after 5s, 335 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+18:32:56 INFO    vcam.gst       screen://: starting GStreamer source in the user session
+18:32:56 INFO    vcam.source    screen:///H264 1024x768@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1024,height=768,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+18:32:56 INFO    vcam.rtsp      SETUP 07CB234237AC cam2/Profile_1 tcp from 127.0.0.1 (rtsp)
+18:33:03 INFO    vcam.events    cam1: motion START
+18:33:05 INFO    vcam.rtsp      session 07CB234237AC cam2/Profile_1 tcp closed (connection closed) after 9s, 1488 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+18:33:10 INFO    vcam.agents    agent runnervmdaln5 (127.0.0.1) connected, 1 screen(s)
+18:33:10 INFO    vcam.discovery WS-Discovery Hello cam5 (urn:uuid:dee51890-03f3-5c4a-a946-a6a9bb38c25f)
+18:33:10 INFO    vcam           cam5: online at port 8084 (agent://80456a63-8f0a-4ac8-ba9e-54425fefc285/0)
+18:33:12 INFO    vcam.source    sample_1080p.mp4/H264 640x360@10 idle, stopping encoder
+18:33:13 INFO    vcam.events    cam1: motion stop
+18:33:14 INFO    vcam.gst       agent://80456a63-8f0a-4ac8-ba9e-54425fefc285/0: starting GStreamer source
+18:33:14 INFO    vcam.source    0/H264 1024x768@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1024,height=768,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+18:33:15 INFO    vcam.rtsp      SETUP 738C1E27628F cam5/Profile_1 tcp from 127.0.0.1 (rtsp)
+18:33:20 INFO    vcam.source    screen:///H264 1024x768@25 idle, stopping encoder
+18:33:21 INFO    vcam.events    cam2: motion START
+18:33:24 INFO    vcam.rtsp      session 738C1E27628F cam5/Profile_1 tcp closed (connection closed) after 9s, 1496 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+18:33:25 INFO    vcam.source    0/H264 640x480@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=480,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=768 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+18:33:25 INFO    vcam.rtsp      SETUP 790B0969409E cam5/Profile_2 tcp from 127.0.0.1 (rtsp)
+18:33:28 INFO    vcam.source    C:\vc\ONVIF-VCam-1.3.0\videos\sample_1080p.mp4: idle, stopping GStreamer source
+18:33:31 INFO    vcam.rtsp      session 790B0969409E cam5/Profile_2 tcp closed (connection closed) after 6s, 704 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+18:33:31 INFO    vcam.events    cam2: motion stop
+18:33:36 INFO    vcam.source    screen://: idle, stopping GStreamer source
+Exception in thread gst-:
+Traceback (most recent call last):
+  File "C:\vc\ONVIF-VCam-1.3.0\runtime\Lib\threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "C:\vc\ONVIF-VCam-1.3.0\runtime\Lib\threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\vc\ONVIF-VCam-1.3.0\app\vcam\gst.py", line 303, in _reader
+    hdr = _read_exact(f, 6)
+          ^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.3.0\app\vcam\gst.py", line 390, in _read_exact
+    chunk = f.read(n - len(buf))
+            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.3.0\runtime\Lib\socket.py", line 720, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+18:33:39 INFO    vcam.gst       screen://: starting GStreamer source in the user session
+18:33:40 INFO    vcam.source    screen:///H264 1024x768@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1024,height=768,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+18:33:40 INFO    vcam.rtsp      SETUP 8014789AB0A9 cam2/Profile_1 tcp from 127.0.0.1 (rtsp)
+18:33:40 INFO    vcam.source    0/H264 1024x768@25 idle, stopping encoder
+18:33:45 INFO    vcam.rtsp      session 8014789AB0A9 cam2/Profile_1 tcp closed (connection closed) after 5s, 793 RTP packets sent, client 127.0.0.1 [Lavf63.1.102]
+18:33:45 INFO    vcam.agents    agent runnervmdaln5 (127.0.0.1) disconnected
+18:33:45 WARNING vcam.gst       agent://80456a63-8f0a-4ac8-ba9e-54425fefc285/0: GStreamer source stopped (source ended)
+18:33:46 INFO    vcam.source    0/H264 640x480@25 idle, stopping encoder
+18:33:47 INFO    vcam           shutting down
+Exception in thread gst-:
+Traceback (most recent call last):
+  File "C:\vc\ONVIF-VCam-1.3.0\runtime\Lib\threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "C:\vc\ONVIF-VCam-1.3.0\runtime\Lib\threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\vc\ONVIF-VCam-1.3.0\app\vcam\gst.py", line 303, in _reader
+    hdr = _read_exact(f, 6)
+          ^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.3.0\app\vcam\gst.py", line 390, in _read_exact
+    chunk = f.read(n - len(buf))
+            ^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.3.0\runtime\Lib\socket.py", line 720, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-10-31 18:33:50 service process exit
