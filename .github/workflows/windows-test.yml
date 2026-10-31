@@ -1,0 +1,82 @@
+name: Windows test
+# Builds the portable bundle and runs it on a real Windows runner: file + screen-capture cameras,
+# the three test suites, and a recording / snapshot of the screen camera (uploaded as artifacts).
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -q && sudo apt-get install -yq ffmpeg zip bzip2
+      - run: bash scripts/build_portable.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bundle
+          path: dist/*-Portable-win64.zip
+          retention-days: 3
+  test:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: bundle
+      - name: Extract
+        shell: pwsh
+        run: |
+          Expand-Archive -Path (Get-ChildItem *-Portable-win64.zip).FullName -DestinationPath C:\vc
+          $root = (Get-ChildItem C:\vc -Directory)[0].FullName
+          "ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: GStreamer check / devices / probe
+        shell: cmd
+        run: |
+          call "%ROOT%\_env.cmd"
+          "%PY%" -m vcam.gsthelper check
+          "%PY%" -m vcam.gsthelper devices
+          "%PY%" -m vcam.gsthelper probe screen://
+          "%PY%" -m vcam.gsthelper probe "%ROOT%\videos\sample_1080p.mp4"
+          exit /b 0
+      - name: Start vcam (file + screen cameras)
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:ROOT\runtime;$env:ROOT\runtime\Library\bin;$env:PATH"
+          $env:PYTHONPATH = "$env:ROOT\app"
+          Start-Process -FilePath "$env:ROOT\runtime\python.exe" -WorkingDirectory $env:ROOT `
+            -ArgumentList "-m","vcam","$env:ROOT\videos\sample_1080p.mp4","screen://","--mjpeg","-c","$env:ROOT\config.json","--log-file","$env:ROOT\vcam.log" `
+            -RedirectStandardOutput "$env:ROOT\stdout.txt" -RedirectStandardError "$env:ROOT\stderr.txt"
+          for ($i = 0; $i -lt 90; $i++) {
+            try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8000/ -TimeoutSec 2 | Out-Null; break } catch { Start-Sleep 2 }
+          }
+          Get-Content "$env:ROOT\stdout.txt"
+      - name: Test suites
+        shell: cmd
+        run: |
+          call "%ROOT%\_env.cmd"
+          "%PY%" app\tests\test_raw_soap.py 127.0.0.1 8080 8554 admin admin
+          "%PY%" app\tests\test_with_onvif_client.py 127.0.0.1 8080 admin admin
+          "%PY%" app\tests\test_panel.py 127.0.0.1 8000 admin admin "%ROOT%\videos\sample_1080p.mp4"
+          exit /b 0
+      - name: Screen camera stream + snapshot
+        shell: cmd
+        run: |
+          call "%ROOT%\_env.cmd"
+          start "" /b powershell -Command "for($i=0;$i -lt 40;$i++){ Start-Process notepad; Start-Sleep 1 }"
+          ffmpeg -v error -rtsp_transport tcp -i rtsp://admin:admin@127.0.0.1:8554/cam2/Profile_1 -t 10 -c copy -y screen_main.mkv
+          ffmpeg -v error -rtsp_transport tcp -i rtsp://admin:admin@127.0.0.1:8554/cam2/Profile_2 -t 10 -c copy -y screen_sub.mkv
+          ffprobe -v error -count_frames -select_streams v -show_entries stream=codec_name,width,height,nb_read_frames -of compact screen_main.mkv
+          ffprobe -v error -count_frames -select_streams v -show_entries stream=codec_name,width,height,nb_read_frames -of compact screen_sub.mkv
+          curl -s -o screen_snapshot.jpg -w "snapshot HTTP %%{http_code} %%{size_download} bytes\n" http://127.0.0.1:8081/onvif/snapshot/Profile_1.jpg
+          ffmpeg -v error -ss 5 -i screen_main.mkv -frames:v 1 -y screen_frame.jpg
+          type vcam.log
+          exit /b 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-results
+          path: |
+            C:\vc\*\vcam.log
+            C:\vc\*\stderr.txt
+            C:\vc\*\screen_*.jpg
+            C:\vc\*\screen_*.mkv
+          retention-days: 7
