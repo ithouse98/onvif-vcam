@@ -51,6 +51,9 @@ Start-Sleep 4
 Copy-Item "$Root\vcam.log" "$R\vcam-standalone.log" -ErrorAction SilentlyContinue
 
 # ---------------------------------------------------------------- phase 2: Windows service
+Note "== sessions"
+Note "this process session: $((Get-Process -Id $PID).SessionId)"
+(& qwinsta 2>&1) | ForEach-Object { Note $_ }
 Note "== service"
 & $PY -m vcam.winservice install vcam *>> "$R\service.txt"
 Get-Content "$R\service.txt" | ForEach-Object { Note $_ }
@@ -102,5 +105,11 @@ Note "panel down after uninstall: $(-not (WaitPort 8000 3))"
 Copy-Item "$Root\vcam.log" "$R\vcam-service.log" -ErrorAction SilentlyContinue
 Copy-Item "$Root\vcam-agent.log" $R -ErrorAction SilentlyContinue
 Copy-Item "$env:TEMP\vcam-gsthelper.log" $R -ErrorAction SilentlyContinue
+Copy-Item "$Root\service-*.log" $R -ErrorAction SilentlyContinue
+Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=(Get-Date).AddHours(-1)} -ErrorAction SilentlyContinue |
+  Where-Object { $_.ProviderName -match 'ONVIF|Python|pywin' -or $_.Message -match 'ONVIF|vcam' } |
+  Select-Object -First 40 TimeCreated, ProviderName, Id, Message | Format-List | Out-File "$R\eventlog-app.txt"
+Get-WinEvent -FilterHashtable @{LogName='System'; ProviderName='Service Control Manager'; StartTime=(Get-Date).AddHours(-1)} -ErrorAction SilentlyContinue |
+  Where-Object { $_.Message -match 'ONVIF' } | Select-Object -First 40 TimeCreated, Id, Message | Format-List | Out-File "$R\eventlog-scm.txt"
 Get-ChildItem C:\Windows\Temp\vcam-gsthelper.log -ErrorAction SilentlyContinue | Copy-Item -Destination "$R\vcam-gsthelper-system.log"
 Remove-Item "$R\*.mkv", "$R\body.json" -ErrorAction SilentlyContinue

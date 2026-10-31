@@ -22,6 +22,14 @@ import time
 
 if __package__ in (None, ""):  # started by the service control manager as a plain script
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if "--run" in sys.argv:  # no console under the SCM: keep early errors (imports, DLLs) in a file
+    try:
+        _err_log = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                                f"service-{sys.argv[-1]}.log")
+        sys.stderr = sys.stdout = open(_err_log, "a", encoding="utf-8", buffering=1)
+        print(time.strftime("%Y-%m-%d %H:%M:%S"), "service process start:", sys.executable, sys.argv)
+    except OSError:
+        pass
 
 APP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))     # ...\app
 ROOT = os.path.dirname(APP)                                           # bundle folder
@@ -95,6 +103,7 @@ class VcamService(_Base):
         if not os.path.exists(cfg):  # first run, like START.bat: one camera per video
             args = [os.path.join(ROOT, "videos"), "--mjpeg"] + args
         _svc_log("ONVIF VCam service starting")
+        print(time.strftime("%H:%M:%S"), "vcam service: running main", args)
         try:
             from vcam import __main__ as m
             m.main(args)
@@ -315,10 +324,16 @@ def cli(argv):
 
 def main():
     if len(sys.argv) >= 3 and sys.argv[1] == "--run":  # started by the service control manager
-        cls = {"vcam": VcamService, "agent": AgentService}[sys.argv[2]]
-        servicemanager.Initialize()
-        servicemanager.PrepareToHostSingle(cls)
-        servicemanager.StartServiceCtrlDispatcher()
+        try:
+            cls = {"vcam": VcamService, "agent": AgentService}[sys.argv[2]]
+            servicemanager.Initialize()
+            servicemanager.PrepareToHostSingle(cls)
+            servicemanager.StartServiceCtrlDispatcher()
+        except BaseException:
+            import traceback
+            traceback.print_exc()
+            raise
+        print(time.strftime("%Y-%m-%d %H:%M:%S"), "service process exit")
         return 0
     return cli(sys.argv[1:])
 

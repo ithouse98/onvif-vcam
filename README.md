@@ -3,11 +3,11 @@
 </p>
 
 <h1 align="center">ONVIF VCam</h1>
-<p align="center"><b>Turn any video file, your screen or a USB webcam into a standards-compliant ONVIF IP camera for VMS testing.</b><br>
+<p align="center"><b>Turn any video file, your screens (local or on other PCs) or a USB webcam into a standards-compliant ONVIF IP camera for VMS testing.</b><br>
 Virtual ONVIF Profile S / T camera with WS-Discovery, RTSP streaming, events and a web control panel. Fully offline and portable.</p>
 
 <p align="center">
-  <img alt="version" src="https://img.shields.io/badge/version-1.2.0-0f6fb3">
+  <img alt="version" src="https://img.shields.io/badge/version-1.3.0-0f6fb3">
   <img alt="ONVIF" src="https://img.shields.io/badge/ONVIF-Profile%20S%20%2F%20T-38bdf8">
   <img alt="platform" src="https://img.shields.io/badge/Windows%20x64-portable%20%26%20offline-2fbf71">
   <img alt="GStreamer" src="https://img.shields.io/badge/engine-GStreamer-e8202a">
@@ -41,6 +41,11 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 - **Video files** (looped seamlessly), **RTSP/HTTP streams** (re-publish a real camera)
 - **Screen capture** (`screen://`): the desktop of the PC, with the mouse pointer, as an ONVIF camera.
   Windows: Direct3D 11 desktop duplication (GDI fallback); Linux: X11
+- **Several monitors in one picture:** `screen://all` composes every monitor as arranged in Windows
+  display settings (e.g. two 1080p monitors side by side = one 3840×1080 stream); `screen://0+1`
+  puts chosen monitors side by side
+- **Screens of other PCs** (`agent://`): the screen agent runs as a service on the other PC, finds the
+  server on the network, registers in the panel and streams its monitors on demand
 - **USB webcams / capture cards** (`webcam://`): Windows Media Foundation (KS / DirectShow
   fallback), Linux V4L2. The device is opened once and feeds every stream of the camera
 
@@ -76,7 +81,10 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 **Portable Windows bundle**
 - **Self-contained:** Python 3.12, GStreamer 1.28 (x264, screen capture, webcam, PyGObject) and a GPL
   ffmpeg (libx265, ffprobe) are inside one folder; nothing to install, no internet
-- **Background mode:** runs without a console window; stop from the panel, STOP.bat or autostart scripts; one-click firewall setup
+- **Windows service + tray icon:** VCam starts with Windows (even before anyone logs in); a tray
+  icon next to the clock shows the status and starts / stops / restarts it
+- **Background mode:** without the service it runs without a console window; stop from the panel,
+  STOP.bat or autostart scripts; one-click firewall setup
 
 ![Themes](docs/images/themes.jpg)
 
@@ -86,7 +94,7 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 
 ## Download & run (Windows)
 
-1. Download **`ONVIF-VCam-1.2.0-Portable-win64.zip`** from [Releases](../../releases) and extract it
+1. Download **`ONVIF-VCam-1.3.0-Portable-win64.zip`** from [Releases](../../releases) and extract it
    (e.g. to `C:\ONVIF-VCam`).
 2. Run **`FIREWALL.bat`** once as administrator.
 3. Run **`START.bat`**. The control panel opens at `http://127.0.0.1:8000` (login `admin` / `admin`).
@@ -97,7 +105,11 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 |---|---|
 | `START.bat` / `STOP.bat` | run in the background / stop |
 | `START-DEBUG.bat` | run with a console and verbose log |
-| `AUTOSTART-ON.bat` / `AUTOSTART-OFF.bat` | start with Windows |
+| `SERVICE-INSTALL.bat` / `SERVICE-UNINSTALL.bat` | install / remove the Windows service + tray icon (as administrator) |
+| `TRAY.bat` | start the tray icon by hand |
+| `AGENT-INSTALL.bat` / `AGENT-UNINSTALL.bat` | **on another PC:** install / remove the screen agent service |
+| `AGENT-RUN.bat` | run the agent in a window (quick test, no service) |
+| `AUTOSTART-ON.bat` / `AUTOSTART-OFF.bat` | start at user logon (alternative to the service) |
 | `TEST.bat` | automated test suites (125 checks) |
 | `SHELL.bat` | prompt with python / ffmpeg / ffprobe / ffplay / gst-launch-1.0 / gst-device-monitor-1.0 |
 
@@ -154,14 +166,19 @@ Stream spec: `ENC[:WxH][@FPS][:KBPS][:gop=N]` with `ENC` = `H264 | H265 | JPEG`,
 |---|---|
 | `screen://` | primary monitor, 25 fps |
 | `screen://N?fps=F` | monitor N (0, 1, … as listed by `--list-devices` / the panel), F fps |
+| `screen://all` | every monitor in one picture, as arranged in Windows display settings |
+| `screen://0+1` | monitors 0 and 1 side by side (any list, any order) |
+| `agent://ID/SCREEN` | a screen of another PC (`SCREEN` as above); made by the panel's Agents tab |
 | `webcam://` or `webcam://N` | first / N-th USB camera |
 | `webcam://NAME` | camera whose name contains NAME |
 
 The camera's resolution ladder follows the captured size, so a 1920×1080 screen offers 1080p, 720p,
 360p, … to the VMS. A webcam is opened only once, even with main + sub + MJPEG + snapshots and any
 number of clones. Notes:
-* Screen capture needs an interactive desktop session. It does not work from a Windows service or
-  session 0, and RDP sessions capture only while the RDP window is open (minimised = frozen).
+* Screen capture needs a logged-in desktop. When VCam runs as a Windows service, it starts the
+  capture inside the logged-in user's session (Session 0 cannot see the screen); before anyone logs
+  in, screen cameras wait and start automatically at logon. RDP sessions capture only while the RDP
+  window is open (minimised = frozen).
 * H.264 and MJPEG are encoded by GStreamer (x264, jpegenc). For H.265, GStreamer prepares the frames
   and libx265 (bundled ffmpeg) encodes them, since GStreamer builds ship no software H.265 encoder.
 * `copy` mode needs an encoded source and is ignored for screens and webcams.
@@ -254,19 +271,59 @@ API: `tests/test_panel.py` exercises every endpoint (`vcam/ui.py` lists them).
 `http://HOST:8080/` — devices, stream URIs, active RTSP sessions (transport, client, packets),
 running encoders and SOAP call counters. JSON at `/api/status`.
 
+### Windows service and tray icon
+
+Run **`SERVICE-INSTALL.bat`** as administrator. It installs the `ONVIF-VCam` service (automatic
+start, restart on failure) and a tray icon for every user:
+
+* The service runs the cameras, RTSP server and panel from boot, without anyone logged in.
+* Screen and webcam cameras are captured in the logged-in user's session, as remote-support tools do.
+* The tray icon is coloured while VCam runs and grey when stopped. Its menu: open panel ·
+  start / stop / restart service · agent start / stop · log · program folder. Interactive users
+  may start and stop the service without elevation.
+* `START.bat` / `STOP.bat` keep working; they start / stop the service once it is installed.
+* `SERVICE-UNINSTALL.bat` removes the service and the tray autostart; settings and videos stay.
+
+### Screens of other PCs (agent)
+
+```
+  other PC (agent service)                         VCam server
+  screen -> GStreamer H.264 / MPEG-TS  ───TCP 8600 (outbound)──>  agent hub -> decode once ->
+                                                                  main / sub / MJPEG / snapshot -> VMS
+```
+
+1. Copy the same folder to the other PC and run **`AGENT-INSTALL.bat`** as administrator. Enter the
+   server IP, or press Enter to find it by broadcast. If a key is set in the panel, enter it too.
+2. The agent runs as a service, starts with Windows, and appears in the panel's **Agents** tab with
+   its monitors.
+3. Click **+ monitor N** or **+ all monitors**: a new ONVIF camera streams that screen. Or pick
+   "screen of another PC" as the source in the camera editor.
+
+Notes:
+* The agent connects *out* to the server, so the other PC needs no inbound firewall rule. The server
+  needs TCP 8600 (and UDP 8600 for auto-discovery) open; `FIREWALL.bat` already allows Python.
+* **Agent key** (panel → Network & access): when set, only agents that know it are accepted. The key
+  never crosses the network: it is checked with a challenge/response (HMAC-SHA256).
+* The agent sends the native resolution at the camera's fps (`agent_bitrate_kbps`, default 6000);
+  the server transcodes it to every profile the VMS asks for.
+* The capture runs while a user is logged in to the other PC. When the agent goes offline, its
+  cameras retry and resume by themselves.
+* Linux / macOS agent: `python -m vcam.agent --server HOST` (X11 screen).
+
 ## Configuration file
 
 See `config.example.json`. Per camera: `id`, `name`, `source`, `http_port`, identity fields
 (`manufacturer`, `model`, `firmware`, `serial`, `mac`, `location`, `hostname`), `users`,
 `motion`, and `profiles` (`name`, `encoding`, `width`, `height`, `fps`, `bitrate_kbps`,
 `gop`, `profile`, `quality`, `cbr`, `mode: transcode|copy`). `source` is a file path, a URL,
-`screen://N?fps=F` or `webcam://N|NAME`.
+`screen://N|all|N+M?fps=F`, `webcam://N|NAME` or `agent://ID/SCREEN?fps=F`.
 
 Global keys: `rtsp_port`, `http_port_base`, `bind`, `advertise_ip` (NAT / Docker),
 `discovery_interfaces`, `auth`, `rtsp_auth`, `digest_algorithms` (`["MD5","SHA-256"]`),
 `allow_basic`, `wsse_clock_tolerance` (seconds, 0 = off), `wsse_strict`, `snapshot_auth`,
 `engine` (`gstreamer` | `ffmpeg`), `x264_preset`, `encoder_idle_timeout`, `prestart_encoders`, `rtp_mtu`, `rtp_port_range`,
-`max_profiles`, `media1_h265_as`, `state_dir`.
+`max_profiles`, `media1_h265_as`, `state_dir`, `agent_port` (8600), `agent_key`,
+`agent_bitrate_kbps`, `agents_enabled`.
 
 ## Deployment notes
 
@@ -276,7 +333,7 @@ Global keys: `rtsp_port`, `http_port_base`, `bind`, `advertise_ip` (NAT / Docker
   RTSP port with per-camera paths. VMSs identify devices by endpoint UUID, so this works for
   discovery and recording. If your VMS insists on one device per IP, add IP aliases to the
   host and run one instance per IP with `--bind <ip>`.
-* Windows: allow Python through the firewall (TCP 8080+/8554, UDP 3702 and RTP 50000-59999).
+* Windows: allow Python through the firewall (TCP 8080+/8554/8600, UDP 3702/8600 and RTP 50000-59999).
 * For thousands of cameras prefer `--main copy` (no transcoding, near-zero CPU).
 
 ```bash

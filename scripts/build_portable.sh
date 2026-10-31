@@ -20,7 +20,7 @@ MAMBA_ROOT_PREFIX=$PWD/dist/tools/root dist/tools/bin/micromamba create -y --pla
   find Library/bin -maxdepth 1 -name "*.exe" ! -name ffmpeg.exe ! -name ffprobe.exe ! -name ffplay.exe \
     ! -name "gst-launch-1.0.exe" ! -name "gst-inspect-1.0.exe" ! -name "gst-device-monitor-1.0.exe" -delete
   # GStreamer: only the plugins vcam uses (faster first-run registry scan, fewer failing DLLs)
-  keep=" coreelements app playback typefindfunctions videoconvertscale videorate isomp4 matroska avi
+  keep=" coreelements app playback compositor typefindfunctions videoconvertscale videorate isomp4 matroska avi
     mpegtsdemux mpegtsmux flv x264 jpeg y4m videotestsrc videoparsersbad libav rtsp rtp rtpmanager udp tcp soup
     adaptivedemux2 d3d11 d3d winscreencap mediafoundation winks directshow pbtypes autodetect "
   for f in Library/lib/gstreamer-1.0/*; do
