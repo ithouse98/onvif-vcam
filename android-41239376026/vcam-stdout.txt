@@ -1,0 +1,60 @@
+20:34:44 INFO    vcam           stream engine: gstreamer
+20:34:44 INFO    vcam.rtsp      RTSP server listening on tcp/8554
+20:34:44 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.102, 172.17.0.1)
+20:34:44 INFO    vcam.agents    agent hub listening on tcp/8600 (discovery udp/8600), no agent key set
+20:34:44 INFO    vcam.ui        control panel on http://10.1.0.102:8000/
+
+==============================================================================
+ ONVIF Virtual Camera 1.3.1  -  0 device(s)  -  auth: admin/admin
+ by Behrouz Kazemi, VMS Systems Specialist  |  IPS-Co.  |  Telegram @B_8241
+==============================================================================
+
+ Control panel: http://10.1.0.102:8000/   (Ctrl+C or STOP.bat to stop)
+ Note: this PC has several adapters (10.1.0.102, 172.17.0.1). If a VMS sees the
+       camera on the wrong one, pick the right IP in the panel (Network).
+==============================================================================
+
+20:36:19 INFO    vcam.agents    agent Google sdk_gphone_x86_64 (127.0.0.1) connected, 2 screen(s)
+20:36:20 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:f868ebad-f5da-5c0c-9c6f-d8dd735e3e86)
+20:36:20 INFO    vcam           cam1: online at port 8080 (agent://59d785c4-6444-4725-8e92-de18d02efa4f/0)
+20:36:24 INFO    vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: starting GStreamer source
+20:36:24 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:36:27 WARNING vcam.agents    agent Google sdk_gphone_x86_64: capture failed: encoder error: Error 0xfffffc0e
+20:36:27 WARNING vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: GStreamer source stopped (Stream doesn't contain enough data.)
+20:36:27 WARNING vcam.source    0/H264 1280x720@25 encoder exited (Stream doesn't contain enough data.); restarting in 1s
+20:36:28 INFO    vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: starting GStreamer source
+20:36:28 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:36:28 WARNING vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: GStreamer source stopped (Stream doesn't contain enough data.)
+20:36:28 WARNING vcam.source    0/H264 1280x720@25 encoder exited (Stream doesn't contain enough data. | Stream doesn't contain enough data.); restarting in 2s
+20:36:30 INFO    vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: starting GStreamer source
+20:36:30 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:36:30 WARNING vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: GStreamer source stopped (Stream doesn't contain enough data.)
+20:36:30 WARNING vcam.source    0/H264 1280x720@25 encoder exited (Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data.); restarting in 4s
+20:36:34 INFO    vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: starting GStreamer source
+20:36:34 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=4096 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:36:35 WARNING vcam.agents    agent Google sdk_gphone_x86_64: capture failed: encoder error: Error 0xfffffc0e
+20:36:35 WARNING vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: GStreamer source stopped (Stream doesn't contain enough data.)
+20:36:35 WARNING vcam.source    0/H264 1280x720@25 encoder exited (Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data.); restarting in 8s
+20:36:36 WARNING vcam.rtsp      cam1/VEC_1 encoder not ready: Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data.
+20:36:36 INFO    vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: starting GStreamer source
+20:36:36 INFO    vcam.source    0/H264 640x360@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=768 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:36:36 WARNING vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: GStreamer source stopped (Stream doesn't contain enough data.)
+20:36:36 WARNING vcam.source    0/H264 640x360@25 encoder exited (Stream doesn't contain enough data.); restarting in 1s
+20:36:37 INFO    vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: starting GStreamer source
+20:36:37 INFO    vcam.source    0/H264 640x360@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=768 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:36:38 WARNING vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: GStreamer source stopped (Stream doesn't contain enough data.)
+20:36:38 WARNING vcam.source    0/H264 640x360@25 encoder exited (Stream doesn't contain enough data. | Stream doesn't contain enough data.); restarting in 2s
+20:36:39 INFO    vcam.events    cam1: motion START
+20:36:40 INFO    vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: starting GStreamer source
+20:36:40 INFO    vcam.source    0/H264 640x360@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=768 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:36:40 INFO    vcam.source    0/H264 1280x720@25 idle, stopping encoder
+20:36:40 WARNING vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: GStreamer source stopped (Stream doesn't contain enough data.)
+20:36:40 WARNING vcam.source    0/H264 640x360@25 encoder exited (Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data.); restarting in 4s
+20:36:44 INFO    vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: starting GStreamer source
+20:36:44 INFO    vcam.source    0/H264 640x360@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast bitrate=768 vbv-buf-capacity=2000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+20:36:45 WARNING vcam.gst       agent://59d785c4-6444-4725-8e92-de18d02efa4f/0: GStreamer source stopped (Stream doesn't contain enough data.)
+20:36:45 WARNING vcam.source    0/H264 640x360@25 encoder exited (Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data.); restarting in 8s
+20:36:48 WARNING vcam.rtsp      cam1/VEC_2 encoder not ready: Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data. | Stream doesn't contain enough data.
+20:36:49 INFO    vcam.events    cam1: motion stop
+20:36:51 INFO    vcam.agents    agent Google sdk_gphone_x86_64 (127.0.0.1) disconnected
+20:36:52 INFO    vcam.source    0/H264 640x360@25 idle, stopping encoder
