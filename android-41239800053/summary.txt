@@ -1,0 +1,5 @@
+agent id: 5303e2e5-727a-4d85-b52c-30554cfdeace
+camera: cam1 {"ok": true, "ids": ["cam1"]}
+main: h264,1280,720,301
+sub: h264,640,360,151
+snapshot HTTP 000 0
