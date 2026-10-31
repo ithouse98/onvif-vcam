@@ -1,0 +1,16 @@
+===== screen://all
+d3d11screencapturesrc monitor-handle=65537 show-cursor=true ! video/x-raw,framerate=25/1 ! videoconvert ! queue max-size-buffers=3 leaky=downstream ! mix.sink_0 compositor name=mix background=black ignore-inactive-pads=true sink_0::xpos=0 sink_0::ypos=0 ! video/x-raw,width=1024,height=768,framerate=25/1
+
+Traceback (most recent call last):
+  File "D:\a\onvif-vcam\onvif-vcam\scripts\win_composite_debug.py", line 16, in <module>
+    p = subprocess.run(cmd, capture_output=True, text=True, timeout=15, env=env)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.3.0\runtime\Lib\subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.3.0\runtime\Lib\subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\vc\ONVIF-VCam-1.3.0\runtime\Lib\subprocess.py", line 1538, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [WinError 2] The system cannot find the file specified
