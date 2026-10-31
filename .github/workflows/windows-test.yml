@@ -47,6 +47,7 @@ jobs:
           "%PY%" -m vcam.gsthelper probe screen://0+0
           "%PY%" -m vcam.gsthelper probe "%ROOT%\videos\sample_1080p.mp4"
           ) > C:\results\gst-check.txt 2>&1
+          "%PY%" "%GITHUB_WORKSPACE%\scripts\win_composite_debug.py" "%ROOT%" > C:\results\composite-debug.txt 2>&1
           type C:\results\gst-check.txt
           exit /b 0
       - name: Standalone, service, agent and tray tests

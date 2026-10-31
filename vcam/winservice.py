@@ -33,6 +33,11 @@ if "--run" in sys.argv:  # no console under the SCM: keep early errors (imports,
 
 APP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))     # ...\app
 ROOT = os.path.dirname(APP)                                           # bundle folder
+# the bundle's own python (ROOT\runtime\python.exe) is the reliable anchor: a vcam folder in the
+# current directory must never end up registered as the service code
+_rt_root = os.path.dirname(os.path.dirname(os.path.abspath(sys.executable)))
+if os.path.isdir(os.path.join(_rt_root, "app", "vcam")):
+    ROOT, APP = _rt_root, os.path.join(_rt_root, "app")
 RUNTIME = os.path.join(ROOT, "runtime")
 
 SERVICES = {

@@ -8,6 +8,7 @@ $R = "C:\results"
 $env:PATH = "$Root\runtime;$Root\runtime\Library\bin;$env:PATH"
 $env:PYTHONPATH = "$Root\app"
 $PY = "$Root\runtime\python.exe"
+Set-Location $Root   # like the .bat files (_env.cmd): never import a vcam folder from elsewhere
 $sum = "$R\summary.txt"
 function Note($t) { $t | Tee-Object -FilePath $sum -Append }
 function WaitPort($port, $sec) {
