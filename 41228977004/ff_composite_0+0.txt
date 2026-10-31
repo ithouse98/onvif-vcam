@@ -1,0 +1,4 @@
+[in#0 @ 00000189C0107D80] method DESCRIBE failed: 404 (Stream Not Found)
+[in#0 @ 00000189C00AD900] Error opening input: Server returned 404 Not Found
+Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam3/Profile_1.
+Error opening input files: Server returned 404 Not Found
