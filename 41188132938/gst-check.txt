@@ -1,0 +1,4 @@
+{"version": "GStreamer 1.28.8", "missing": []}
+{"webcams": [], "screens": [{"index": 0, "name": "HyperVMonitor", "width": 1024, "height": 768}]}
+{"width": 1024, "height": 768, "fps": 25.0, "duration": 0.0, "live": true}
+{"width": 1920, "height": 1080, "fps": 25.0, "duration": 60.0, "live": false}
