@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ایجنت VCam</string>
+    <string name="intro">دوربین این گوشی را از طریق سرور ONVIF VCam در همین شبکه به یک دوربین ONVIF تبدیل می‌کند. گوشی در پنل VCam، تب «ایجنت‌ها» ظاهر می‌شود.</string>
+    <string name="lbl_server">IP سرور VCam (خالی = پیدا کردن خودکار)</string>
+    <string name="hint_server">مثلاً 192.168.1.10</string>
+    <string name="lbl_port">پورت ایجنت</string>
+    <string name="lbl_key">کلید ایجنت (همان کلید پنل VCam؛ اگر تنظیم نشده خالی)</string>
+    <string name="lbl_name">نامی که در پنل VCam نمایش داده می‌شود</string>
+    <string name="lbl_resolution">رزولوشن</string>
+    <string name="lbl_fps">FPS</string>
+    <string name="lbl_bitrate">حداکثر بیت‌ریت (kbps)</string>
+    <string name="lbl_boot">اجرای خودکار بعد از روشن شدن گوشی</string>
+    <string name="btn_start">شروع</string>
+    <string name="btn_stop">توقف</string>
+    <string name="btn_battery">اجازه اجرا در پس‌زمینه (باتری)</string>
+    <string name="help">در پنل VCam تب «ایجنت‌ها» را باز کنید و «+ مانیتور 0» (دوربین پشت) یا «+ مانیتور 1» (دوربین جلو) را بزنید. هر بار یک دوربین استریم می‌شود. برای تست‌های طولانی گوشی را به شارژر وصل نگه دارید.</string>
+    <string name="agent_id">شناسه ایجنت: %1$s</string>
+    <string name="credits">ONVIF VCam · بهروز کاظمی · IPS-Co. · تلگرام @B_8241</string>
+    <string name="started">ایجنت شروع شد</string>
+    <string name="need_camera">دسترسی به دوربین لازم است</string>
+    <string name="battery_ok">اجرا در پس‌زمینه از قبل مجاز است</string>
+    <string name="boot_tap">برای شروع ایجنت VCam لمس کنید</string>
+    <string name="cam_back">دوربین پشت</string>
+    <string name="cam_front">دوربین جلو</string>
+    <string name="st_starting">در حال شروع…</string>
+    <string name="st_stopped">متوقف</string>
+    <string name="st_searching">در حال جستجوی سرور VCam در شبکه…</string>
+    <string name="st_connecting">در حال اتصال به %1$s…</string>
+    <string name="st_registered">به %1$s وصل است، منتظر بیننده</string>
+    <string name="st_streaming">در حال استریم: %1$s</string>
+    <string name="st_lost">اتصال قطع شد، در حال اتصال دوباره…</string>
+    <string name="st_noserver">سرور در دسترس نیست (%1$s)، تلاش دوباره…</string>
+    <string name="st_denied">سرور ایجنت را نپذیرفت: %1$s (کلید ایجنت را بررسی کنید)</string>
+</resources>

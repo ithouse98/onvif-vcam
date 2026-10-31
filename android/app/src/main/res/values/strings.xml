@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VCam Agent</string>
+    <string name="intro">Turns this phone\'s camera into an ONVIF camera through an ONVIF VCam server on the same network. The phone appears in the VCam panel → Agents.</string>
+    <string name="lbl_server">VCam server IP (empty = find automatically)</string>
+    <string name="hint_server">e.g. 192.168.1.10</string>
+    <string name="lbl_port">Agent port</string>
+    <string name="lbl_key">Agent key (as set in the VCam panel, empty if none)</string>
+    <string name="lbl_name">Name shown in the VCam panel</string>
+    <string name="lbl_resolution">Resolution</string>
+    <string name="lbl_fps">FPS</string>
+    <string name="lbl_bitrate">Max bitrate (kbps)</string>
+    <string name="lbl_boot">Start automatically after the phone restarts</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_stop">Stop</string>
+    <string name="btn_battery">Allow running in the background (battery)</string>
+    <string name="help">In the VCam panel open Agents and press \"+ monitor 0\" (back camera) or \"+ monitor 1\" (front camera). One camera streams at a time. Keep the phone on a charger for long tests.</string>
+    <string name="agent_id">Agent id: %1$s</string>
+    <string name="credits">ONVIF VCam · Behrouz Kazemi · IPS-Co. · Telegram @B_8241</string>
+    <string name="started">Agent started</string>
+    <string name="need_camera">Camera permission is required</string>
+    <string name="battery_ok">Background running is already allowed</string>
+    <string name="boot_tap">Tap to start the VCam agent</string>
+    <string name="cam_back">Back camera</string>
+    <string name="cam_front">Front camera</string>
+    <string name="st_starting">Starting…</string>
+    <string name="st_stopped">Stopped</string>
+    <string name="st_searching">Searching the network for the VCam server…</string>
+    <string name="st_connecting">Connecting to %1$s…</string>
+    <string name="st_registered">Connected to %1$s, waiting for a viewer</string>
+    <string name="st_streaming">Streaming: %1$s</string>
+    <string name="st_lost">Connection lost, reconnecting…</string>
+    <string name="st_noserver">Cannot reach the server (%1$s), retrying…</string>
+    <string name="st_denied">Refused by the server: %1$s (check the agent key)</string>
+</resources>
