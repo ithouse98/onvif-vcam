@@ -1,0 +1,40 @@
+== standalone
+panel up: True
+40/40 checks passed
+59 passed, 0 failed
+26/26 panel checks passed
+screen : 1024,768,201  
+composite_0+0 : C:\results\composite_0+0.mkv: No such file or directory  [in#0 @ 00000189C0107D80] method DESCRIBE failed: 404 (Stream Not Found) [in#0 @ 00000189C00AD900] Error opening input: Server returned 404 Not Found Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam3/Profile_1. Error opening input files: Server returned 404 Not Found
+composite_all : C:\results\composite_all.mkv: No such file or directory  [in#0 @ 000002ABF0A38C40] method DESCRIBE failed: 404 (Stream Not Found) [in#0 @ 000002ABF0A9E5C0] Error opening input: Server returned 404 Not Found Error opening input file rtsp://admin:admin@127.0.0.1:8554/cam4/Profile_1. Error opening input files: Server returned 404 Not Found
+== sessions
+this process session: 2
+ SESSIONNAME               USERNAME                 ID  STATE   TYPE        DEVICE 
+ services                                            0  Disc                        
+>console                   runneradmin               2  Active                      
+ 31c5ce94259d4006a9e4                            65536  Listen                      
+ rdp-tcp                                         65537  Listen                      
+== service
+ONVIF VCam: installed and running
+ONVIF VCam: running
+panel up (service): True
+sc:         STATE              : 4  RUNNING 
+service_file : 640,360,51  
+service_screen : 1024,768,201  
+service snapshot ok
+devices via service: {"webcams": [], "screens": [{"index": 0, "name": "HyperVMonitor", "width": 1024, "height": 768, "x": 0, "y": 0, "primary": true, "hmonitor": 65537}]}
+== agent
+ONVIF VCam Screen Agent: installed and running
+ONVIF VCam Screen Agent: running
+agent online: runnervmdaln5 127.0.0.1 screens=1
+add agent camera: {"ok": true, "ids": ["cam5"]}
+agent_main : 1024,768,201  
+agent_sub : 640,480,126  
+== tray
+tray alive after 8s: True
+tray_screen : 1024,768,101  
+== uninstall
+ONVIF-VCam-Agent: removed
+ONVIF VCam Screen Agent: not installed
+ONVIF-VCam: removed
+ONVIF VCam: not installed
+panel down after uninstall: True
