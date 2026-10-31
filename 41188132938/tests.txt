@@ -1,0 +1,191 @@
+[Authentication - Core 5.9]
+Traceback (most recent call last):
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1141, in _send_output
+    self.send(msg)
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1085, in send
+    self.connect()
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\vc\ONVIF-VCam-1.2.0\app\tests\test_raw_soap.py", line 312, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\app\tests\test_raw_soap.py", line 101, in main
+    st, x, _ = soap("<tds:GetSystemDateAndTime/>", auth=False)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\app\tests\test_raw_soap.py", line 65, in soap
+    with urllib.request.urlopen(req, timeout=30) as r:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 1386, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>
+Traceback (most recent call last):
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohttp\connector.py", line 1322, in _wrap_create_connection
+    sock = await aiohappyeyeballs.start_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohappyeyeballs\impl.py", line 124, in start_connection
+    raise first_exception
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohappyeyeballs\impl.py", line 75, in start_connection
+    sock = await _connect_sock(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohappyeyeballs\impl.py", line 210, in _connect_sock
+    await loop.sock_connect(sock, address)
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\asyncio\proactor_events.py", line 729, in sock_connect
+    return await self._proactor.connect(sock, address)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\asyncio\windows_events.py", line 803, in _poll
+    value = callback(transferred, key, ov)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\asyncio\windows_events.py", line 599, in finish_connect
+    ov.getresult()
+ConnectionRefusedError: [WinError 1225] The remote computer refused the network connection
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\vc\ONVIF-VCam-1.2.0\app\tests\test_with_onvif_client.py", line 152, in <module>
+    sys.exit(asyncio.run(main(a[0] or "127.0.0.1", int(a[1] or 8080), a[2] or "admin", a[3] or "admin")))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\asyncio\runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\asyncio\base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\app\tests\test_with_onvif_client.py", line 33, in main
+    await cam.update_xaddrs()
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\onvif\client.py", line 634, in update_xaddrs
+    if not await self._update_xaddrs_from_services(devicemgmt):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\onvif\client.py", line 702, in _update_xaddrs_from_services
+    services = await devicemgmt.GetServices({"IncludeCapability": False})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\zeep\proxy.py", line 64, in __call__
+    return await self._proxy._binding.send_async(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\zeep\wsdl\bindings\soap.py", line 156, in send_async
+    response = await client.transport.post_xml(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\onvif\wrappers.py", line 54, in _async_wrap_connection_error_retry
+    return await func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\onvif\client.py", line 263, in post_xml
+    return await super().post_xml(address, envelope, headers)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\onvif\zeep_aiohttp.py", line 219, in post_xml
+    response, content = await self._post_internal(address, message, headers)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\onvif\zeep_aiohttp.py", line 154, in _post_internal
+    response = await self.session.post(
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohttp\client.py", line 900, in _request
+    resp = await handler(req)
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohttp\client.py", line 854, in _connect_and_send_request
+    conn = await self._connector.connect(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohttp\connector.py", line 665, in connect
+    proto = await self._create_connection(req, traces, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohttp\connector.py", line 1263, in _create_connection
+    _, proto = await self._create_direct_connection(req, traces, timeout)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohttp\connector.py", line 1641, in _create_direct_connection
+    raise last_exc
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohttp\connector.py", line 1610, in _create_direct_connection
+    transp, proto = await self._wrap_create_connection(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\site-packages\aiohttp\connector.py", line 1345, in _wrap_create_connection
+    raise client_error(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host 127.0.0.1:8080 ssl:default [The remote computer refused the network connection]
+ERROR:asyncio:Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x000001D0C0C4C920>
+ERROR:asyncio:Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x000001D0C0895820>
+Traceback (most recent call last):
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 1357, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1386, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1432, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1381, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1141, in _send_output
+    self.send(msg)
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1085, in send
+    self.connect()
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\http\client.py", line 1051, in connect
+    self.sock = self._create_connection(
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\socket.py", line 865, in create_connection
+    raise exceptions[0]
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\socket.py", line 850, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\vc\ONVIF-VCam-1.2.0\app\tests\test_panel.py", line 192, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\app\tests\test_panel.py", line 69, in main
+    st, _ = call("GET", "/api/state", auth=False)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\app\tests\test_panel.py", line 32, in call
+    with urllib.request.urlopen(req, timeout=60) as r:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 1386, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\vc\ONVIF-VCam-1.2.0\runtime\Lib\urllib\request.py", line 1360, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>
