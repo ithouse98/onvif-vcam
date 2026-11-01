@@ -72,11 +72,12 @@ with physical cameras. No hardware is needed, and the same footage plays every t
   - the device keeps a stable address on hosts with several network adapters
 - **Diagnostics:** every RTSP session logs its client software, transport, duration and packet count
 
-**Web control panel** (port 8000, Persian UI, Vazirmatn font, works offline)
+**Web control panel** (port 8000, English or Persian, Vazirmatn font, works offline)
 - **Cameras:** add from the video library (with upload), a file path, an RTSP URL, a screen or a
   webcam (device list built in); edit, enable/disable, delete
 - **Live view:** snapshot previews with an on/off switch to save CPU; copy ONVIF/RTSP URLs in one click
-- **Monitoring:** active sessions, encoders and a live log
+- **Monitoring:** active sessions, encoders and a live log; the IP of the encoder feeding each
+  camera (agent PC, phone, RTSP camera) and the IPs of its viewers
 - **Network:** choose the IP announced to the VMS; change credentials
 - **Themes:** data-center blue, operational green, dark, amber NOC, night purple, light
 
@@ -245,11 +246,19 @@ admin credentials as the cameras; `--ui-port 0` disables it). Everything in it i
 CDN or web fonts. From the panel you can:
 
 * add cameras from the video library (upload included), a file path or an RTSP URL, N at once
-* edit streams (codec / resolution / fps / bitrate / GOP / copy), enable or disable, delete;
+* edit streams (codec / resolution / fps / bitrate / CBR or VBR / GOP / copy), enable or disable, delete;
   edits keep the device's UUID and ONVIF port, so a VMS still sees the same device
 * view live snapshots, copy ONVIF/RTSP URLs, fire motion events
 * pick the IP announced to VMSs (multi-adapter hosts), change credentials
-* watch active RTSP sessions, running encoders and the live log
+* watch active RTSP sessions, running encoders and the live log, with encoder and client IPs
+* switch the language (🌐 English / فارسی, top bar); the choice is kept per browser
+
+**CBR / VBR** (per stream, "Bitrate" column):
+* **CBR** – constant bitrate: the stream uses its kbps all the time (filler data when the picture
+  is still). Predictable bandwidth, like most real cameras' default.
+* **VBR** (default) – constant quality, never above the kbps: a still screen costs almost nothing
+  and motion is capped. Best for screen cameras.
+* Agent PCs and the Android app encode with the camera's **main stream** setting.
 
 Changes are saved to the `-c` file. On first run it is created from the given videos.
 API: `tests/test_panel.py` exercises every endpoint (`vcam/ui.py` lists them).
@@ -269,6 +278,11 @@ API: `tests/test_panel.py` exercises every endpoint (`vcam/ui.py` lists them).
 * **Encoder watchdog:** an encoder or GStreamer source that produces no frames for 10-15 s
   (stalled RTSP relay, unplugged webcam, I/O hang) is restarted, and viewers resync on the next
   key frame.
+* **Low delay:** live sources (screens, webcams, agents, phones, RTSP relays) go out as soon as
+  they are encoded, through a 150 ms jitter buffer that drains instead of holding delay. A network
+  or CPU hiccup no longer adds permanent delay, and a stream opened while its source is already
+  running starts in real time. Typical end-to-end delay: ~0.15 s for this PC's screen, ~0.25 s for
+  an agent PC (the VMS adds its own buffering on top).
 * **Windowless mode** (`pythonw`, `START.bat`): encoders run without console windows and logs go
   to a rotating `vcam.log`. A second start only opens the panel; `--stop` / ⏻ shuts it down.
 

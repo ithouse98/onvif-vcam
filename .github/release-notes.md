@@ -1,60 +1,59 @@
-## ONVIF VCam 1.3.1: agent setup program + Android agent app
+## ONVIF VCam 1.4.0: low-delay live streams, CBR / VBR per stream, English web console
 
-### New
-- **`ONVIF-VCam-Agent-Setup-1.3.1.exe` (45 MB):** copy this one file to a client PC and run it.
-  1. It installs the agent into `C:\ProgramData\ONVIF-VCam-Agent`, with only what the agent needs
-     (Python, GStreamer capture / encode, pywin32).
-  2. It asks for the **VCam server IP** (empty = find it automatically on the network), the
-     **port** (8600), the **agent key** and the name shown in the panel.
-  3. It registers and **starts the `ONVIF-VCam-Agent` service**, which starts with Windows.
-  4. It adds Start-menu shortcuts (agent log, uninstall) and an entry under Windows **Installed apps**.
+### Stream delay fixed
+Users reported an unacceptable delay on screen cameras and on the Android app. Measured end to end
+(the source flips black / white, an RTSP client times the change):
 
-  The PC then appears in the VCam panel → Agents, ready to turn its monitors into cameras.
-- **Silent install for many PCs** (GPO / PDQ / SCCM):
-  `ONVIF-VCam-Agent-Setup-1.3.1.exe /S /SERVER=192.168.1.10 /KEY=secret [/PORT=8600] [/NAME=PC-01]`.
-  Silent uninstall: `"C:\ProgramData\ONVIF-VCam-Agent\uninstall.exe" /S`.
-- Running the setup again upgrades in place; the agent's identity, settings and logs are kept.
-- The setup can be shown in English or Persian (فارسی).
+| Situation | 1.3.1 | 1.4.0 |
+|---|---|---|
+| Screen sub stream opened 30 s after the main stream | **24.6 s** | 0.15 s |
+| Agent / phone stream after a 2 s network stall | **2.3 s, permanently** | 0.25 s |
+| Screen of this PC, steady state | 0.24 s | 0.15 s |
+| Screen of an agent PC, steady state | 0.32 s | 0.25 s |
 
-### Android agent app (added to this release)
-- **`ONVIF-VCam-Agent-Android-1.3.1.apk`** (Android 8+) turns a phone's back / front camera, or its
-  own screen, into an ONVIF camera through the VCam server, with no server change: the phone appears
-  in Agents and its sources are "monitor 0 / 1 / last" (back, front, phone screen). It uses the
-  phone's hardware H.264 encoder and runs as a foreground service, so it keeps streaming in the
-  background.
-  - **Image source selector:** chosen by the panel, or fixed to back camera, front camera or phone
-    screen; changing it switches the running stream.
-  - **Cyber-desk look** with a splash screen (logo and copyright) and 6 colour themes.
-  - **Settings:** language (English / Persian), theme, resolution, FPS, bitrate, start after
-    reboot, background running.
-- Signed with a public test key (see `android/keystore/README.md`).
+What was wrong, and what changed:
+- **Old frames at stream start:** a stream that joined a source already running (a second profile,
+  a new viewer) first received copies of the first frame for the whole time the source had run,
+  sent at real time. That came out as seconds to minutes of delay.
+- **Delay that never went away:** after any network or CPU hiccup, the delayed frames were spread
+  out at the normal frame rate, so the delay stayed for good. Live sources now pass through a
+  150 ms jitter buffer that drains itself; bursts go out at once.
+- **One frame less** on every H.264 stream and on screen capture; the agent / phone decoder no
+  longer holds one frame per CPU core (up to ~0.6 s on a 16-thread server).
+- **Agents and phones:** they start capturing only when the server is ready to decode (no backlog
+  at stream start) and keep at most ~0.25 s of video in their send buffer when the network slows.
+  The phone encoder runs with realtime / low-latency settings.
+- Slow RTSP clients resync after 2 s of backlog instead of 3 s.
 
-### Fixed
-- The portable bundle was missing two GStreamer plugins: AVI files and HTTP sources failed. Both
-  plugins are included again.
-- Agent logs from the installed agent go to a `logs` folder that the logged-in user can write to.
-  The program files stay admin-only.
+### CBR / VBR for each stream
+- New **Bitrate** column in the camera editor: **CBR** (constant bitrate, fixed bandwidth) or
+  **VBR** (constant quality, capped at the kbps: a still screen costs almost nothing). H.264 and
+  H.265, both engines; also settable over ONVIF Media2 (ConstantBitRate).
+- The screen agent and the Android app encode with the camera's main stream setting.
 
-### نسخه 1.3.1 (فارسی)
-- **برنامه نصب ایجنت (`ONVIF-VCam-Agent-Setup-1.3.1.exe`):**
-  1. فقط همین یک فایل را روی کامپیوتر مقصد اجرا کنید. ایجنت در `C:\ProgramData\ONVIF-VCam-Agent`
-     نصب می‌شود.
-  2. برنامه IP سرور (خالی = پیدا کردن خودکار)، پورت و کلید ایجنت را می‌پرسد.
-  3. سرویس `ONVIF-VCam-Agent` ثبت و اجرا می‌شود، و برنامه در «برنامه‌های نصب‌شده» ویندوز قابل حذف است.
-- نصب بی‌صدا برای تعداد زیادی کامپیوتر:
-  `ONVIF-VCam-Agent-Setup-1.3.1.exe /S /SERVER=192.168.1.10 /KEY=secret`
+### Web console
+- **English** beside Persian: 🌐 language switch in the top bar (English uses a left-to-right layout).
+- **IP addresses:** each camera shows the IP of the encoder feeding it (agent PC, phone, RTSP
+  camera) and the IPs of connected clients; the Encoders tab lists source IP and client IPs.
 
-### اپلیکیشن اندروید
-- **`ONVIF-VCam-Agent-Android-1.3.1.apk`**: دوربین گوشی اندروید (8 به بالا) را از طریق سرور VCam به
-  دوربین ONVIF تبدیل می‌کند. گوشی در تب «ایجنت‌ها» ظاهر می‌شود: «مانیتور 0» دوربین پشت،
-  «مانیتور 1» دوربین جلو و مانیتور آخر صفحه خود گوشی است.
-- انتخاب منبع تصویر (از پنل، دوربین پشت، دوربین جلو یا صفحه گوشی)، ظاهر سایبری با صفحه آغازین و
-  ۶ تم رنگی، و تنظیمات زبان (فارسی / انگلیسی)، رزولوشن، FPS و اجرای خودکار.
+### Android agent app 1.4.0
+- Lower delay (see above), CBR / VBR from the server.
+
+### نسخه 1.4.0 (فارسی)
+- **رفع تأخیر استریم:** تأخیر صفحه نمایش و اپلیکیشن اندروید برطرف شد. استریمی که بعد از شروع منبع باز
+  می‌شد (مثلاً استریم فرعی) قبلاً تا ده‌ها ثانیه عقب بود (۲۴٫۶ ثانیه در تست) و حالا ۰٫۱۵ ثانیه است؛
+  بعد از قطعی کوتاه شبکه هم تأخیر دیگر دائمی نمی‌ماند (۲٫۳ ثانیه ← ۰٫۲۵ ثانیه).
+- **CBR / VBR برای هر استریم:** ستون «نرخ بیت» در ویرایش دوربین. CBR = نرخ ثابت، VBR = کیفیت ثابت
+  با سقف kbps (صفحه ثابت تقریباً پهنای باندی مصرف نمی‌کند). ایجنت و گوشی از تنظیم استریم اصلی پیروی می‌کنند.
+- **پنل وب انگلیسی** در کنار فارسی (انتخاب زبان در نوار بالا).
+- **نمایش آی‌پی** انکودر هر دوربین (کامپیوتر ایجنت، گوشی، دوربین RTSP) و آی‌پی کلاینت‌های متصل.
 
 ### Downloads
-- **ONVIF-VCam-1.3.1-Portable-win64.zip**: the VCam server, standalone and offline.
-- **ONVIF-VCam-Agent-Setup-1.3.1.exe**: the screen agent for other PCs (64-bit Windows 8.1+).
-- **ONVIF-VCam-Agent-Android-1.3.1.apk**: the agent app for Android phones (Android 8+).
+- **ONVIF-VCam-1.4.0-Portable-win64.zip**: the VCam server, standalone and offline.
+- **ONVIF-VCam-Agent-Setup-1.4.0.exe**: the screen agent for other PCs (64-bit Windows 8.1+).
+  Agents from 1.3.x keep working; update them for the lower delay and CBR / VBR.
+- **ONVIF-VCam-Agent-Android-1.4.0.apk**: the agent app for Android phones (Android 8+), signed
+  with the same test key, so it installs over 1.3.1.
 
 ---
 Created by **Behrouz Kazemi**, VMS Systems Specialist · IPS-Co. · Telegram: [@B_8241](https://t.me/B_8241)
