@@ -1,0 +1,7 @@
+agent id: d09af0df-c03d-433b-a8f0-70ca1a8c262b
+camera: cam1 {"ok": true, "ids": ["cam1"]}
+main: h264,1280,720,304
+sub: h264,640,360,152
+snapshot HTTP 200 24845
+screen: h264,1280,720,179
+phone encoder: encoding 1280x720 @25, 4000 kbps CBR;encoding 640x352 @25, 4000 kbps CBR;
