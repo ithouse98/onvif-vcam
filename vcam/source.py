@@ -65,7 +65,8 @@ def ffmpeg_cmd(path, vec, preset="veryfast", threads=0, loop=True, start_pos=0.0
 
 def encoder_args(vec, preset="veryfast", threads=0):
     """ffmpeg output options for one encoder config (shared with the GStreamer H.265 branch)."""
-    from .gst import crf
+    from .gst import crf, quality_preset
+    preset = quality_preset(preset, vec.quality)
     enc = vec.encoding
     br = max(32, int(vec.bitrate_kbps))
     cmd = []
@@ -91,7 +92,7 @@ def encoder_args(vec, preset="veryfast", threads=0):
                 f"keyint={gop}:min-keyint={gop}:scenecut=0:bframes=0:repeat-headers=1:aud=1:"
                 f"log-level=error:{rc}:vbv-maxrate={br}:vbv-bufsize={br}",
                 "-f", "hevc"]
-    else:  # JPEG
+    else:  # JPEG (ffmpeg engine: quality only; the GStreamer engine also honours the bitrate)
         q = int(round(31 - (max(1.0, min(10.0, vec.quality)) - 1) * (29 / 9)))
         cmd += ["-c:v", "mjpeg", "-huffman", "default", "-q:v", str(max(2, min(31, q))),
                 "-f", "mjpeg"]
@@ -329,7 +330,7 @@ class StreamSource:
                                    fixed_rate=self.camera.source.startswith("screen://"))
         src = self.manager.gst_source(self.camera)
         log.info("%s/%s starting GStreamer encoder: %s", *self.key, desc)
-        self.proc = branch = src.add(desc, ff)
+        self.proc = branch = src.add(desc, ff, jpeg=gst.jpeg_rate(self.vec))
         try:
             if self.encoding == "JPEG":
                 self._loop_jpeg(branch)
@@ -469,11 +470,14 @@ class StreamSource:
     # JPEG ---------------------------------------------------------------------
     def _loop_jpeg(self, proc):
         splitter = JpegSplitter()
+        # GStreamer branches deliver one whole JPEG per read: no splitting, which scanned for
+        # FF D9 and broke on low-quality images whose quantisation tables contain FF D9
+        whole = isinstance(proc, gst.Branch)
         while not self.stop_evt.is_set():
             data = self._read(proc)
             if not data:
                 break
-            for img in splitter.feed(data):
+            for img in ([data] if whole else splitter.feed(data)):
                 try:
                     info = rtp.parse_jpeg(img)
                 except ValueError as exc:
@@ -555,13 +559,19 @@ class SourceManager:
                         p = src.proc
                         if p and p.poll() is None:
                             p.kill()
+                        # the shared GStreamer source itself went silent: restart it too (its
+                        # own watchdog never fires while encoder restarts keep re-adding branches)
+                        g = self.gst.get(src.camera.source)
+                        if g is not None and now - g.last_data > 9:
+                            log.warning("%s: GStreamer source silent, restarting it", src.camera.source)
+                            self.gst.pop(src.camera.source).stop()
                 for key, g in list(self.gst.items()):
                     n = g.branch_count()
                     if not g.alive or (n == 0 and now - g.idle_since > self.idle_timeout):
                         if g.alive:
                             log.info("%s: idle, stopping GStreamer source", key)
                         self.gst.pop(key).stop()
-                    elif n and now - g.last_data > 15:
+                    elif n and now - max(g.last_data, g.added_at) > 15:
                         log.warning("%s: GStreamer source frozen for %.0fs, restarting", key,
                                     now - g.last_data)
                         self.gst.pop(key).stop()  # branches end -> encoders restart it
@@ -617,17 +627,14 @@ def _gst_snapshot(manager, camera, w, h):
     # from the shared source process: same frame the streams show, webcam opened only once
     src = manager.gst_source(camera)
     branch = src.add(gst.snapshot_desc(w, h))
-    splitter = JpegSplitter()
     deadline = time.time() + 15
     try:
         while time.time() < deadline:
             data = branch.read(0.5)
             if data == b"":
                 raise RuntimeError(branch.error or src.error or "source ended")
-            if data:
-                imgs = splitter.feed(data)
-                if imgs:
-                    return imgs[0]
+            if data:  # one whole JPEG per read
+                return data
         raise RuntimeError(src.error or "timed out")
     finally:
         src.remove(branch)

@@ -153,15 +153,15 @@ class VideoEncoderConfig:
     multicast: Multicast = field(default_factory=Multicast)
 
     def stream_key(self):
-        # only what changes the ffmpeg command: VMSs re-apply settings on every connect, and
-        # restarting the encoder for an unused field (e.g. Quality on H.264) drops all viewers
+        # only what changes the encoder: VMSs re-apply settings on every connect, and restarting
+        # the encoder for an unused field (e.g. GOP on JPEG) drops all viewers
         if self.mode == "copy":
             return ("copy",)
         jpeg = self.encoding == "JPEG"
         return (self.encoding, self.width, self.height, round(self.fps, 3),
-                None if jpeg else self.bitrate_kbps, None if jpeg else self.gop,
+                self.bitrate_kbps, None if jpeg else self.gop,
                 self.profile if self.encoding == "H264" else None,
-                round(self.quality) if jpeg else None, None if jpeg else self.cbr)
+                round(self.quality), self.cbr)
 
 
 @dataclass

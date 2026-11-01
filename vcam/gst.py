@@ -163,7 +163,7 @@ def _scale(vec, fmt="I420", fixed_rate=False):
     # skip-to-first: a branch joins a source that may have run for minutes (second profile, new
     # viewer); by default videorate first fills that whole time with copies of the first frame,
     # which came out as minutes of delay
-    if fixed_rate:
+    if fixed_rate and vec.fps >= 1:   # max-rate is a whole number: below 1 fps use caps
         rate, fr = f"videorate skip-to-first=true drop-only=true max-rate={max(1, round(vec.fps))}", ""
     else:
         rate, fr = "videorate skip-to-first=true", f"framerate={_frac(vec.fps)},"
@@ -175,6 +175,32 @@ def _frac(fps):
     from fractions import Fraction
     f = Fraction(fps).limit_denominator(1001)
     return f"{f.numerator}/{f.denominator}"
+
+
+PRESETS = ("ultrafast", "superfast", "veryfast", "faster", "fast", "medium")
+
+
+def quality_preset(preset, quality):
+    """Encoder effort from the stream quality: High (>= 7) one step slower than the configured
+    preset (better picture at the same bitrate), Low (<= 3) one step faster."""
+    i = PRESETS.index(preset) if preset in PRESETS else 2
+    q = float(quality)
+    return PRESETS[min(len(PRESETS) - 1, i + 1) if q >= 7 else max(0, i - 1) if q <= 3 else i]
+
+
+def jpeg_quality(quality):
+    """ONVIF Quality 1..10 -> jpegenc quality (Low 2 -> 37, Medium 5 -> 59, High 8 -> 81)."""
+    return int(round(30 + (max(1.0, min(10.0, float(quality))) - 1) * 65 / 9))
+
+
+def jpeg_rate(vec):
+    """MJPEG has no bitrate control of its own: the helper steers jpegenc's quality per frame
+    toward the frame size the bitrate allows. CBR holds that size; VBR keeps the chosen quality
+    and only lowers it while frames would exceed the limit."""
+    if vec.encoding != "JPEG" or not vec.bitrate_kbps:
+        return None
+    return {"target": int(vec.bitrate_kbps * 1000 / 8 / max(vec.fps, 1)), "cbr": bool(vec.cbr),
+            "q": jpeg_quality(vec.quality)}
 
 
 def crf(quality):
@@ -197,6 +223,7 @@ def branch_desc(vec, preset="veryfast", threads=0, fixed_rate=False):
     br = max(32, int(vec.bitrate_kbps))
     gop = max(1, int(vec.gop))
     scale = _scale(vec, fixed_rate=fixed_rate)
+    preset = quality_preset(preset, vec.quality)
     if vec.encoding == "H264":
         prof = {"baseline": "baseline", "main": "main", "high": "high",
                 "extended": "main"}.get(vec.profile.lower(), "main")
@@ -208,8 +235,7 @@ def branch_desc(vec, preset="veryfast", threads=0, fixed_rate=False):
         return (f"{scale} ! {enc} ! video/x-h264,profile={prof} ! h264parse config-interval=-1 ! "
                 f"video/x-h264,stream-format=byte-stream,alignment=au ! {sink}"), None
     if vec.encoding == "JPEG":
-        q = int(round(30 + (max(1.0, min(10.0, vec.quality)) - 1) * 65 / 9))
-        return f"{scale} ! jpegenc quality={q} ! {sink}", None
+        return f"{scale} ! jpegenc name=jenc quality={jpeg_quality(vec.quality)} ! {sink}", None
     # H.265: GStreamer scales / paces, libx265 (ffmpeg) encodes
     from .source import encoder_args
     ff = (["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "yuv4mpegpipe", "-i", "pipe:0"]
@@ -290,7 +316,8 @@ class GstSource:
         self.info = None
         self.alive = True
         self.idle_since = time.time()
-        self.last_data = time.time()
+        self.last_data = time.time()     # last real output of the helper
+        self.added_at = 0.0              # last branch added (watchdog grace)
         self.stderr_tail = deque(maxlen=20)
         self.error = None
         self._start()
@@ -371,14 +398,16 @@ class GstSource:
             self.stderr_tail.append(str(ev.get("msg")))
             log.debug("gst[%s]: %s", self.source, ev.get("msg"))
 
-    def add(self, desc, ffmpeg=None):
+    def add(self, desc, ffmpeg=None, jpeg=None):
         with self.lock:
             bid = self.next_id
             self.next_id = self.next_id % 65000 + 1
             b = Branch(self, bid)
             b.desc, b.ffmpeg = desc, ffmpeg
             self.branches[bid] = b
-            self._send({"op": "add", "id": bid, "desc": desc, "ffmpeg": ffmpeg})
+            # an idle source sends nothing: give a new branch time before calling the source frozen
+            self.added_at = time.time()
+            self._send({"op": "add", "id": bid, "desc": desc, "ffmpeg": ffmpeg, "jpeg": jpeg})
             return b
 
     def remove(self, b):

@@ -12,7 +12,8 @@
 `run` opens SOURCE once (decode / capture -> I420 -> tee) so every stream of a camera shares
 one decoder, one webcam handle and one timeline. Encoder branches (gst-launch syntax ending in an
 appsink named "out") are added / removed at runtime with JSON lines on stdin:
-    {"op": "add", "id": 3, "desc": "queue ! ... ! appsink name=out", "ffmpeg": null | [argv]}
+    {"op": "add", "id": 3, "desc": "queue ! ... ! appsink name=out", "ffmpeg": null | [argv],
+     "jpeg": null | {"target": bytes per frame, "cbr": bool, "q": quality}}  (jpegenc name=jenc)
     {"op": "remove", "id": 3}
 With "ffmpeg" the branch output (y4m) is piped through that encoder (libx265: GStreamer builds
 have no software H.265 encoder). stdout carries frames: struct ">HI" (branch id, length) +
@@ -24,6 +25,7 @@ screen://0+1 = the listed monitors side by side, both composed into one picture.
 """
 
 import json
+import math
 import os
 import struct
 import subprocess
@@ -502,7 +504,7 @@ class Worker:
         return None
 
     # ---------------------------------------------------------------- branches
-    def add(self, bid, desc, ffmpeg=None):
+    def add(self, bid, desc, ffmpeg=None, jpeg=None):
         if bid in self.branches:
             return
         b = Gst.parse_bin_from_description(desc, True)
@@ -516,6 +518,8 @@ class Worker:
                                   creationflags=NO_WINDOW, bufsize=0)
             threading.Thread(target=self._ff_reader, args=(bid, ff), daemon=True).start()
         entry = {"bin": b, "pad": None, "sink": sink, "ff": ff}
+        if jpeg and b.get_by_name("jenc") is not None:
+            entry["jpeg"] = dict(jpeg, enc=b.get_by_name("jenc"), cur=int(jpeg["q"]))
         sink.connect("new-sample", self._on_sample, bid, entry)
         sink.connect("eos", lambda *_: self.out.event(type="eos", id=bid))
         self.pipeline.add(b)
@@ -531,6 +535,8 @@ class Worker:
             return Gst.FlowReturn.EOS
         buf = sample.get_buffer()
         data = buf.extract_dup(0, buf.get_size())
+        if "jpeg" in entry:
+            self._jpeg_rate(entry["jpeg"], len(data))
         ff = entry["ff"]
         if ff is None:
             self.out.frame(bid, data)
@@ -540,6 +546,24 @@ class Worker:
             except (OSError, ValueError):
                 return Gst.FlowReturn.FLUSHING
         return Gst.FlowReturn.OK
+
+    @staticmethod
+    def _jpeg_rate(j, size):
+        """Steer jpegenc quality toward the target frame size (applies from the next frame)."""
+        if size <= 0:
+            return
+        r = j["target"] / size
+        if j["cbr"]:
+            step = 0 if 0.9 < r < 1.1 else max(-8, min(8, int(round(12 * math.log2(r))) or (1 if r > 1 else -1)))
+            q = j["cur"] + step
+        elif r < 1:                          # VBR: over the limit -> lower
+            q = j["cur"] + max(-8, min(-1, int(round(12 * math.log2(r)))))
+        else:                                # under it -> back toward the chosen quality
+            q = j["cur"] + (1 if r > 1.25 else 0)
+        q = max(5, min(95 if j["cbr"] else j["q"], q))
+        if q != j["cur"]:
+            j["cur"] = q
+            j["enc"].set_property("quality", q)
 
     def _ff_reader(self, bid, ff):
         while True:
@@ -588,7 +612,7 @@ class Worker:
     def _command(self, cmd):
         try:
             if cmd.get("op") == "add":
-                self.add(int(cmd["id"]), cmd["desc"], cmd.get("ffmpeg"))
+                self.add(int(cmd["id"]), cmd["desc"], cmd.get("ffmpeg"), cmd.get("jpeg"))
             elif cmd.get("op") == "remove":
                 self.remove(int(cmd["id"]))
         except Exception as exc:  # noqa - report, keep the shared source running

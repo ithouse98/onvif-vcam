@@ -392,7 +392,7 @@ class App:
                             "token": v.token, "encoding": v.encoding,
                             "resolution": f"{v.width}x{v.height}", "fps": v.fps,
                             "bitrate_kbps": v.bitrate_kbps, "gop": v.gop, "profile": v.profile,
-                            "cbr": v.cbr, "mode": v.mode, "multicast": f"{v.multicast.address}:{v.multicast.port}"},
+                            "cbr": v.cbr, "quality": v.quality, "mode": v.mode, "multicast": f"{v.multicast.address}:{v.multicast.port}"},
                     })
             out.append({
                 "id": c.id, "name": c.name, "uuid": c.uuid, "source": c.source,

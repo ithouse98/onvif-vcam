@@ -65,7 +65,7 @@ def vec10_xml(cam, vec, tag, app):
             f"<tt:Encoding>{enc}</tt:Encoding>"
             f"<tt:Resolution><tt:Width>{vec.width}</tt:Width><tt:Height>{vec.height}</tt:Height>"
             f"</tt:Resolution><tt:Quality>{vec.quality:g}</tt:Quality>"
-            f"<tt:RateControl><tt:FrameRateLimit>{int(round(vec.fps))}</tt:FrameRateLimit>"
+            f"<tt:RateControl><tt:FrameRateLimit>{max(1, int(round(vec.fps)))}</tt:FrameRateLimit>"
             f"<tt:EncodingInterval>1</tt:EncodingInterval>"
             f"<tt:BitrateLimit>{vec.bitrate_kbps}</tt:BitrateLimit></tt:RateControl>"
             f"{h264}{multicast_xml(vec.multicast)}"
@@ -159,8 +159,9 @@ class _MediaBase:
         res = cam.resolutions(enc)
         if (w, h) not in res and not (vec.mode == "copy" and (w, h) == (vec.width, vec.height)):
             raise config_modify(f"resolution {w}x{h} not supported for {enc}")
-        if not (1 <= fps <= max(cam.max_fps(), cam.info.fps)):  # e.g. 15.011 source
-            raise config_modify(f"frame rate {fps} out of range 1..{cam.max_fps()}")
+        lo = 0.1 if enc == "JPEG" else 1   # MJPEG may run below 1 fps (one picture every few s)
+        if not (lo <= fps <= max(cam.max_fps(), cam.info.fps)):  # e.g. 15.011 source
+            raise config_modify(f"frame rate {fps} out of range {lo:g}..{cam.max_fps()}")
         if not (32 <= br <= MAX_BITRATE):
             raise config_modify("bitrate out of range")
         if not (1 <= gop <= 300):
@@ -410,10 +411,10 @@ class MediaService(_MediaBase):
         q = float(text(conf, "Quality") or v.quality)
         rc = child(conf, "RateControl")
         fps = float(text(rc, "FrameRateLimit") or v.fps) if rc is not None else v.fps
-        if fps == round(v.fps):
-            fps = v.fps  # Media1 reports FrameRateLimit as an integer; 15 written back = 15.011 kept
+        if fps == round(v.fps) or (v.fps < 1 and fps == 1):
+            fps = v.fps  # Media1 reports FrameRateLimit as an integer (at least 1); written back = kept
         interval = to_int(text(rc, "EncodingInterval"), 1) if rc is not None else 1
-        fps = max(1.0, fps / max(1, interval))
+        fps = max(min(1.0, v.fps), fps / max(1, interval))
         br = to_int(text(rc, "BitrateLimit"), v.bitrate_kbps) if rc is not None else v.bitrate_kbps
         h264 = child(conf, "H264")
         gop = to_int(text(h264, "GovLength"), v.gop) if h264 is not None else v.gop
@@ -762,7 +763,7 @@ class Media2Service(_MediaBase):
                        f'ProfilesSupported="{" ".join(profs)}" ConstantBitRateSupported="true">'
                        f"<tt:Encoding>{enc}</tt:Encoding>{q}{self.resolutions_xml(c, enc)}{br}"
                        "</tr2:Options>")
-        out.append(f'<tr2:Options FrameRatesSupported="{rates}" ConstantBitRateSupported="false">'
+        out.append(f'<tr2:Options FrameRatesSupported="{rates} 0.5 0.3" ConstantBitRateSupported="true">'
                    f"<tt:Encoding>JPEG</tt:Encoding>{q}{self.resolutions_xml(c, 'JPEG')}{br}"
                    "</tr2:Options>")
         return "<tr2:GetVideoEncoderConfigurationOptionsResponse>" + "".join(out) + \

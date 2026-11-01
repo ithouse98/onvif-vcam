@@ -1,73 +1,44 @@
-## ONVIF VCam 1.4.0: low-delay live streams, CBR / VBR per stream, English web console
+## ONVIF VCam 1.4.1: stream quality, MJPEG bitrate and sub-1 fps, redesigned control panel
 
-### New: setup program for the whole platform
-- **`ONVIF-VCam-Setup-1.4.0.exe`** asks what to install: the **server** (cameras + control panel),
-  optionally **as a Windows service** with the tray icon (else it starts in the background at logon),
-  the **screen agent**, or **server + agent**. It asks for the panel / camera login, adds the firewall
-  rules, Start-menu / desktop shortcuts and an Installed apps entry, and upgrades in place keeping
-  cameras, videos and settings. Silent: `/S [/INSTALL=server,service,agent] [/USER=] [/PASSWORD=]
-  [/NOFIREWALL] [/SERVER=] [/PORT=] [/KEY=] [/NAME=]`.
+### New
+- **Quality per stream: High / Medium / Low.** VBR: picture quality (CRF 21 / 26 / 30). H.264 / H.265
+  (CBR too): encoder effort, High = a better picture at the same bitrate. JPEG: JPEG quality
+  (81 / 59 / 37). Measured on the test clip: H.264 VBR High 4.1 Mbps vs Low 1.5 Mbps. Also set over
+  ONVIF (Quality).
+- **MJPEG below 1 fps:** e.g. 0.5 (one picture every 2 s) or 0.3 fps, from the panel or ONVIF Media2.
+- **Redesigned control panel:** a camera wall where every camera is a monitor with CCTV-style
+  on-screen text (name, a red tally light while someone watches, resolution and fps, snapshot time,
+  id and port), quieter controls, six reworked themes (Control room, Night shift, Graphite, NOC amber,
+  Dusk, Daylight). Persian in Vazirmatn, English in IBM Plex (both bundled, offline).
+- **Wider camera editor:** two columns, the whole stream table visible: no scroll bars at
+  1366×768 or larger.
 
-### Stream delay fixed
-Users reported an unacceptable delay on screen cameras and on the Android app. Measured end to end
-(the source flips black / white, an RTSP client times the change):
+### Fixed
+- **MJPEG ignored the bitrate (CBR or VBR):** JPEG quality is now steered frame by frame toward
+  the size the bitrate allows: CBR holds the bitrate (600 kbps set: 637 measured), VBR keeps the
+  chosen quality and only lowers it to stay under the limit (800 kbps cap: 765 measured). The editor
+  no longer greys out CBR for JPEG.
+- Low-quality MJPEG frames could be cut short (their quantisation tables can contain the JPEG end
+  marker), which stopped such streams.
+- Snapshots of an idle source could fail: the source watchdog took the silent source for frozen and
+  stopped it. A source that really goes silent while encoders wait is now restarted.
+- Two MJPEG streams with the same size but a different bitrate shared one encoder.
 
-| Situation | 1.3.1 | 1.4.0 |
-|---|---|---|
-| Screen sub stream opened 30 s after the main stream | **24.6 s** | 0.15 s |
-| Agent / phone stream after a 2 s network stall | **2.3 s, permanently** | 0.25 s |
-| Screen of this PC, steady state | 0.24 s | 0.15 s |
-| Screen of an agent PC, steady state | 0.32 s | 0.25 s |
-
-What was wrong, and what changed:
-- **Old frames at stream start:** a stream that joined a source already running (a second profile,
-  a new viewer) first received copies of the first frame for the whole time the source had run,
-  sent at real time. That came out as seconds to minutes of delay.
-- **Delay that never went away:** after any network or CPU hiccup, the delayed frames were spread
-  out at the normal frame rate, so the delay stayed for good. Live sources now pass through a
-  150 ms jitter buffer that drains itself; bursts go out at once.
-- **One frame less** on every H.264 stream and on screen capture; the agent / phone decoder no
-  longer holds one frame per CPU core (up to ~0.6 s on a 16-thread server).
-- **Agents and phones:** they start capturing only when the server is ready to decode (no backlog
-  at stream start) and keep at most ~0.25 s of video in their send buffer when the network slows.
-  The phone encoder runs with realtime / low-latency settings.
-- Slow RTSP clients resync after 2 s of backlog instead of 3 s.
-
-### CBR / VBR for each stream
-- New **Bitrate** column in the camera editor: **CBR** (constant bitrate, fixed bandwidth) or
-  **VBR** (constant quality, capped at the kbps: a still screen costs almost nothing). H.264 and
-  H.265, both engines; also settable over ONVIF Media2 (ConstantBitRate).
-- The screen agent and the Android app encode with the camera's main stream setting.
-
-### Web console
-- **English** beside Persian: 🌐 language switch in the top bar (English uses a left-to-right layout).
-- **IP addresses:** each camera shows the IP of the encoder feeding it (agent PC, phone, RTSP
-  camera) and the IPs of connected clients; the Encoders tab lists source IP and client IPs.
-
-### Android agent app 1.4.0
-- Lower delay (see above), CBR / VBR from the server.
-
-### نسخه 1.4.0 (فارسی)
-- **رفع تأخیر استریم:** تأخیر صفحه نمایش و اپلیکیشن اندروید برطرف شد. استریمی که بعد از شروع منبع باز
-  می‌شد (مثلاً استریم فرعی) قبلاً تا ده‌ها ثانیه عقب بود (۲۴٫۶ ثانیه در تست) و حالا ۰٫۱۵ ثانیه است؛
-  بعد از قطعی کوتاه شبکه هم تأخیر دیگر دائمی نمی‌ماند (۲٫۳ ثانیه ← ۰٫۲۵ ثانیه).
-- **CBR / VBR برای هر استریم:** ستون «نرخ بیت» در ویرایش دوربین. CBR = نرخ ثابت، VBR = کیفیت ثابت
-  با سقف kbps (صفحه ثابت تقریباً پهنای باندی مصرف نمی‌کند). ایجنت و گوشی از تنظیم استریم اصلی پیروی می‌کنند.
-- **برنامه نصب کامل (`ONVIF-VCam-Setup-1.4.0.exe`):** هنگام نصب انتخاب کنید: سرور، سرور به‌صورت سرویس ویندوز، ایجنت یا سرور + ایجنت.
-- **پنل وب انگلیسی** در کنار فارسی (انتخاب زبان در نوار بالا).
-- **نمایش آی‌پی** انکودر هر دوربین (کامپیوتر ایجنت، گوشی، دوربین RTSP) و آی‌پی کلاینت‌های متصل.
+### نسخه 1.4.1 (فارسی)
+- **کیفیت برای هر استریم (بالا / متوسط / پایین):** روی کیفیت تصویر VBR، دقت انکودر H.264 / H.265 و کیفیت JPEG اعمال می‌شود.
+- **MJPEG:** سقف بیت‌ریت و حالت CBR حالا اعمال می‌شود و نرخ فریم می‌تواند کمتر از ۱ باشد (مثلاً 0.5 یعنی هر ۲ ثانیه یک تصویر).
+- **طراحی جدید پنل مدیریت:** دیوار تصویر با نوشته‌های روی تصویر مثل دستگاه‌های CCTV، شش تم بازطراحی‌شده، فونت وزیر برای فارسی.
+- **پنجره ویرایش دوربین عریض‌تر:** بدون نوار اسکرول افقی و عمودی.
 
 ### Downloads
-- **ONVIF-VCam-Setup-1.4.0.exe**: setup for the server and / or the agent (64-bit Windows 8.1+).
-- **ONVIF-VCam-1.4.0-Portable-win64.zip**: the VCam server, standalone and offline (no installation).
-- **ONVIF-VCam-Agent-Setup-1.4.0.exe**: the small agent-only setup (45 MB) for rolling out to many PCs.
-  Agents from 1.3.x keep working; update them for the lower delay and CBR / VBR.
-- **ONVIF-VCam-Agent-Android-1.4.0.apk**: the agent app for Android phones (Android 8+), signed
-  with the same test key, so it installs over 1.3.1.
+- **ONVIF-VCam-Setup-1.4.1.exe**: setup for the server and / or the agent (64-bit Windows 8.1+).
+- **ONVIF-VCam-1.4.1-Portable-win64.zip**: the VCam server, standalone and offline (no installation).
+- **ONVIF-VCam-Agent-Setup-1.4.1.exe**: the small agent-only setup for rolling out to many PCs.
+- **ONVIF-VCam-Agent-Android-1.4.0.apk**: the Android agent app (unchanged in this release).
 
 ---
 Created by **Behrouz Kazemi**, VMS Systems Specialist · IPS-Co. · Telegram: [@B_8241](https://t.me/B_8241)
 © 1405 IPS-Co. All rights reserved.
 _Bundled third-party software: GStreamer (LGPL; x264 / gst-libav GPL), FFmpeg (GPL), PyGObject (LGPL),
-pywin32 (PSF), NSIS installers (zlib licence). Sources: https://gstreamer.freedesktop.org · https://ffmpeg.org ·
-https://github.com/conda-forge_
+pywin32 (PSF), NSIS installers (zlib licence), Vazirmatn and IBM Plex Sans Arabic fonts (OFL).
+Sources: https://gstreamer.freedesktop.org · https://ffmpeg.org · https://github.com/conda-forge_

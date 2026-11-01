@@ -72,7 +72,9 @@ with physical cameras. No hardware is needed, and the same footage plays every t
   - the device keeps a stable address on hosts with several network adapters
 - **Diagnostics:** every RTSP session logs its client software, transport, duration and packet count
 
-**Web control panel** (port 8000, English or Persian, Vazirmatn font, works offline)
+**Web control panel** (port 8000, English or Persian, works offline): a camera wall where each
+camera is a monitor with CCTV-style on-screen text (name, tally light while someone watches,
+resolution, snapshot time), 6 colour themes
 - **Cameras:** add from the video library (with upload), a file path, an RTSP URL, a screen or a
   webcam (device list built in); edit, enable/disable, delete
 - **Live view:** snapshot previews with an on/off switch to save CPU; copy ONVIF/RTSP URLs in one click
@@ -282,6 +284,14 @@ CDN or web fonts. From the panel you can:
 * **VBR** (default) – constant quality, never above the kbps: a still screen costs almost nothing
   and motion is capped. Best for screen cameras.
 * Agent PCs and the Android app encode with the camera's **main stream** setting.
+
+**Quality** (per stream): High / Medium / Low. For VBR it sets the picture quality (CRF 21 / 26 / 30),
+for H.264 / H.265 also the encoder effort (High = one x264 preset slower: a better picture at the same
+bitrate), for JPEG the JPEG quality.
+
+**MJPEG:** the bitrate limit applies (the JPEG quality is steered frame by frame: CBR holds the
+bitrate, VBR keeps the chosen quality and only lowers it to stay under the limit), and the frame rate
+can go below 1 fps, e.g. 0.5 = one picture every 2 s (ONVIF Media1 shows it as 1).
 
 Changes are saved to the `-c` file. On first run it is created from the given videos.
 API: `tests/test_panel.py` exercises every endpoint (`vcam/ui.py` lists them).

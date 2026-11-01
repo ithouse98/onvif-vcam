@@ -251,8 +251,10 @@ class Handler(BaseHTTPRequestHandler):
                     if enc not in ("H264", "H265", "JPEG"):
                         raise ValueError(f"unsupported codec {enc}")
                     d["encoding"] = enc
-                    for k, lo, hi in (("width", 16, 7680), ("height", 16, 4320), ("fps", 1, 120),
-                                      ("bitrate_kbps", 32, 32768), ("gop", 1, 300)):
+                    # JPEG may run below 1 fps (e.g. 0.5 = one picture every 2 s)
+                    for k, lo, hi in (("width", 16, 7680), ("height", 16, 4320),
+                                      ("fps", 0.1 if enc == "JPEG" else 1, 120),
+                                      ("bitrate_kbps", 32, 32768), ("gop", 1, 300), ("quality", 1, 10)):
                         if p.get(k) not in (None, ""):
                             v = float(p[k])
                             if not lo <= v <= hi:

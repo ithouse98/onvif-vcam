@@ -6,214 +6,267 @@
 <title data-en="ONVIF VCam · Control panel">ONVIF VCam · پنل مدیریت</title>
 <link rel="icon" type="image/png" href="/assets/favicon.png">
 <style>
-@font-face{font-family:"Vazirmatn";src:url("/fonts/Vazirmatn.woff2") format("woff2");
-  font-weight:100 900;font-display:swap}
-:root{--r:10px;--mono:ui-monospace,Consolas,"Cascadia Mono",monospace;
-  --ok:#2fbf71;--warn:#f0a020;--bad:#ef5350;--rec:#ff4d4f;--glow:transparent;
-  /* default = data-center blue */
-  --bg:#081221;--panel:#0d1b31;--panel2:#12243f;--line:#1d3456;--fg:#e3edf9;--mut:#8aa3c2;
-  --acc:#38bdf8;--acc2:#0f6fb3;--glow:#38bdf833}
-html[data-theme=dark]{--bg:#0f1216;--panel:#161b21;--panel2:#1c232b;--line:#262f39;--fg:#e6eaef;
-  --mut:#8792a2;--acc:#3ea6ff;--acc2:#1f6fb8;--glow:transparent}
-html[data-theme=ops]{--bg:#06110c;--panel:#0b1c14;--panel2:#10271c;--line:#1a3a2a;--fg:#dcf5e6;
-  --mut:#7fa892;--acc:#34d27b;--acc2:#15803d;--ok:#4ade80;--glow:#34d27b2e}
-html[data-theme=amber]{--bg:#120e07;--panel:#1c160b;--panel2:#261d0f;--line:#3a2c15;--fg:#f6ead6;
-  --mut:#b39c78;--acc:#fbbf24;--acc2:#b45309;--glow:#fbbf2426}
-html[data-theme=purple]{--bg:#0f0c1d;--panel:#171329;--panel2:#1f1a36;--line:#2f2850;--fg:#ece8fb;
-  --mut:#a39cc8;--acc:#a78bfa;--acc2:#6d28d9;--glow:#a78bfa2e}
-html[data-theme=light]{--bg:#eef2f7;--panel:#fff;--panel2:#f5f8fc;--line:#d8e0ea;--fg:#16202c;
-  --mut:#5f6d80;--acc:#0b6bcb;--acc2:#0b6bcb;--glow:transparent}
+/* Persian: Vazirmatn only. English: IBM Plex Sans (Latin), Vazirmatn for any Persian inside it.
+   Both bundled (OFL): the panel works offline. */
+@font-face{font-family:"Plex";font-weight:400;font-display:swap;src:url("/fonts/plex-latin-400.woff2") format("woff2");
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+FEFF}
+@font-face{font-family:"Plex";font-weight:500;font-display:swap;src:url("/fonts/plex-latin-500.woff2") format("woff2");
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+FEFF}
+@font-face{font-family:"Plex";font-weight:600 700;font-display:swap;src:url("/fonts/plex-latin-600.woff2") format("woff2");
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+FEFF}
+@font-face{font-family:"Vazirmatn";src:url("/fonts/Vazirmatn.woff2") format("woff2");font-weight:100 900;font-display:swap}
+
+/* ------------------------------------------------------------------ themes
+   One token set; each theme only re-colours it. --tally is the on-air light (someone watching). */
+:root{
+  --bg:#10161d;--surface:#17202a;--raised:#1e2935;--line:#2a3746;--line2:#354556;
+  --text:#dce4ec;--muted:#8796a8;--accent:#5aa7df;--accent-ink:#06121d;
+  --ok:#3fb27f;--warn:#d9a03a;--bad:#e5484d;--tally:#e5484d;
+  --screen:#05080b;--bezel:#0b1015;
+  --r:6px;--mono:ui-monospace,"Cascadia Mono",Consolas,monospace,"Vazirmatn";
+  color-scheme:dark}
+html[data-theme=ops]{--bg:#0e1613;--surface:#15201b;--raised:#1b2a23;--line:#273a31;--line2:#33493e;
+  --text:#d9ebe1;--muted:#83a091;--accent:#4cc38a;--accent-ink:#03140b;--bezel:#0a110d}
+html[data-theme=dark]{--bg:#131416;--surface:#1b1c1f;--raised:#232428;--line:#303237;--line2:#3b3e44;
+  --text:#e3e4e7;--muted:#8d9098;--accent:#b8c4d3;--accent-ink:#121417;--bezel:#0d0e10}
+html[data-theme=amber]{--bg:#16120c;--surface:#1f1910;--raised:#282015;--line:#3a2f1e;--line2:#483b26;
+  --text:#f1e6d3;--muted:#ad9a7c;--accent:#e8a93a;--accent-ink:#1c1203;--bezel:#100c07}
+html[data-theme=purple]{--bg:#14121e;--surface:#1c1929;--raised:#242034;--line:#332d49;--line2:#3f3858;
+  --text:#e7e3f6;--muted:#9a93bb;--accent:#a28ff0;--accent-ink:#110b24;--bezel:#0e0c16}
+html[data-theme=light]{--bg:#e9edf1;--surface:#ffffff;--raised:#f3f5f8;--line:#d5dce4;--line2:#c3ccd7;
+  --text:#18212b;--muted:#5b6878;--accent:#1d6db3;--accent-ink:#ffffff;--ok:#1f8a5b;--warn:#a86d00;
+  --bad:#c62f34;--tally:#d92d32;--bezel:#1b232c;color-scheme:light}
+
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{margin:0;background:var(--bg);color:var(--fg);
-  font:14px/1.7 "Vazirmatn",Tahoma,"Segoe UI",sans-serif}
+html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.7 "Vazirmatn",Tahoma,sans-serif}
+html[lang=en] body{font-family:"Plex","Vazirmatn","Segoe UI",sans-serif;line-height:1.5}
 button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .ltr{direction:ltr;unicode-bidi:isolate;font-family:var(--mono);font-size:12.5px}
-header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);
-  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.bar{max-width:1400px;margin:0 auto;padding:10px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
-.brand i{width:12px;height:12px;border-radius:50%;background:var(--rec);box-shadow:0 0 10px var(--rec);
-  animation:pulse 2s infinite}
-@keyframes pulse{50%{opacity:.35}}
-.stats{display:flex;gap:18px;color:var(--mut);font-size:13px;flex-wrap:wrap}
-.stats b{color:var(--fg);font-weight:600}
 .sp{flex:1}
-.btn{border:1px solid var(--line);background:var(--panel2);padding:6px 12px;border-radius:8px;cursor:pointer;
+.hint{color:var(--muted);font-size:12.5px;margin:0}
+.err{color:var(--bad);font-size:13px;white-space:pre-wrap}
+
+/* buttons: quiet by default, the one primary action is filled */
+.btn{border:1px solid var(--line2);background:transparent;padding:5px 12px;border-radius:var(--r);cursor:pointer;
   display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.btn:hover{border-color:var(--acc)}
-.btn.pri{background:var(--acc2);border-color:var(--acc2);color:#fff}
+.btn:hover{background:var(--raised)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.pri:hover{filter:brightness(1.08)}
 .btn.dan:hover{border-color:var(--bad);color:var(--bad)}
-.btn.sm{padding:3px 9px;font-size:12.5px}
+.btn.sm{padding:2px 10px;font-size:13px}
+.btn.on{border-color:var(--accent);color:var(--accent)}
 .btn:disabled{opacity:.5;cursor:default}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg .btn.on{background:var(--acc2);border-color:var(--acc2);color:#fff}
-main{max-width:1400px;margin:0 auto;padding:16px}
-.notice{border:1px solid var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent);
-  padding:10px 14px;border-radius:var(--r);margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
-.card:hover{box-shadow:0 0 0 1px var(--acc2),0 8px 28px var(--glow)}
-.card{transition:box-shadow .2s;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
-  display:flex;flex-direction:column}
-.card.off{opacity:.65}
-.ch{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
-.ch h3{margin:0;font-size:15px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pill{font-size:11.5px;border-radius:99px;padding:1px 9px;border:1px solid var(--line);color:var(--mut)}
-.pill.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 50%,transparent)}
-.pill.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 50%,transparent)}
-.pill.mot{color:#fff;background:var(--warn);border-color:var(--warn)}
-.thumb{position:relative;aspect-ratio:16/9;background:#000;display:grid;place-items:center;color:#667;cursor:zoom-in}
-.thumb img{width:100%;height:100%;object-fit:contain;display:block}
-.thumb .ov{position:absolute;inset-inline-start:8px;bottom:8px;font-size:11.5px;background:#000a;color:#fff;
-  padding:1px 8px;border-radius:6px}
-.cb{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
-.row{display:flex;gap:8px;align-items:center;min-width:0}
-.row .k{color:var(--mut);font-size:12.5px;min-width:52px}
-.url{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
-.cp{cursor:pointer;color:var(--acc);font-size:12px;border:0;background:none;padding:0 2px}
+.seg .btn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.cp{cursor:pointer;color:var(--accent);font-size:12.5px;border:0;background:none;padding:0 2px}
+.tsel{background:var(--surface);border:1px solid var(--line2);border-radius:var(--r);padding:4px 8px;cursor:pointer}
+
+/* ------------------------------------------------------------------ header */
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1600px;margin:0 auto;padding:10px 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;letter-spacing:.01em}
+.brand img{width:26px;height:26px}
+.stats{display:flex;gap:18px;color:var(--muted);font-size:13px;flex-wrap:wrap}
+.stats b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+main{max-width:1600px;margin:0 auto;padding:20px}
+.notice{border:1px solid var(--warn);border-radius:var(--r);padding:10px 14px;margin-bottom:16px;display:flex;
+  gap:12px;align-items:center;flex-wrap:wrap}
+
+/* ------------------------------------------------------------------ camera wall: each camera is a monitor */
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:20px}
+.mon{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;min-width:0}
+.mon.off .screen img{filter:grayscale(1) brightness(.6)}
+.screen{position:relative;aspect-ratio:16/9;background:var(--screen);border:6px solid var(--bezel);
+  border-radius:var(--r) var(--r) 0 0;cursor:zoom-in;overflow:hidden}
+.screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.screen .nosig{position:absolute;inset:0;display:grid;place-items:center;color:#7d8a98;font-size:13px}
+/* on-screen display, set like a CCTV recorder's: white with a dark outline, readable on any picture */
+.osd{position:absolute;color:#f4f6f8;font-size:12.5px;line-height:1.35;font-weight:600;
+  text-shadow:0 0 2px #000,0 0 2px #000,1px 1px 0 #000;display:flex;gap:8px;align-items:center;pointer-events:none}
+.osd.tl{top:8px;inset-inline-start:10px;font-size:14px;max-width:62%}
+.osd.tl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.osd.tr{top:8px;inset-inline-end:10px}
+.osd.bl{bottom:8px;inset-inline-start:10px;direction:ltr}
+.osd.br{bottom:8px;inset-inline-end:10px;direction:ltr;font-family:var(--mono);font-weight:500;font-size:12px}
+.tally{width:9px;height:9px;border-radius:50%;background:#6b7683;box-shadow:0 0 0 1px #000}
+.tally.on{background:var(--tally);box-shadow:0 0 0 1px #000,0 0 8px var(--tally)}
+.tag{font-size:11.5px;font-weight:600;padding:0 6px;border-radius:3px;text-shadow:none;color:#fff}
+.tag.mot{background:var(--warn);color:#1d1404}
+.tag.bad{background:var(--bad)}
+.tag.ok{background:var(--ok);color:#03160c}
+.tag.idle{background:#4a5563}
+.nolive .screen img{display:none}
+.meta{padding:12px 14px;display:flex;flex-direction:column;gap:10px;flex:1}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:13px;align-items:baseline}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.facts dd .cp{margin-inline-start:6px}
+.prof{width:100%;border-collapse:collapse;font-size:12.5px}
+.prof td{padding:5px 6px 5px 0;border-top:1px solid var(--line);white-space:nowrap}
+html[dir=rtl] .prof td{padding:5px 0 5px 6px}
+.prof td:first-child{color:var(--muted)}
+.prof td:last-child{text-align:end}
+.acts{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--line)}
+.empty{border:1px dashed var(--line2);border-radius:var(--r);padding:48px;text-align:center;color:var(--muted)}
+
+/* ------------------------------------------------------------------ console (sessions, encoders, agents, log) */
+.console{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 8px;overflow-x:auto}
+.tab{padding:10px 14px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--text);border-bottom-color:var(--accent)}
+.tp{padding:12px 14px;overflow-x:auto}
 table{border-collapse:collapse;width:100%}
-th,td{text-align:start;padding:5px 8px;border-top:1px solid var(--line);vertical-align:middle}
-th{color:var(--mut);font-weight:600;font-size:12px;border-top:0}
-.prof td{font-size:12.5px}
-.err{color:var(--bad);font-size:12.5px;white-space:pre-wrap}
-.cf{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid var(--line);margin-top:auto}
-.empty{border:1px dashed var(--line);border-radius:var(--r);padding:40px;text-align:center;color:var(--mut)}
-.tabs{display:flex;gap:4px;margin:22px 0 0;border-bottom:1px solid var(--line)}
-.tab{padding:8px 14px;cursor:pointer;border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;color:var(--mut)}
-.tab.on{background:var(--panel);border-color:var(--line);color:var(--fg)}
-.tp{background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 var(--r) var(--r);
-  padding:10px;overflow-x:auto}
-#log{height:300px;overflow:auto;margin:0;font:12px/1.55 var(--mono);direction:ltr;text-align:left;white-space:pre-wrap}
+.tp th,.tp td{text-align:start;padding:6px 10px;border-top:1px solid var(--line);vertical-align:middle;font-size:13px}
+.tp th{color:var(--muted);font-weight:500;border-top:0}
+.pill{font-size:12px;border-radius:3px;padding:0 7px;border:1px solid var(--line2);color:var(--muted)}
+.pill.ok{color:var(--ok);border-color:currentColor}
+#log{height:320px;overflow:auto;margin:0;font:12px/1.55 var(--mono);direction:ltr;text-align:left;white-space:pre-wrap}
 #log .WARNING{color:var(--warn)} #log .ERROR{color:var(--bad)}
-dialog{border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--fg);padding:0;
-  width:min(860px,96vw);max-height:92vh}
-dialog::backdrop{background:#0009}
-.dh{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
-.dh h2{margin:0;font-size:16px;flex:1}
-.db{padding:14px 16px;overflow:auto;max-height:calc(92vh - 120px);display:flex;flex-direction:column;gap:14px}
-.df{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line)}
-fieldset{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;margin:0}
-legend{color:var(--mut);padding:0 6px;font-size:12.5px}
-.f{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
-label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--mut)}
-label.inl{flex-direction:row;align-items:center;gap:6px;color:var(--fg)}
-input,select{background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 8px;min-width:0}
-input:focus,select:focus{outline:2px solid var(--acc);outline-offset:-1px}
-.pt input,.pt select{width:100%;padding:4px 6px}
-.pt select{min-width:86px}
-.pt td:first-child input{min-width:110px}
-.pt input[type=number]{min-width:64px}
-.hint{color:var(--mut);font-size:12px}
-#toast{position:fixed;bottom:18px;inset-inline-start:18px;display:flex;flex-direction:column;gap:8px;z-index:20}
-.t{background:var(--panel2);border:1px solid var(--line);border-inline-start:4px solid var(--acc);
-  padding:8px 14px;border-radius:8px;box-shadow:0 6px 20px #0006;max-width:420px}
-.t.bad{border-inline-start-color:var(--bad)}
+.row{display:flex;gap:10px;align-items:center;min-width:0;flex-wrap:wrap}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+label.inl{flex-direction:row;align-items:center;gap:6px;color:var(--text)}
+
+/* ------------------------------------------------------------------ dialogs */
+dialog{border:1px solid var(--line2);border-radius:10px;background:var(--surface);color:var(--text);padding:0;
+  width:min(640px,96vw);max-height:94vh}
+dialog::backdrop{background:#000a}
+dialog form{display:flex;flex-direction:column;max-height:94vh}
+.dh{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line)}
+.dh h2{margin:0;font-size:17px;font-weight:600;flex:1}
+.db{padding:14px 20px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.df{display:flex;gap:8px;justify-content:flex-end;padding:12px 20px;border-top:1px solid var(--line)}
+fieldset{border:0;border-top:1px solid var(--line);padding:12px 0 0;margin:0;min-width:0}
+legend{color:var(--text);font-weight:600;font-size:14px;padding:0 10px 0 0}
+html[dir=rtl] legend{padding:0 0 0 10px}
+.f{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.f label:not(.inl) input,.f label select{width:100%}
+input,select{background:var(--bg);border:1px solid var(--line2);border-radius:var(--r);padding:6px 9px;min-width:0}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+input:disabled,select:disabled{opacity:.45}
+/* camera editor: wide enough for the whole stream table and everything on one screen */
+#ed{width:min(1320px,97vw)}
+.edgrid{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,1.9fr);gap:12px 28px}
+.edgrid .full{grid-column:1/-1}
+.pt{width:100%;table-layout:fixed}
+.pt th{color:var(--muted);font-weight:500;font-size:12.5px;text-align:start;padding:0 4px 6px}
+.pt td{padding:3px 4px}
+.pt input,.pt select{width:100%;padding:5px 6px}
+.pt col.c-name{width:15%} .pt col.c-x{width:34px}
 #big{width:min(1280px,96vw)} #big img{width:100%;display:block;background:#000}
-progress{width:100%}
-.nolive .thumb img{display:none}
-.nolive .thumb::before{content:"تصویر زنده خاموش است";color:var(--mut);font-size:13px}
-html[lang=en] .nolive .thumb::before{content:"Live view is off"}
-.ips{font-size:12px;color:var(--mut)}
-.tsel{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;cursor:pointer}
-.btn.on{border-color:var(--acc);color:var(--acc)}
-footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
-.ft{max-width:1400px;margin:0 auto;padding:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.ft img{width:52px;height:auto;filter:drop-shadow(0 0 10px var(--glow))}
-.ft .who{display:flex;flex-direction:column;line-height:1.5}
-.ft .who b{font-size:15px}
-.ft .who span{color:var(--mut);font-size:12.5px}
-.ft .tg{display:inline-flex;align-items:center;gap:6px;color:var(--acc);text-decoration:none;
-  border:1px solid var(--line);border-radius:99px;padding:4px 12px;font-size:13px}
-.ft .tg:hover{border-color:var(--acc)}
-.ft .cr{color:var(--mut);font-size:12.5px;text-align:end}
-@media (max-width:640px){.ft{justify-content:center;text-align:center}.ft .who{align-items:center}
-  .ft .cr{text-align:center;width:100%}}
+progress{width:220px}
+#toast{position:fixed;bottom:20px;inset-inline-start:20px;display:flex;flex-direction:column;gap:8px;z-index:20}
+.t{background:var(--raised);border:1px solid var(--line2);border-inline-start:3px solid var(--accent);
+  padding:8px 14px;border-radius:var(--r);max-width:420px}
+.t.bad{border-inline-start-color:var(--bad)}
 #off{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;z-index:50;font-size:18px}
-@media (max-width:520px){.grid{grid-template-columns:1fr}.stats{gap:10px}}
+
+footer{margin-top:32px;border-top:1px solid var(--line)}
+.ft{max-width:1600px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  color:var(--muted);font-size:13px}
+.ft img{width:40px;height:auto}
+.ft .who{display:flex;flex-direction:column;line-height:1.5}
+.ft .who b{color:var(--text);font-weight:600}
+.ft a{color:var(--accent);text-decoration:none}
+.ft a:hover{text-decoration:underline}
+.ft .cr{text-align:end}
+@media (max-width:900px){.edgrid{grid-template-columns:1fr}}
+@media (max-width:640px){.wall{grid-template-columns:1fr}.bar,main{padding-inline:16px}.ft .cr{text-align:start}
+  .pt{table-layout:auto}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <header><div class="bar">
-  <div class="brand"><i></i>ONVIF VCam</div>
+  <div class="brand"><img src="/assets/favicon.png" alt="">ONVIF VCam</div>
   <div class="stats" id="stats"></div>
   <div class="sp"></div>
-  <select class="tsel" id="lang" title="زبان / Language" onchange="setLang(this.value)">
-    <option value="fa">🌐 فارسی</option><option value="en">🌐 English</option></select>
-  <select class="tsel" id="theme" title="تم رنگی" data-en-title="Colour theme" onchange="setTheme(this.value)">
-    <option value="dc" data-en="🎨 Data-center blue">🎨 آبی دیتاسنتر</option><option value="ops" data-en="🎨 Operational green">🎨 سبز عملیاتی</option>
-    <option value="dark" data-en="🎨 Dark">🎨 تیره</option><option value="amber" data-en="🎨 Amber NOC">🎨 کهربایی NOC</option>
-    <option value="purple" data-en="🎨 Night purple">🎨 بنفش شب</option><option value="light" data-en="🎨 Light">🎨 روشن</option></select>
-  <button class="btn" id="liveBtn" onclick="toggleLive()" title="تصویر زنده کارت‌ها؛ خاموش = مصرف کمتر CPU" data-en-title="Live pictures on the cards; off = less CPU"></button>
-  <button class="btn" onclick="openSettings()" data-en="⚙ Network &amp; access">⚙ شبکه و دسترسی</button>
-  <button class="btn pri" onclick="openEditor()" data-en="＋ New camera">＋ دوربین جدید</button>
-  <button class="btn dan" onclick="shutdown()" title="خاموش کردن سرور" data-en-title="Shut down the server">⏻</button>
+  <div class="tools">
+    <select class="tsel" id="lang" title="زبان / Language" onchange="setLang(this.value)">
+      <option value="fa">فارسی</option><option value="en">English</option></select>
+    <select class="tsel" id="theme" title="تم رنگی" data-en-title="Colour theme" onchange="setTheme(this.value)">
+      <option value="dc" data-en="Control room">اتاق کنترل</option><option value="ops" data-en="Night shift">شیفت شب</option>
+      <option value="dark" data-en="Graphite">گرافیت</option><option value="amber" data-en="NOC amber">کهربایی NOC</option>
+      <option value="purple" data-en="Dusk">غروب</option><option value="light" data-en="Daylight">روز</option></select>
+    <button class="btn" id="liveBtn" onclick="toggleLive()" title="تصویر زنده مانیتورها؛ خاموش = مصرف کمتر CPU" data-en-title="Live pictures on the monitors; off = less CPU"></button>
+    <button class="btn" onclick="openSettings()" data-en="Network &amp; access">شبکه و دسترسی</button>
+    <button class="btn pri" onclick="openEditor()" data-en="Add camera">افزودن دوربین</button>
+    <button class="btn dan" onclick="shutdown()" title="خاموش کردن سرور" data-en-title="Shut down the server" aria-label="Shut down">⏻</button>
+  </div>
 </div></header>
 
 <main>
   <div id="notice"></div>
-  <div id="cams" class="grid"></div>
+  <div id="cams" class="wall"></div>
 
-  <div class="tabs">
-    <div class="tab on" data-t="sess" onclick="tab(this)" data-en="Active connections (RTSP)">اتصال‌های فعال (RTSP)</div>
-    <div class="tab" data-t="enc" onclick="tab(this)" data-en="Encoders">انکودرها</div>
-    <div class="tab" data-t="agents" onclick="tab(this)"><span data-en="Agents (other PCs, phones)">ایجنت‌ها (کامپیوترهای دیگر)</span> <span id="agCount"></span></div>
-    <div class="tab" data-t="log" onclick="tab(this)" data-en="Log">لاگ</div>
-  </div>
-  <div class="tp" id="tp-sess"></div>
-  <div class="tp" id="tp-enc" hidden></div>
-  <div class="tp" id="tp-agents" hidden></div>
-  <div class="tp" id="tp-log" hidden>
-    <div class="row" style="margin-bottom:6px">
-      <label class="inl"><input type="checkbox" id="logWarn"> <span data-en="Warnings and errors only">فقط هشدار و خطا</span></label>
-      <label class="inl"><input type="checkbox" id="logFollow" checked> <span data-en="Follow">دنبال کردن</span></label>
-      <div class="sp"></div><button class="btn sm" onclick="logEl.textContent=''" data-en="Clear view">پاک کردن نما</button>
+  <section class="console">
+    <div class="tabs" role="tablist">
+      <div class="tab on" data-t="sess" onclick="tab(this)" data-en="Connections">اتصال‌ها</div>
+      <div class="tab" data-t="enc" onclick="tab(this)" data-en="Encoders">انکودرها</div>
+      <div class="tab" data-t="agents" onclick="tab(this)"><span data-en="Agents">ایجنت‌ها</span> <span id="agCount"></span></div>
+      <div class="tab" data-t="log" onclick="tab(this)" data-en="Log">لاگ</div>
     </div>
-    <pre id="log"></pre>
-  </div>
+    <div class="tp" id="tp-sess"></div>
+    <div class="tp" id="tp-enc" hidden></div>
+    <div class="tp" id="tp-agents" hidden></div>
+    <div class="tp" id="tp-log" hidden>
+      <div class="row" style="margin-bottom:8px">
+        <label class="inl"><input type="checkbox" id="logWarn"> <span data-en="Warnings and errors only">فقط هشدار و خطا</span></label>
+        <label class="inl"><input type="checkbox" id="logFollow" checked> <span data-en="Follow">دنبال کردن</span></label>
+        <div class="sp"></div><button class="btn sm" onclick="logEl.textContent=''" data-en="Clear view">پاک کردن نما</button>
+      </div>
+      <pre id="log"></pre>
+    </div>
+  </section>
 </main>
 
 <footer><div class="ft">
   <img src="/assets/logo.png" alt="IPS-Co.">
   <div class="who">
     <b><bdi dir="ltr">IPS-Co.</bdi></b>
-    <span data-en="Design &amp; development: <b style='font-size:13px;color:var(--fg)'>Behrouz Kazemi</b>">طراحی و توسعه: <b style="font-size:13px;color:var(--fg)">بهروز کاظمی</b> · <span class="ltr" style="font-family:inherit">Behrouz Kazemi</span></span>
-    <span class="ltr" style="font-family:inherit;text-align:start">VMS Systems Specialist</span>
+    <span data-en="Design &amp; development: Behrouz Kazemi, VMS Systems Specialist">طراحی و توسعه: بهروز کاظمی، VMS Systems Specialist</span>
   </div>
-  <a class="tg ltr" style="font-family:inherit" href="https://t.me/B_8241" target="_blank" rel="noopener">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.6 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1L18.1 6.6c.4-.4-.1-.6-.6-.2L6.1 13.6l-4.9-1.5c-1.1-.3-1.1-1.1.2-1.6L20.6 3.1c.9-.3 1.7.2 1.3 1.2z"/></svg>
-    @B_8241</a>
+  <a class="ltr" style="font-family:inherit" href="https://t.me/B_8241" target="_blank" rel="noopener">Telegram @B_8241</a>
   <div class="sp"></div>
-  <div class="cr"><span data-en="© 1405 IPS-Co. — All rights reserved.">© 1405 — تمام حقوق محفوظ است.</span><br><span class="ltr" id="ver" style="font-size:11.5px"></span></div>
+  <div class="cr"><span data-en="© 1405 IPS-Co. All rights reserved.">© 1405 — تمام حقوق محفوظ است.</span><br><span class="ltr" id="ver" style="font-size:12px"></span></div>
 </div></footer>
 
 <!-- camera editor -->
 <dialog id="ed"><form method="dialog" onsubmit="return false">
-  <div class="dh"><h2 id="edTitle"></h2><button class="btn sm" value="x" formnovalidate onclick="ed.close()">✕</button></div>
-  <div class="db">
-    <fieldset><legend data-en="Details">مشخصات</legend><div class="f">
-      <label><span data-en="Camera name">نام دوربین</span><input id="fName" required placeholder="Lobby"></label>
-      <label id="countWrap"><span data-en="Count (copies of this camera)">تعداد (کپی از همین دوربین)</span><input id="fCount" type="number" min="1" max="64" value="1"></label>
-      <label><span data-en="Manufacturer">سازنده (Manufacturer)</span><input id="fMan" placeholder="ONVIF-VCam"></label>
+  <div class="dh"><h2 id="edTitle"></h2><button class="btn sm" value="x" formnovalidate onclick="ed.close()" aria-label="Close">✕</button></div>
+  <div class="db"><div class="edgrid">
+    <fieldset><legend data-en="Camera">دوربین</legend><div class="f" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+      <label style="grid-column:1/-1"><span data-en="Name">نام</span><input id="fName" required placeholder="Lobby"></label>
+      <label><span data-en="Manufacturer">سازنده</span><input id="fMan" placeholder="ONVIF-VCam"></label>
       <label><span data-en="Model">مدل</span><input id="fModel" placeholder="VirtualCamera-S"></label>
-      <label class="inl" style="align-self:end"><input type="checkbox" id="fEnabled" checked> <span data-en="Enabled">فعال</span></label>
+      <label id="countWrap"><span data-en="Copies to create">تعداد کپی</span><input id="fCount" type="number" min="1" max="64" value="1"></label>
+      <label class="inl" style="align-self:end;padding-bottom:6px"><input type="checkbox" id="fEnabled" checked> <span data-en="Enabled">فعال</span></label>
+    </div>
+    <div class="f" style="grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr);margin-top:14px;align-items:end">
+      <label class="inl" style="padding-bottom:6px"><input type="checkbox" id="mOn" checked> <span data-en="Simulated motion">حرکت شبیه‌سازی</span></label>
+      <label><span data-en="Motion (s)">مدت حرکت (ثانیه)</span><input id="mOnS" type="number" min="1" value="10"></label>
+      <label><span data-en="Pause (s)">فاصله (ثانیه)</span><input id="mOffS" type="number" min="1" value="50"></label>
     </div></fieldset>
 
     <fieldset><legend data-en="Image source">منبع تصویر</legend>
       <div class="f" style="grid-template-columns:1fr">
         <div class="seg" id="fType">
-          <button class="btn sm" type="button" data-t="file" data-en="🎞 Video file">🎞 فایل ویدیو</button>
-          <button class="btn sm" type="button" data-t="screen" data-en="🖥 Screen">🖥 صفحه نمایش</button>
-          <button class="btn sm" type="button" data-t="webcam" data-en="📷 Webcam / USB camera">📷 وب‌کم / دوربین USB</button>
-          <button class="btn sm" type="button" data-t="url" data-en="🌐 Network URL (RTSP/HTTP)">🌐 آدرس شبکه (RTSP/HTTP)</button>
-          <button class="btn sm" type="button" data-t="agent" data-en="🖧 Other PC / phone (agent)">🖧 صفحه کامپیوتر دیگر (ایجنت)</button>
+          <button class="btn sm" type="button" data-t="file" data-en="Video file">فایل ویدیو</button>
+          <button class="btn sm" type="button" data-t="screen" data-en="Screen">صفحه نمایش</button>
+          <button class="btn sm" type="button" data-t="webcam" data-en="Webcam / USB camera">وب‌کم / دوربین USB</button>
+          <button class="btn sm" type="button" data-t="url" data-en="Network URL (RTSP/HTTP)">آدرس شبکه (RTSP/HTTP)</button>
+          <button class="btn sm" type="button" data-t="agent" data-en="Other PC / phone (agent)">کامپیوتر یا گوشی دیگر (ایجنت)</button>
         </div>
         <div data-src="file" class="f" style="grid-template-columns:1fr">
           <label><span data-en="From the video library">از کتابخانه ویدیو</span>
             <select id="fLib" onchange="if(this.value)fSrc.value=this.value"></select></label>
           <div class="row">
             <input type="file" id="fUp" accept="video/*,.mkv,.ts,.h264,.h265" hidden onchange="upload(this.files[0])">
-            <button class="btn sm" type="button" onclick="fUp.click()" data-en="⬆ Upload a video to the library">⬆ آپلود ویدیو به کتابخانه</button>
+            <button class="btn sm" type="button" onclick="fUp.click()" data-en="Upload a video">آپلود ویدیو</button>
             <progress id="upBar" value="0" max="1" hidden></progress>
             <span class="hint" id="libDir"></span>
           </div>
@@ -221,39 +274,37 @@ footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
         <div data-src="screen" class="f">
           <label><span data-en="Monitor">مانیتور</span><select id="fScreen" onchange="srcFromDevice()"></select></label>
           <label><span data-en="Capture FPS">FPS ضبط</span><input id="fScrFps" type="number" min="1" max="60" value="25" onchange="srcFromDevice()"></label>
-          <span class="hint" style="grid-column:1/-1" data-en="The screen of this system (with the mouse pointer) is streamed as an ONVIF camera. With several monitors you can have all of them in one wide picture, or type any combination in the source box, e.g. <span class=ltr>screen://0+2</span>.">تصویر صفحه نمایش همین سیستم (همراه با نشانگر ماوس) به‌صورت یک دوربین ONVIF پخش می‌شود.
-            با چند مانیتور می‌توانید همه را در یک تصویر عریض داشته باشید؛ ترکیب دلخواه را هم می‌توانید در کادر منبع بنویسید، مثلاً <span class="ltr">screen://0+2</span>.</span>
+          <span class="hint" style="grid-column:1/-1" data-en="This system's screen with the mouse pointer. Several monitors can share one wide picture; any combination can be typed in the source box, e.g. <span class=ltr>screen://0+2</span>.">صفحه نمایش همین سیستم همراه با نشانگر ماوس. چند مانیتور می‌توانند در یک تصویر عریض باشند؛ ترکیب دلخواه را در کادر منبع بنویسید، مثلاً <span class="ltr">screen://0+2</span>.</span>
         </div>
         <div data-src="webcam" class="f">
           <label><span data-en="Camera">دوربین</span><select id="fCam" onchange="srcFromDevice()"></select></label>
-          <div class="row" style="align-self:end"><button class="btn sm" type="button" onclick="loadDevices(true)" data-en="↻ Search again">↻ جستجوی دوباره</button></div>
+          <div class="row" style="align-self:end"><button class="btn sm" type="button" onclick="loadDevices(true)" data-en="Search again">جستجوی دوباره</button></div>
           <span class="hint" id="devHint" style="grid-column:1/-1"></span>
         </div>
         <div data-src="agent" class="f">
-          <label><span data-en="Computer / phone (agent)">کامپیوتر (ایجنت)</span><select id="fAgent" onchange="agentScreens();srcFromDevice()"></select></label>
-          <label><span data-en="Monitor / source">مانیتور</span><select id="fAgScr" onchange="srcFromDevice()"></select></label>
-          <label>FPS<input id="fAgFps" type="number" min="1" max="60" value="25" onchange="srcFromDevice()"></label>
+          <label><span data-en="Computer / phone">کامپیوتر / گوشی</span><select id="fAgent" onchange="agentScreens();srcFromDevice()"></select></label>
+          <label><span data-en="Monitor / source">مانیتور / منبع</span><select id="fAgScr" onchange="srcFromDevice()"></select></label>
+          <label><span>FPS</span><input id="fAgFps" type="number" min="1" max="60" value="25" onchange="srcFromDevice()"></label>
           <span class="hint" id="agHint" style="grid-column:1/-1"></span>
         </div>
         <label><span id="fSrcLbl"></span><input id="fSrc" class="ltr" required placeholder="D:\videos\clip.mp4"></label>
       </div>
     </fieldset>
 
-    <fieldset><legend data-en="Streams (ONVIF profiles)">استریم‌ها (پروفایل‌های ONVIF)</legend>
-      <table class="pt"><thead><tr><th data-en="Name">نام</th><th data-en="Mode">حالت</th><th data-en="Codec">کدک</th><th data-en="Width">عرض</th><th data-en="Height">ارتفاع</th><th>FPS</th><th>kbps</th><th data-en="Bitrate" title="CBR = نرخ ثابت · VBR = کیفیت ثابت با سقف kbps" data-en-title="CBR = constant bitrate · VBR = constant quality, capped at kbps">نرخ بیت</th><th>GOP</th><th></th></tr></thead>
+    <fieldset class="full"><legend data-en="Streams (ONVIF profiles)">استریم‌ها (پروفایل‌های ONVIF)</legend>
+      <table class="pt">
+        <colgroup><col class="c-name"><col><col><col><col><col><col><col><col><col><col class="c-x"></colgroup>
+        <thead><tr><th data-en="Name">نام</th><th data-en="Mode">حالت</th><th data-en="Codec">کدک</th><th data-en="Width">عرض</th><th data-en="Height">ارتفاع</th><th>FPS</th><th>kbps</th>
+          <th data-en="Bitrate" title="CBR = نرخ ثابت · VBR = کیفیت ثابت با سقف kbps" data-en-title="CBR = constant bitrate · VBR = constant quality, capped at kbps">نرخ بیت</th>
+          <th data-en="Quality">کیفیت</th><th>GOP</th><th></th></tr></thead>
         <tbody id="profs"></tbody></table>
-      <div class="row" style="margin-top:8px">
-        <button class="btn sm" type="button" onclick="addProf()" data-en="＋ Stream">＋ استریم</button>
-        <span class="hint" data-en="Empty = from the source. copy mode sends the file without re-encoding (low CPU), H.264/H.265 without B-frames only. CBR = constant bitrate (fixed bandwidth); VBR = constant quality capped at kbps (a still screen uses almost nothing).">خالی = از روی فایل. حالت copy بدون انکود (کم‌مصرف) ولی فقط H.264/H.265 بدون B-frame. CBR = نرخ بیت ثابت (پهنای باند ثابت)؛ VBR = کیفیت ثابت با سقف kbps (صفحه ثابت تقریباً پهنای باندی مصرف نمی‌کند).</span>
+      <div class="row" style="margin-top:10px">
+        <button class="btn sm" type="button" onclick="addProf()" data-en="Add stream">افزودن استریم</button>
+        <span class="hint" data-en="Empty = from the source. CBR keeps the bandwidth fixed; VBR keeps the quality and never goes above kbps. Quality: picture quality (VBR, JPEG) and encoder effort. JPEG can run below 1 fps (e.g. 0.5). copy sends the file as it is.">خالی = از روی منبع. CBR پهنای باند را ثابت نگه می‌دارد؛ VBR کیفیت را ثابت نگه می‌دارد و از kbps بالاتر نمی‌رود. کیفیت: کیفیت تصویر (VBR و JPEG) و دقت انکودر. JPEG می‌تواند کمتر از ۱ فریم در ثانیه باشد (مثلاً 0.5). copy فایل را بدون انکود می‌فرستد.</span>
       </div>
     </fieldset>
-
-    <fieldset><legend data-en="Motion event (simulated)">رویداد حرکت (شبیه‌سازی)</legend><div class="f">
-      <label class="inl"><input type="checkbox" id="mOn" checked> <span data-en="Enabled">فعال</span></label>
-      <label><span data-en="Motion duration (s)">مدت حرکت (ثانیه)</span><input id="mOnS" type="number" min="1" value="10"></label>
-      <label><span data-en="Pause between motions (s)">فاصله بین حرکت‌ها (ثانیه)</span><input id="mOffS" type="number" min="1" value="50"></label>
-    </div></fieldset>
-    <div class="err" id="edErr"></div>
+  </div>
+  <div class="err" id="edErr"></div>
   </div>
   <div class="df">
     <button class="btn" type="button" onclick="ed.close()" data-en="Cancel">انصراف</button>
@@ -263,21 +314,20 @@ footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
 
 <!-- settings -->
 <dialog id="st"><form method="dialog" onsubmit="return false">
-  <div class="dh"><h2 data-en="Network &amp; access">شبکه و دسترسی</h2><button class="btn sm" onclick="st.close()">✕</button></div>
+  <div class="dh"><h2 data-en="Network &amp; access">شبکه و دسترسی</h2><button class="btn sm" onclick="st.close()" aria-label="Close">✕</button></div>
   <div class="db">
     <fieldset><legend data-en="Address announced to the VMS">آدرس اعلام‌شده به VMS</legend>
-      <label><span data-en="IP of this system the VMS should connect to">IP این سیستم که VMS باید با آن وصل شود</span>
+      <label><span data-en="IP of this system the VMS connects to">IP این سیستم که VMS به آن وصل می‌شود</span>
         <select id="sIp"></select></label>
-      <p class="hint" data-en="If the system has several network adapters (Hyper-V, WSL, Docker, VMware…), choose the IP of the network the VMS is on. Discovery and every ONVIF/RTSP address then announce only that IP, so the camera never moves between adapters.">اگر سیستم چند کارت شبکه دارد (Hyper-V، WSL، Docker، VMware…)، IP شبکه‌ای که VMS روی آن است را انتخاب کنید.
-        Discovery و همه آدرس‌های ONVIF/RTSP فقط همین IP را اعلام می‌کنند و دوربین بین آداپترها جابه‌جا نمی‌شود.</p>
+      <p class="hint" style="margin-top:8px" data-en="With several network adapters (Hyper-V, WSL, Docker, VMware…), choose the IP of the network the VMS is on. Discovery and every ONVIF / RTSP address then use only that IP.">اگر سیستم چند کارت شبکه دارد (Hyper-V، WSL، Docker، VMware…)، IP شبکه‌ای که VMS روی آن است را انتخاب کنید. Discovery و همه آدرس‌های ONVIF/RTSP فقط همین IP را اعلام می‌کنند.</p>
     </fieldset>
-    <fieldset><legend data-en="User name and password (all cameras and this panel)">نام کاربری و رمز (همه دوربین‌ها و این پنل)</legend><div class="f">
+    <fieldset><legend data-en="Login (every camera and this panel)">نام کاربری و رمز (همه دوربین‌ها و این پنل)</legend><div class="f">
       <label><span data-en="User name">نام کاربری</span><input id="sUser" class="ltr"></label>
       <label><span data-en="New password">رمز جدید</span><input id="sPass" type="password" class="ltr" placeholder="بدون تغییر" data-en-ph="unchanged"></label>
     </div></fieldset>
-    <fieldset><legend data-en="Agents (other PCs, phones)">ایجنت‌ها (کامپیوترهای دیگر)</legend>
+    <fieldset><legend data-en="Agents (other PCs, phones)">ایجنت‌ها (کامپیوترها و گوشی‌های دیگر)</legend>
       <label><span data-en="Agent key (optional)">کلید ایجنت (اختیاری)</span><input id="sAgKey" class="ltr" placeholder="خالی = پذیرش همه ایجنت‌ها" data-en-ph="empty = accept every agent"></label>
-      <p class="hint" data-en="With a key, only agents installed with the same key are accepted.">اگر کلید تنظیم شود، فقط ایجنت‌هایی که همین کلید را هنگام نصب وارد کرده‌اند پذیرفته می‌شوند.</p>
+      <p class="hint" style="margin-top:8px" data-en="With a key, only agents installed with the same key are accepted.">با تنظیم کلید، فقط ایجنت‌هایی که با همین کلید نصب شده‌اند پذیرفته می‌شوند.</p>
     </fieldset>
     <p class="hint" id="sInfo"></p>
     <div class="err" id="stErr"></div>
@@ -287,19 +337,17 @@ footer{margin-top:28px;border-top:1px solid var(--line);background:var(--panel)}
 </form></dialog>
 
 <dialog id="cl"><form method="dialog" onsubmit="return false">
-  <div class="dh"><h2 id="clT"></h2><button class="btn sm" onclick="cl.close()">✕</button></div>
+  <div class="dh"><h2 id="clT"></h2><button class="btn sm" onclick="cl.close()" aria-label="Close">✕</button></div>
   <div class="db">
     <label><span data-en="Number of copies">تعداد کپی</span><input id="clN" type="number" min="1" max="256" value="10"></label>
-    <p class="hint" data-en="Each copy is a separate ONVIF device (own UUID, name and ONVIF port), for VMS load tests. Copies share the original camera's encoders, so 50 copies use about the CPU of one camera (each stream is encoded once and sent to everyone).">هر کپی یک دستگاه ONVIF مستقل است (UUID، نام و پورت ONVIF جدا) و برای تست بار VMS مناسب است.
-      کپی‌ها انکودرهای دوربین اصلی را مشترک استفاده می‌کنند؛ پس ۵۰ کپی تقریباً همان CPU یک دوربین را مصرف می‌کند
-      (هر استریم فقط یک بار انکود و برای همه ارسال می‌شود).</p>
+    <p class="hint" data-en="Each copy is a separate ONVIF device (own UUID, name and ONVIF port) for VMS load tests. Copies share the original camera's encoders, so 50 copies cost about as much CPU as one camera.">هر کپی یک دستگاه ONVIF مستقل است (UUID، نام و پورت ONVIF جدا) و برای تست بار VMS مناسب است. کپی‌ها انکودرهای دوربین اصلی را مشترک استفاده می‌کنند؛ پس ۵۰ کپی تقریباً همان CPU یک دوربین را مصرف می‌کند.</p>
     <div class="err" id="clErr"></div>
   </div>
   <div class="df"><button class="btn" onclick="cl.close()" data-en="Cancel">انصراف</button>
     <button class="btn pri" id="clGo" onclick="doClone()"></button></div>
 </form></dialog>
 
-<dialog id="big"><div class="dh"><h2 id="bigT"></h2><button class="btn sm" onclick="big.close()">✕</button></div>
+<dialog id="big"><div class="dh"><h2 id="bigT"></h2><button class="btn sm" onclick="big.close()" aria-label="Close">✕</button></div>
   <img id="bigImg" alt=""></dialog>
 
 <div id="toast"></div>
@@ -364,7 +412,7 @@ function render(){
   const running = S.cameras.filter(c=>c.running).length;
   $('#stats').innerHTML = `<span>${T('دوربین فعال','Cameras')} <b>${running}/${S.cameras.length}</b></span>
     <span>${T('اتصال','Connections')} <b>${S.sessions.length}</b></span><span>${T('انکودر','Encoders')} <b>${S.encoders.length}</b></span>
-    <span>${T('آدرس','Address')} <b class="ltr">${esc(S.settings.primary_ip)}</b></span><span>${T('موتور','Engine')} <b class="ltr">${esc(S.engine||'')}</b></span><span>${T('زمان اجرا','Uptime')} <b>${fmtUp(S.uptime_s)}</b></span>`;
+    <span>${T('آدرس','Address')} <b class="ltr">${esc(S.settings.primary_ip)}</b></span><span>${T('زمان اجرا','Uptime')} <b>${fmtUp(S.uptime_s)}</b></span>`;
 
   const ips = S.settings.ips;
   $('#notice').innerHTML = (!S.settings.advertise_ip && ips.length > 1) ? `<div class="notice">
@@ -376,11 +424,12 @@ function render(){
                              S.encoders.filter(e=>e.error).map(e=>[e.source,e.error]),
                              (S.agents||[]).map(a=>[a.id,a.ip,a.online])]);
   if (s !== sig){ sig = s; $('#cams').innerHTML = S.cameras.length ? S.cameras.map(card).join('') :
-    `<div class="empty">${T('هنوز دوربینی نیست. «＋ دوربین جدید» را بزنید.','No cameras yet. Press “＋ New camera”.')}</div>`; refreshThumbs(true); }
+    `<div class="empty">${T('هنوز دوربینی نیست. با «افزودن دوربین» یک فایل ویدیو، صفحه نمایش، وب‌کم یا ایجنت را به دوربین ONVIF تبدیل کنید.','No cameras yet. Use “Add camera” to turn a video file, a screen, a webcam or an agent into an ONVIF camera.')}</div>`; refreshThumbs(true); }
   for (const c of S.cameras){                       // live bits without re-rendering images
     const el = document.getElementById('live-'+c.config.id); if(!el) continue;
-    const mot = c.runtime && c.runtime.motion;
-    el.innerHTML = `${mot?`<span class="pill mot">${T('حرکت','motion')}</span>`:''}<span class="pill">${c.sessions.length} ${T('اتصال','conn.')}</span>`;
+    const mot = c.runtime && c.runtime.motion, n = c.sessions.length;
+    // tally light: red while someone is watching, as on a studio camera
+    el.innerHTML = `${mot?`<span class="tag mot">${T('حرکت','Motion')}</span>`:''}<span>${n} ${T('بیننده','viewing')}</span><i class="tally${n?' on':''}"></i>`;
     const cli = document.getElementById('cli-'+c.config.id);
     if (cli) cli.textContent = ipsOf(c.sessions) || '—';
   }
@@ -432,40 +481,49 @@ function srcLabel(src){
     return '🖧 ' + (a ? a.name : aid.slice(0,8)) + ' / ' + (decodeURIComponent(u.slice(aid.length+1)) || 'primary'); }
   return src;
 }
+const QUAL = q => q >= 7 ? 'high' : q <= 3 ? 'low' : 'medium';
+const QNAME = {high:['بالا','High'], medium:['متوسط','Medium'], low:['پایین','Low']};
 function card(c){
   const cf = c.config, r = c.runtime, id = esc(cf.id);
-  const st = !cf.enabled && cf.enabled !== undefined ? `<span class="pill">${T('غیرفعال','disabled')}</span>` :
-             c.error ? `<span class="pill bad">${T('خطا','error')}</span>` : c.running ? `<span class="pill ok">${T('آنلاین','online')}</span>` : `<span class="pill">${T('متوقف','stopped')}</span>`;
-  const rc = p => (cf.profiles||[]).find(x=>x.name===p.name);
-  const profs = r ? r.profiles.map(p=>`<tr><td>${esc(p.name)}</td>
-      <td class="ltr">${p.encoder?esc(p.encoder.encoding+' '+p.encoder.resolution+' @'+p.encoder.fps):'-'}</td>
-      <td class="ltr">${!p.encoder?'':p.encoder.mode==='copy'?'copy':p.encoder.bitrate_kbps+'k'+(p.encoder.encoding==='JPEG'?'':(p.encoder.cbr?' CBR':' VBR'))}</td>
-      <td><button class="cp" onclick="copy('${esc(p.rtsp)}')" title="${esc(p.rtsp)}">RTSP ⧉</button></td></tr>`).join('') : '';
-  const first = r && r.profiles[0];
-  return `<div class="card ${c.running?'':'off'}">
-    <div class="ch"><h3 title="${esc(cf.name)}">${esc(cf.name)}</h3><span id="live-${id}"></span>${st}</div>
-    <div class="thumb" onclick="${c.running?`zoom('${id}')`:''}">${c.running ?
-      `<img data-cam="${id}" data-prof="${esc(first?first.token:'')}" alt="">` : '<span>—</span>'}
-      <span class="ov ltr">${id} · :${cf.http_port}</span></div>
-    <div class="cb">
+  const first = r && r.profiles[0], fe = first && first.encoder;
+  const stateTag = cf.enabled === false ? `<span class="tag idle">${T('غیرفعال','Disabled')}</span>` :
+    c.error ? `<span class="tag bad">${T('خطا','Error')}</span>` : c.running ? '' : `<span class="tag idle">${T('متوقف','Stopped')}</span>`;
+  const profs = r ? r.profiles.map(p=>{ const e = p.encoder; return `<tr><td>${esc(p.name)}</td>
+      <td class="ltr">${e?esc(e.encoding+' '+e.resolution+' @'+e.fps):'-'}</td>
+      <td class="ltr">${!e?'':e.mode==='copy'?'copy':e.bitrate_kbps+'k '+(e.cbr?'CBR':'VBR')}</td>
+      <td>${e&&e.mode!=='copy'?T(...QNAME[QUAL(e.quality??5)]):''}</td>
+      <td><button class="cp" onclick="copy('${esc(p.rtsp)}')" title="${esc(p.rtsp)}">RTSP ⧉</button></td></tr>`; }).join('') : '';
+  return `<article class="mon ${c.running?'':'off'}">
+    <div class="screen" onclick="${c.running?`zoom('${id}')`:''}">
+      ${c.running ? `<img data-cam="${id}" data-prof="${esc(first?first.token:'')}" alt="" onload="stamp('${id}')">`
+                  : `<div class="nosig">${T('بدون تصویر','No signal')}</div>`}
+      <div class="osd tl"><span title="${esc(cf.name)}">${esc(cf.name)}</span>${stateTag}</div>
+      <div class="osd tr" id="live-${id}"></div>
+      <div class="osd bl">${fe?esc(fe.encoding+' '+fe.resolution.replace('x','×')+' '+fe.fps+' fps'):''}</div>
+      <div class="osd br"><span id="ts-${id}"></span><span>${id} :${cf.http_port}</span></div>
+    </div>
+    <div class="meta">
       ${c.error?`<div class="err">${esc(c.error)}</div>`:''}
       ${S.encoders.filter(e=>e.source===cf.source && e.error).map(e=>`<div class="err">${T('انکودر','Encoder')} ${esc(e.label)}: ${esc(e.error)}</div>`).join('')}
-      <div class="row"><span class="k">${T('منبع','Source')}</span><span class="url ltr" title="${esc(cf.source)}">${esc(srcLabel(cf.source))}</span></div>
-      <div class="row ips"><span class="k">${T('آی‌پی انکودر','Encoder IP')}</span><span class="ltr">${esc(srcIp(cf.source))}</span></div>
-      <div class="row ips"><span class="k">${T('آی‌پی کلاینت‌ها','Client IPs')}</span><span class="ltr" id="cli-${id}">${esc(ipsOf(c.sessions)||'—')}</span></div>
-      ${r?`<div class="row"><span class="k">ONVIF</span><span class="url ltr">${esc(r.device_service)}</span>
-        <button class="cp" onclick="copy('${esc(r.device_service)}')">⧉</button></div>
-        <div class="hint ltr" style="text-align:right">${esc(r.source_info)}</div>
-        <table class="prof">${profs}</table>`:''}
+      <dl class="facts">
+        <dt>${T('منبع','Source')}</dt><dd class="ltr" title="${esc(cf.source)}">${esc(srcLabel(cf.source))}</dd>
+        <dt>${T('آی‌پی انکودر','Encoder IP')}</dt><dd class="ltr">${esc(srcIp(cf.source))}</dd>
+        <dt>${T('آی‌پی کلاینت‌ها','Client IPs')}</dt><dd class="ltr" id="cli-${id}">${esc(ipsOf(c.sessions)||'—')}</dd>
+        ${r?`<dt>ONVIF</dt><dd class="ltr" title="${esc(r.device_service)}"><button class="cp" onclick="copy('${esc(r.device_service)}')" aria-label="copy">⧉</button> ${esc(r.device_service)}</dd>`:''}
+      </dl>
+      ${r?`<table class="prof">${profs}</table>`:''}
     </div>
-    <div class="cf">
-      <button class="btn sm" onclick="openEditor('${id}')">✎ ${T('ویرایش','Edit')}</button>
-      <button class="btn sm" onclick="toggle('${id}',${!(cf.enabled===false)})">${cf.enabled===false?T('▶ فعال‌سازی','▶ Enable'):T('⏸ غیرفعال','⏸ Disable')}</button>
-      ${c.running?`<button class="btn sm" onclick="motion('${id}',1)">⚡ ${T('حرکت','Motion')}</button>`:''}
-      <button class="btn sm" onclick="openClone('${id}')" title="${T('چند کپی با پورت‌های جدا برای تست بار','Several copies on their own ports, for load tests')}">⧉ ${T('کپی','Copy')}</button>
+    <div class="acts">
+      <button class="btn sm" onclick="openEditor('${id}')">${T('ویرایش','Edit')}</button>
+      <button class="btn sm" onclick="toggle('${id}',${!(cf.enabled===false)})">${cf.enabled===false?T('فعال‌سازی','Enable'):T('غیرفعال','Disable')}</button>
+      ${c.running?`<button class="btn sm" onclick="motion('${id}',1)">${T('ارسال حرکت','Send motion')}</button>`:''}
+      <button class="btn sm" onclick="openClone('${id}')" title="${T('چند کپی با پورت‌های جدا برای تست بار','Several copies on their own ports, for load tests')}">${T('کپی','Copies')}</button>
       <div class="sp"></div>
-      <button class="btn sm dan" onclick="del('${id}')">🗑</button>
-    </div></div>`;
+      <button class="btn sm dan" onclick="del('${id}')">${T('حذف','Delete')}</button>
+    </div></article>`;
+}
+function stamp(id){   // OSD clock: when the picture on this monitor was taken
+  const el = document.getElementById('ts-'+id); if (el) el.textContent = new Date().toLocaleTimeString('en-GB');
 }
 
 /* thumbnails: refreshed one at a time, only for visible cards */
@@ -494,24 +552,29 @@ async function del(id){
 
 /* ---------------------------------------------------------------- editor */
 const DEF = [{name:'MainStream',mode:'transcode',encoding:'H264'},{name:'SubStream',mode:'transcode',encoding:'H264',width:640,height:360,fps:15,bitrate_kbps:512}];
+const QVAL = {high:8, medium:5, low:2};   // ONVIF Quality 1..10
 function profRow(p={}){
   const tr = document.createElement('tr');
   const v = k => p[k] ?? '';
-  const num = k => `<td><input data-k="${k}" type="number" min="1" class="ltr" value="${esc(v(k))}" placeholder="auto"></td>`;
+  const num = (k, step) => `<td><input data-k="${k}" type="number" min="${k==='fps'?'0.1':'1'}" step="${step||1}" class="ltr" value="${esc(v(k))}" placeholder="auto"></td>`;
   tr.innerHTML = `<td><input data-k="name" value="${esc(v('name'))}"></td>
     <td><select data-k="mode"><option value="transcode">${T('انکود','encode')}</option><option value="copy">copy</option></select></td>
     <td><select data-k="encoding"><option>H264</option><option>H265</option><option>JPEG</option></select></td>
-    ${['width','height','fps','bitrate_kbps'].map(num).join('')}
+    ${num('width')}${num('height')}${num('fps','any')}${num('bitrate_kbps')}
     <td><select data-k="cbr" title="${T('CBR = نرخ ثابت · VBR = کیفیت ثابت با سقف kbps','CBR = constant bitrate · VBR = constant quality, capped at kbps')}"><option value="false">VBR</option><option value="true">CBR</option></select></td>
+    <td><select data-k="quality">${['high','medium','low'].map(q=>`<option value="${QVAL[q]}">${T(...QNAME[q])}</option>`).join('')}</select></td>
     ${num('gop')}
-    <td><button class="btn sm dan" type="button" onclick="this.closest('tr').remove()">✕</button></td>`;
+    <td><button class="btn sm dan" type="button" onclick="this.closest('tr').remove()" aria-label="remove">✕</button></td>`;
   tr.querySelector('[data-k=mode]').value = p.mode || 'transcode';
   tr.querySelector('[data-k=encoding]').value = p.encoding || 'H264';
   tr.querySelector('[data-k=cbr]').value = p.cbr ? 'true' : 'false';
+  tr.querySelector('[data-k=quality]').value = QVAL[QUAL(p.quality ?? 5)];
   const sync = () => {
     const copyMode = tr.querySelector('[data-k=mode]').value==='copy';
-    tr.querySelectorAll('input[type=number],[data-k=encoding],[data-k=cbr]').forEach(i=>i.disabled = copyMode);
-    if (!copyMode && tr.querySelector('[data-k=encoding]').value==='JPEG') tr.querySelector('[data-k=cbr]').disabled = true;
+    const jpeg = tr.querySelector('[data-k=encoding]').value==='JPEG';
+    tr.querySelectorAll('input[type=number],select:not([data-k=mode])').forEach(i=>i.disabled = copyMode);
+    tr.querySelector('[data-k=gop]').disabled = copyMode || jpeg;           // JPEG has no GOP
+    tr.querySelector('[data-k=fps]').min = jpeg ? '0.1' : '1';             // JPEG may go below 1 fps
   };
   tr.querySelector('[data-k=mode]').onchange = sync; tr.querySelector('[data-k=encoding]').onchange = sync; sync();
   return tr;
@@ -616,6 +679,7 @@ async function saveCam(){
     const p = {}; tr.querySelectorAll('[data-k]').forEach(i=>{ if(i.value!=='' && !i.disabled) p[i.dataset.k]=i.value });
     p.mode = tr.querySelector('[data-k=mode]').value;
     if ('cbr' in p) p.cbr = p.cbr === 'true';
+    if ('quality' in p) p.quality = +p.quality;
     return p; });
   const body = {name:$('#fName').value.trim(), source:$('#fSrc').value.trim(), enabled:$('#fEnabled').checked,
     profiles, motion:{enabled:$('#mOn').checked,on_seconds:+$('#mOnS').value,off_seconds:+$('#mOffS').value}};
@@ -678,7 +742,7 @@ let live = store('vcam-live') !== '0';
 function toggleLive(set){
   live = set === undefined ? !live : set; store('vcam-live', live ? '1' : '0');
   document.body.classList.toggle('nolive', !live);
-  $('#liveBtn').textContent = live ? T('🎥 تصویر زنده: روشن','🎥 Live view: on') : T('🎥 تصویر زنده: خاموش','🎥 Live view: off');
+  $('#liveBtn').textContent = live ? T('تصویر زنده: روشن','Live view: on') : T('تصویر زنده: خاموش','Live view: off');
   $('#liveBtn').classList.toggle('on', live);
   if (live) refreshThumbs(true); else document.querySelectorAll('img[data-cam]').forEach(i=>i.removeAttribute('src'));
 }
