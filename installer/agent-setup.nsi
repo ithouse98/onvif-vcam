@@ -154,6 +154,8 @@ Section "Agent" SecMain
   ; upgrade: stop the running agent and replace the program files (agent.json / logs are kept)
   ${If} ${FileExists} "$INSTDIR\runtime\python.exe"
     DetailPrint "Stopping the running agent…"
+    nsExec::Exec 'sc failure ${SVC} reset= 0 actions= ""'
+    Pop $0
     nsExec::ExecToLog '"$INSTDIR\runtime\python.exe" "$INSTDIR\app\vcam\winservice.py" stop agent'
     Pop $0
     RMDir /r "$INSTDIR\runtime"

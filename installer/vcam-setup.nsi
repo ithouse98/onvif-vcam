@@ -217,6 +217,11 @@ Section "-Core"   ; program files, shared by every component
   ; upgrade: stop the services and our processes, replace the program files only
   ${If} ${FileExists} "$INSTDIR\runtime\python.exe"
     DetailPrint "Stopping the running VCam…"
+    ; no restart-on-failure while the files are replaced (install sets it again)
+    nsExec::Exec 'sc failure ${SVC} reset= 0 actions= ""'
+    Pop $0
+    nsExec::Exec 'sc failure ONVIF-VCam-Agent reset= 0 actions= ""'
+    Pop $0
     nsExec::ExecToLog '"$INSTDIR\runtime\python.exe" "$INSTDIR\app\vcam\winservice.py" stop vcam'
     Pop $0
     nsExec::ExecToLog '"$INSTDIR\runtime\python.exe" "$INSTDIR\app\vcam\winservice.py" stop agent'

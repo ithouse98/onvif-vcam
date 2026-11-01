@@ -285,12 +285,16 @@ def remove(which):
 
 
 def start(which):
-    if status(which) != "running":
-        win32serviceutil.StartService(SERVICES[which][0])
-        for _ in range(30):
-            if status(which) == "running":
-                break
-            time.sleep(1)
+    if status(which) not in ("running", "starting"):
+        try:
+            win32serviceutil.StartService(SERVICES[which][0])
+        except Exception as exc:  # noqa - restarted by the service manager in the meantime
+            if getattr(exc, "winerror", None) != 1056:   # ERROR_SERVICE_ALREADY_RUNNING
+                raise
+    for _ in range(30):
+        if status(which) == "running":
+            break
+        time.sleep(1)
 
 
 def stop(which):
