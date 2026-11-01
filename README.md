@@ -97,7 +97,30 @@ with physical cameras. No hardware is needed, and the same footage plays every t
 
 ## Download & run (Windows)
 
-1. Download **`ONVIF-VCam-1.3.1-Portable-win64.zip`** from [Releases](../../releases) and extract it
+### Setup program (recommended)
+
+Run **`ONVIF-VCam-Setup-<version>.exe`** from [Releases](../../releases) (64-bit Windows 8.1+) and choose
+what to install:
+
+| Choice | What you get |
+|---|---|
+| **Server** (default) | the virtual cameras and control panel; with **Run as a Windows service** (default) it starts with Windows, even before anyone logs in, with the tray icon. Without the service it starts in the background when a user logs in. |
+| **Agent** | the screen agent service: this PC's monitors are streamed to a VCam server (asks for its IP, port, key and name) |
+| **Server + agent** | both on one PC |
+
+The setup also asks for the panel / camera login (first install), adds the firewall rules, makes
+Start-menu and desktop shortcuts and an entry in Windows **Installed apps**. Everything goes to
+`C:\ProgramData\ONVIF-VCam`; running a newer setup upgrades in place and keeps cameras, videos and
+settings. It replaces a separate agent setup installation (the agent keeps its identity).
+
+Silent install: `ONVIF-VCam-Setup-<version>.exe /S [/INSTALL=server,service,agent] [/USER=admin]
+[/PASSWORD=...] [/NOFIREWALL] [/SERVER=192.168.1.10] [/PORT=8600] [/KEY=...] [/NAME=PC-01]`
+(default `/INSTALL=server,service`). Silent uninstall: `"C:\ProgramData\ONVIF-VCam\uninstall.exe" /S`
+(keeps cameras, settings and videos).
+
+### Portable bundle
+
+1. Download **`ONVIF-VCam-<version>-Portable-win64.zip`** from [Releases](../../releases) and extract it
    (e.g. to `C:\ONVIF-VCam`).
 2. Run **`FIREWALL.bat`** once as administrator.
 3. Run **`START.bat`**. The control panel opens at `http://127.0.0.1:8000` (login `admin` / `admin`).

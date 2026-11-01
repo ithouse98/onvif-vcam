@@ -1,5 +1,13 @@
 ## ONVIF VCam 1.4.0: low-delay live streams, CBR / VBR per stream, English web console
 
+### New: setup program for the whole platform
+- **`ONVIF-VCam-Setup-1.4.0.exe`** asks what to install: the **server** (cameras + control panel),
+  optionally **as a Windows service** with the tray icon (else it starts in the background at logon),
+  the **screen agent**, or **server + agent**. It asks for the panel / camera login, adds the firewall
+  rules, Start-menu / desktop shortcuts and an Installed apps entry, and upgrades in place keeping
+  cameras, videos and settings. Silent: `/S [/INSTALL=server,service,agent] [/USER=] [/PASSWORD=]
+  [/NOFIREWALL] [/SERVER=] [/PORT=] [/KEY=] [/NAME=]`.
+
 ### Stream delay fixed
 Users reported an unacceptable delay on screen cameras and on the Android app. Measured end to end
 (the source flips black / white, an RTSP client times the change):
@@ -45,12 +53,14 @@ What was wrong, and what changed:
   بعد از قطعی کوتاه شبکه هم تأخیر دیگر دائمی نمی‌ماند (۲٫۳ ثانیه ← ۰٫۲۵ ثانیه).
 - **CBR / VBR برای هر استریم:** ستون «نرخ بیت» در ویرایش دوربین. CBR = نرخ ثابت، VBR = کیفیت ثابت
   با سقف kbps (صفحه ثابت تقریباً پهنای باندی مصرف نمی‌کند). ایجنت و گوشی از تنظیم استریم اصلی پیروی می‌کنند.
+- **برنامه نصب کامل (`ONVIF-VCam-Setup-1.4.0.exe`):** هنگام نصب انتخاب کنید: سرور، سرور به‌صورت سرویس ویندوز، ایجنت یا سرور + ایجنت.
 - **پنل وب انگلیسی** در کنار فارسی (انتخاب زبان در نوار بالا).
 - **نمایش آی‌پی** انکودر هر دوربین (کامپیوتر ایجنت، گوشی، دوربین RTSP) و آی‌پی کلاینت‌های متصل.
 
 ### Downloads
-- **ONVIF-VCam-1.4.0-Portable-win64.zip**: the VCam server, standalone and offline.
-- **ONVIF-VCam-Agent-Setup-1.4.0.exe**: the screen agent for other PCs (64-bit Windows 8.1+).
+- **ONVIF-VCam-Setup-1.4.0.exe**: setup for the server and / or the agent (64-bit Windows 8.1+).
+- **ONVIF-VCam-1.4.0-Portable-win64.zip**: the VCam server, standalone and offline (no installation).
+- **ONVIF-VCam-Agent-Setup-1.4.0.exe**: the small agent-only setup (45 MB) for rolling out to many PCs.
   Agents from 1.3.x keep working; update them for the lower delay and CBR / VBR.
 - **ONVIF-VCam-Agent-Android-1.4.0.apk**: the agent app for Android phones (Android 8+), signed
   with the same test key, so it installs over 1.3.1.
@@ -59,5 +69,5 @@ What was wrong, and what changed:
 Created by **Behrouz Kazemi**, VMS Systems Specialist · IPS-Co. · Telegram: [@B_8241](https://t.me/B_8241)
 © 1405 IPS-Co. All rights reserved.
 _Bundled third-party software: GStreamer (LGPL; x264 / gst-libav GPL), FFmpeg (GPL), PyGObject (LGPL),
-pywin32 (PSF), NSIS installer (zlib licence). Sources: https://gstreamer.freedesktop.org · https://ffmpeg.org ·
+pywin32 (PSF), NSIS installers (zlib licence). Sources: https://gstreamer.freedesktop.org · https://ffmpeg.org ·
 https://github.com/conda-forge_

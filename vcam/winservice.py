@@ -1,6 +1,7 @@
 """Windows services for ONVIF VCam and the screen agent (pywin32).
 
-    python -m vcam.winservice install vcam              (run as administrator)
+    python -m vcam.winservice install vcam [--user U --password P]   (run as administrator)
+    python -m vcam.winservice config vcam --user U --password P     (first config.json only)
     python -m vcam.winservice install agent [--server HOST[:PORT]] [--key KEY] [--name NAME]
     python -m vcam.winservice remove|start|stop|restart|status vcam|agent
 
@@ -200,6 +201,8 @@ def install(which, opts):
     name, display, desc = SERVICES[which]
     if which == "agent":
         _write_agent_config(opts)
+    else:
+        _write_vcam_config(opts)
     binpath = f'"{python_exe()}" "{os.path.join(APP, "vcam", "winservice.py")}" --run {which}'
     scm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
     try:
@@ -228,6 +231,26 @@ def install(which, opts):
             os.remove(su)
     start(which)
     print(f"{display}: installed and {status(which)}")
+
+
+def _write_vcam_config(opts):
+    """Setup program, first install: config.json with the chosen admin login and one camera per
+    bundled video (what the service would build on its first start). An existing one is kept."""
+    import json
+    path = os.path.join(ROOT, "config.json")
+    if os.path.exists(path) or not opts.get("user"):
+        return
+    env = dict(os.environ, PYTHONPATH=APP, PYTHONUTF8="1", PYTHONNOUSERSITE="1",
+               PATH=os.pathsep.join([RUNTIME, os.path.join(RUNTIME, "Library", "bin"), os.environ.get("PATH", "")]))
+    out = subprocess.run([python_exe(), "-m", "vcam", os.path.join(ROOT, "videos"), "--mjpeg", "-c", path,
+                          "--user", opts["user"], "--password", opts.get("password") or "", "--print-config"],
+                         capture_output=True, text=True, env=env, cwd=ROOT, timeout=120)
+    if out.returncode:
+        raise RuntimeError("cannot create config.json: " + (out.stderr or out.stdout).strip()[-300:])
+    cfg = json.loads(out.stdout)
+    cfg.pop("config_path", None)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(cfg, fh, indent=2, ensure_ascii=False)
 
 
 def _write_agent_config(opts):
@@ -299,13 +322,21 @@ def cli(argv):
     if servicemanager is None:
         print("Windows services need pywin32 (included in the portable bundle).")
         return 1
+    if len(argv) >= 2 and argv[0] == "config" and argv[1] == "vcam":  # setup: first config.json only
+        opts = {k: argv[argv.index(f"--{k}") + 1] for k in ("user", "password") if f"--{k}" in argv}
+        try:
+            _write_vcam_config(opts)
+        except Exception as exc:  # noqa
+            print(f"error: {exc}")
+            return 1
+        return 0
     if len(argv) < 2 or argv[0] not in ("install", "remove", "start", "stop", "restart", "status") \
             or argv[1] not in SERVICES:
         print(__doc__)
         return 2
     action, which, rest = argv[0], argv[1], argv[2:]
     opts = {}
-    for k in ("server", "key", "name"):
+    for k in ("server", "key", "name", "user", "password"):
         if f"--{k}" in rest:
             opts[k] = rest[rest.index(f"--{k}") + 1]
     try:
