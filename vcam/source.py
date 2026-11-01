@@ -21,6 +21,7 @@ from .util import NO_WINDOW
 
 log = logging.getLogger("vcam.source")
 
+MAX_HOLD = 0.15   # live sources: longest a frame waits for its paced send slot (jitter buffer)
 LIVE_PREFIXES = ("rtsp://", "rtmp://", "http://", "https://", "udp://", "srt://", "tcp://") + \
     gst.DEVICE_PREFIXES
 
@@ -64,9 +65,9 @@ def ffmpeg_cmd(path, vec, preset="veryfast", threads=0, loop=True, start_pos=0.0
 
 def encoder_args(vec, preset="veryfast", threads=0):
     """ffmpeg output options for one encoder config (shared with the GStreamer H.265 branch)."""
+    from .gst import crf
     enc = vec.encoding
     br = max(32, int(vec.bitrate_kbps))
-    buf = br if vec.cbr else br * 2
     cmd = []
     if threads:
         cmd += ["-threads", str(threads)]
@@ -75,18 +76,21 @@ def encoder_args(vec, preset="veryfast", threads=0):
         prof = {"baseline": "baseline", "main": "main", "high": "high",
                 "extended": "main"}.get(vec.profile.lower(), "main")
         x264p = "repeat-headers=1:aud=1"
+        # CBR: constant rate with filler; VBR: constant quality capped at the bitrate (see gst.x264_rc)
+        rc = (["-b:v", f"{br}k", "-minrate", f"{br}k"] if vec.cbr else ["-crf", str(crf(vec.quality))])
         if vec.cbr:
             x264p += ":nal-hrd=cbr"
         cmd += ["-c:v", "libx264", "-preset", preset, "-tune", "zerolatency", "-profile:v", prof,
                 "-bf", "0", "-g", str(gop), "-keyint_min", str(gop), "-sc_threshold", "0",
-                "-b:v", f"{br}k", "-maxrate", f"{br}k", "-bufsize", f"{buf}k",
+                *rc, "-maxrate", f"{br}k", "-bufsize", f"{br}k",
                 "-x264-params", x264p, "-f", "h264"]
     elif enc == "H265":
+        rc = f"bitrate={br}:strict-cbr=1" if vec.cbr else f"crf={crf(vec.quality) + 2}"
         cmd += ["-c:v", "libx265", "-preset", preset, "-tune", "zerolatency",
                 "-x265-params",
                 f"keyint={gop}:min-keyint={gop}:scenecut=0:bframes=0:repeat-headers=1:aud=1:"
-                f"log-level=error:vbv-maxrate={br}:vbv-bufsize={buf}",
-                "-b:v", f"{br}k", "-f", "hevc"]
+                f"log-level=error:{rc}:vbv-maxrate={br}:vbv-bufsize={br}",
+                "-f", "hevc"]
     else:  # JPEG
         q = int(round(31 - (max(1.0, min(10.0, vec.quality)) - 1) * (29 / 9)))
         cmd += ["-c:v", "mjpeg", "-huffman", "default", "-q:v", str(max(2, min(31, q))),
@@ -186,6 +190,10 @@ class StreamSource:
         # RTP clock is continuous across encoder restarts / file loops
         self._ts_acc = float(int.from_bytes(os.urandom(2), "big") * 90)
         self._t_next = time.time()
+        self.live = camera.source.startswith(LIVE_PREFIXES)
+        self._anchor = None     # (wall, rtp) of the first live frame
+        self._prev_ts = self._ts_acc - 1
+        self._arrival = time.time()   # when the data of the frame being emitted arrived
         if vec.mode == "copy" and camera.info.has_bframes:
             log.warning("%s/%s: source has B-frames; 'copy' mode sends them in decode order "
                         "(timestamps may be non-monotonic). Real cameras never use B-frames - "
@@ -317,7 +325,8 @@ class StreamSource:
             proc.wait()
 
     def _run_gst(self):
-        desc, ff = gst.branch_desc(self.vec, self.manager.preset, self.manager.threads)
+        desc, ff = gst.branch_desc(self.vec, self.manager.preset, self.manager.threads,
+                                   fixed_rate=self.camera.source.startswith("screen://"))
         src = self.manager.gst_source(self.camera)
         log.info("%s/%s starting GStreamer encoder: %s", *self.key, desc)
         self.proc = branch = src.add(desc, ff)
@@ -337,15 +346,32 @@ class StreamSource:
         now = time.time()
         if self.frames == 0 or now - self._t_next > 1.0:  # first frame or fell behind (stall)
             self._t_next = now
+        elif self.live:
+            # live: pacing only smooths jitter. A burst (network / CPU hiccup) is sent at once
+            # instead of being spread out, which used to turn every hiccup into permanent delay,
+            # and a smaller hold drains (frames go out 1/8 frame early) so no delay is kept
+            hold = self._t_next - self._arrival
+            if hold > MAX_HOLD:
+                self._t_next = now
+            elif hold > 0:
+                self._t_next -= min(hold, frame_dur / 8)
         delay = self._t_next - now
         if delay > 0:
             time.sleep(delay)  # high-resolution on Windows (3.11+), unlike Event.wait
             if self.stop_evt.is_set():
                 return
         wall = time.time()
-        ts = int(self._ts_acc) & 0xFFFFFFFF
-        self._ts_acc += 90000.0 * frame_dur
         self._t_next += frame_dur
+        if self.live:
+            # RTP time = send time: smooth while paced, compressed in a catch-up burst (players
+            # catch up too), right for a source slower than the profile's frame rate
+            if self._anchor is None:
+                self._anchor = (wall, self._ts_acc)
+            self._ts_acc = max(self._anchor[1] + (wall - self._anchor[0]) * 90000.0,
+                               self._prev_ts + 90)   # >= 1 ms apart (ms-based recorders)
+        ts = int(self._ts_acc) & 0xFFFFFFFF
+        self._prev_ts = self._ts_acc
+        self._ts_acc += 90000.0 * frame_dur
         frame = Frame(ts, payloads, key, wall)
         self.last_ts, self.last_wall = ts, wall
         self.frames += 1
@@ -363,20 +389,29 @@ class StreamSource:
             while not self.stop_evt.is_set():
                 data = proc.read(1.0)
                 if data is not None:
+                    self._arrival = proc.arrival
                     return data
             return b""
-        return proc.stdout.read(65536)
+        data = proc.stdout.read(65536)
+        self._arrival = time.time()
+        return data
 
     # H.264 / H.265 -----------------------------------------------------------
     def _loop_annexb(self, proc):
         hevc = self.encoding == "H265"
         splitter = AnnexBSplitter()
         au, au_has_vcl, au_key = [], False, False
+        # GStreamer H.264 branches deliver exactly one access unit per read (h264parse alignment=au):
+        # emit it at once instead of waiting for the next frame's start code (one frame of delay)
+        aligned = isinstance(proc, gst.Branch) and not proc.ffmpeg
         while not self.stop_evt.is_set():
             data = self._read(proc)
             if not data:
                 break
-            for nal in splitter.feed(data):
+            nals = splitter.feed(data)
+            if aligned:
+                nals += splitter.flush()
+            for nal in nals:
                 if hevc:
                     if len(nal) < 3:
                         continue
@@ -413,6 +448,9 @@ class StreamSource:
                     need = ("vps", "sps", "pps") if hevc else ("sps", "pps")
                     if all(k in self.params for k in need):
                         self.ready.set()
+            if aligned and au_has_vcl:
+                self._emit_annexb(au, au_key, hevc)
+                au, au_has_vcl, au_key = [], False, False
         if au and au_has_vcl:
             self._emit_annexb(au, au_key, hevc)
 
@@ -484,7 +522,9 @@ class SourceManager:
             if g is None or not g.alive:
                 dur = camera.info.duration
                 pos = (time.time() - self.epoch) % dur if dur > 1 else 0.0
-                g = self.gst[camera.source] = gst.GstSource(self, camera.source, pos)
+                main = next(iter(camera.vecs.values()), None)   # agents encode like the main stream
+                g = self.gst[camera.source] = gst.GstSource(self, camera.source, pos,
+                                                            cbr=bool(main and main.cbr))
             g.idle_since = time.time()
             return g
 

@@ -4,7 +4,7 @@
     python -m vcam.gsthelper probe SOURCE
     python -m vcam.gsthelper devices
     python -m vcam.gsthelper check
-    python -m vcam.gsthelper push SOURCE --to HOST:PORT --token T [--auth A] [--bitrate K]
+    python -m vcam.gsthelper push SOURCE --to HOST:PORT --token T [--auth A] [--bitrate K] [--rc cbr|vbr]
   any command + --connect HOST:PORT --token T : stdin/stdout over that TCP connection instead of
   pipes (the Windows service starts screen helpers in the user's session this way)
 
@@ -368,6 +368,8 @@ class Worker:
         dec = p.get_by_name("dec")
         if dec is not None:
             dec.connect("source-setup", self._source_setup)
+        if self.live:
+            p.connect("deep-element-added", self._low_latency)
         self.pipeline = p
         self.tee = p.get_by_name("t")
         pad = self.tee.get_static_pad("sink")
@@ -375,6 +377,16 @@ class Worker:
         bus = p.get_bus()
         bus.add_signal_watch()
         bus.connect("message", self._on_message)
+
+    @staticmethod
+    def _low_latency(_bin, _sub, el):
+        """Live sources: libav decoders default to frame threading on non-live upstreams (the agent
+        relay is a plain TCP source), which holds one frame per extra CPU thread (~0.6 s on a
+        16-thread server). Slice threading decodes each frame at once."""
+        f = el.get_factory()
+        if f and f.get_name().startswith("avdec_") and el.find_property("thread-type") is not None:
+            Gst.util_set_object_arg(el, "thread-type", "slice")
+            log(f"{f.get_name()}: slice threading (low latency)")
 
     @staticmethod
     def _source_setup(_dec, source):
@@ -647,17 +659,23 @@ def push(src, argv):
     import socket
     host, port = _arg(argv, "--to").rsplit(":", 1)
     token, auth = _arg(argv, "--token", ""), _arg(argv, "--auth", "")
+    from .gst import x264_rc
     br = int(_arg(argv, "--bitrate", "6000"))
+    rc, hrd = x264_rc(_arg(argv, "--rc", "vbr") == "cbr", br)
     fps = int(float(urllib.parse.parse_qs(urllib.parse.urlsplit(src).query).get("fps", ["25"])[0]))
     s = socket.create_connection((host, int(port)), timeout=15)
+    # small send buffer: when the network slows, back-pressure reaches the leaky queue before the
+    # encoder (old frames are dropped) instead of seconds of video queueing in the kernel
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, max(65536, br * 1000 // 8 // 4))
+    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     s.recv(4096)  # challenge line (not needed for data connections)
     s.sendall((json.dumps({"type": "data", "stream": token, "auth": auth}) + "\n").encode())
     s.settimeout(None)
     branch = ("queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! "
-              f"x264enc tune=zerolatency speed-preset=veryfast bitrate={br} vbv-buf-capacity=1000 "
+              f"x264enc tune=zerolatency speed-preset=veryfast {rc} "
               f"key-int-max={max(1, fps * 2)} bframes=0 byte-stream=true "
-              'option-string="repeat-headers=1:scenecut=0" ! h264parse config-interval=-1 ! '
-              "mpegtsmux ! appsink name=out max-buffers=200 drop=false")
+              f'option-string="repeat-headers=1:scenecut=0{hrd}" ! h264parse config-interval=-1 ! '
+              "mpegtsmux ! appsink name=out max-buffers=20 drop=false")
     w = Worker(src, RawSockOut(s), loop=False, control=False, branch=branch)
     return w.run()
 

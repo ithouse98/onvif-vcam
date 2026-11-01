@@ -8,7 +8,8 @@ so the remote PC needs no inbound firewall rule. One TCP port (default 8600) car
                      "auth": hmac_sha256(key, nonce)}
       hub -> agent  {"type": "welcome"} | {"type": "denied", "reason"}
       agent -> hub  {"type": "ping"} (every 10 s), {"type": "stream_error", "stream", "msg"}
-      hub -> agent  {"type": "start", "stream", "screen", "fps", "bitrate"} / {"type": "stop", ...}
+      hub -> agent  {"type": "start", "stream", "screen", "fps", "bitrate", "rc": "cbr"|"vbr"}
+                    / {"type": "stop", ...}
   * data connections: first line {"type": "data", "stream": token, "auth": hmac(key, token)},
     then raw MPEG-TS (H.264) of the captured screen.
 UDP on the same port number answers {"type": "discover"} broadcasts so agents find the server.
@@ -120,6 +121,10 @@ class Stream:
         try:
             self.local.settimeout(30)
             consumer, _ = self.local.accept()
+            # ask the agent to start only now that our decoder is listening: started earlier, the
+            # video captured while the decoder process starts piles up and plays out as delay
+            if not self.agent.send(self.start_msg):
+                raise RuntimeError("agent connection lost")
             if not self.data_evt.wait(25) or self.data is None:
                 raise RuntimeError(self.error or "agent did not start streaming")
             src = self.data
@@ -337,17 +342,15 @@ class AgentHub:
             raise RuntimeError(f"agent '{name}' is offline")
         return a.info["screens"]
 
-    def open_stream(self, src, bitrate=None):
+    def open_stream(self, src, bitrate=None, cbr=False):
         agent_id, screen, fps = parse(src)
         a = self.agents.get(agent_id)
         if a is None:
             self.screens(agent_id)  # raises the offline error
         st = Stream(self, a, screen, fps, int(bitrate or self.cfg.get("agent_bitrate_kbps", 6000)))
+        st.start_msg = {"type": "start", "stream": st.token, "screen": screen, "fps": fps,
+                        "bitrate": st.bitrate, "rc": "cbr" if cbr else "vbr"}
         self.streams[st.token] = st
-        if not a.send({"type": "start", "stream": st.token, "screen": screen, "fps": fps,
-                       "bitrate": st.bitrate}):
-            st.close()
-            raise RuntimeError("agent connection lost")
         return f"tcp://127.0.0.1:{st.port}"
 
     def forget(self, agent_id):

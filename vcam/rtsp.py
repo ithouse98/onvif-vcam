@@ -152,7 +152,7 @@ class RtpSender:
         self.stopped = False
         self.playing = False
         self.last_rr = time.time()
-        self.max_queue = max(30, int(source.fps * 3))
+        self.max_queue = max(20, int(source.fps * 2))   # slow client: >2 s behind -> resync on a key frame
         self.thread = None
 
     # consumer interface ----------------------------------------------------
@@ -1142,7 +1142,9 @@ class RtspServer:
     def stats(self):
         out = []
         for s in list(self.sessions.values()):
+            snd = s.sender or (s.group.sender if s.group else None)
             out.append({"id": s.id, "camera": s.cam.id, "profile": s.profile,
+                        "encoder": "%s / %s" % snd.source.key if snd else None,
                         "transport": ("http-tunnel" if s.conn and s.conn.tunnel and
                                       s.transport == "tcp" else s.transport),
                         "client": s.peer[0] if s.peer else "?", "state": s.state,

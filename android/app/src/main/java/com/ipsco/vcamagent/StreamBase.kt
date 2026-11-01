@@ -38,6 +38,8 @@ abstract class StreamBase(
     private var codec: MediaCodec? = null
     @Volatile var frames = 0L
         private set
+    /** Rate control asked by the server (the camera's main stream): CBR, else VBR. */
+    var cbr = false
     val startedAt = System.currentTimeMillis()
 
     fun start() {
@@ -46,7 +48,9 @@ abstract class StreamBase(
                 val s = Socket()
                 s.connect(InetSocketAddress(host, port), 10000)
                 s.tcpNoDelay = true
-                s.sendBufferSize = 512 * 1024
+                // ~0.25 s of video: when Wi-Fi slows, the encoder stalls and the camera drops frames
+                // instead of seconds of video queueing in the socket (that was delay)
+                s.sendBufferSize = maxOf(64 * 1024, bitrateKbps * 1000 / 8 / 4)
                 BufferedReader(InputStreamReader(s.getInputStream())).readLine()   // challenge
                 val out = BufferedOutputStream(s.getOutputStream(), 256 * 1024)
                 out.write((JSONObject().put("type", "data").put("stream", token).put("auth", auth)
@@ -79,25 +83,37 @@ abstract class StreamBase(
         val surface = c.createInputSurface()
         c.start()
         codec = c
-        Log.i(tag, "encoding ${w}x$h @$fps, $bitrateKbps kbps")
+        Log.i(tag, "encoding ${w}x$h @$fps, $bitrateKbps kbps ${if (cbr) "CBR" else "VBR"}")
         Thread({ drain(c) }, "vcam-encoder").start()
         return surface
     }
 
     /** Some encoders (e.g. the emulator's software AVC) reject optional keys with ERROR_UNSUPPORTED:
-     *  retry with fewer. Repeat-previous-frame keeps a constant rate for a still screen. */
+     *  retry with fewer. Repeat-previous-frame keeps a constant rate for a still screen;
+     *  realtime priority, latency 1 and no B-frames keep the encoder from holding frames. */
     private fun configureEncoder(w: Int, h: Int): MediaCodec {
         var last: Exception? = null
-        for (level in 2 downTo 0) {
+        for (level in 3 downTo 0) {
+            val c = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
+            val mode = if (cbr) MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR
+                       else MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR
+            val modeOk = try {
+                c.codecInfo.getCapabilitiesForType(MediaFormat.MIMETYPE_VIDEO_AVC).encoderCapabilities.isBitrateModeSupported(mode)
+            } catch (_: Exception) { false }
             val fmt = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, w, h).apply {
                 setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
                 setInteger(MediaFormat.KEY_BIT_RATE, bitrateKbps * 1000)
                 setInteger(MediaFormat.KEY_FRAME_RATE, fps)
                 setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 2)
+                if (modeOk) setInteger(MediaFormat.KEY_BITRATE_MODE, mode)
                 if (level >= 1) setLong(MediaFormat.KEY_REPEAT_PREVIOUS_FRAME_AFTER, 1_000_000L / fps)
-                if (level >= 2 && Build.VERSION.SDK_INT >= 29) setInteger(MediaFormat.KEY_PREPEND_HEADER_TO_SYNC_FRAMES, 1)
+                if (level >= 2) {
+                    setInteger("priority", 0)       // realtime
+                    setInteger("latency", 1)        // output each frame as soon as it is encoded
+                    if (Build.VERSION.SDK_INT >= 29) setInteger("max-bframes", 0)
+                }
+                if (level >= 3 && Build.VERSION.SDK_INT >= 29) setInteger(MediaFormat.KEY_PREPEND_HEADER_TO_SYNC_FRAMES, 1)
             }
-            val c = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
             try {
                 c.configure(fmt, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
                 return c

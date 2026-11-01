@@ -260,6 +260,8 @@ class Handler(BaseHTTPRequestHandler):
                             d[k] = v if k == "fps" else int(v)
                     if p.get("profile"):
                         d["profile"] = str(p["profile"])
+                    if "cbr" in p:  # rate control: true = CBR, false = VBR (capped quality)
+                        d["cbr"] = p["cbr"] in (True, 1, "1", "true", "cbr", "CBR")
                 profs.append(d)
             if not profs:
                 raise ValueError("at least one stream profile is required")

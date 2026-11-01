@@ -40,7 +40,7 @@ class AgentService : LifecycleService() {
     data class Src(val kind: Kind, val label: String)
 
     companion object {
-        const val VERSION = "1.3.1-android"
+        const val VERSION = "1.4.0-android"
         private const val CHANNEL = "vcam-agent"
         private const val NOTIF_ID = 1
         private const val TAG = "VCamAgent"
@@ -333,6 +333,7 @@ class AgentService : LifecycleService() {
             val facing = if (src.kind == Kind.BACK) CameraSelector.LENS_FACING_BACK else CameraSelector.LENS_FACING_FRONT
             CameraStreamer(this, facing, prefs.width, prefs.height, fps, br, host, port, tok, auth, done)
         }
+        st.cbr = msg.optString("rc") == "cbr"
         streamer = st
         st.start()
     }

@@ -22,7 +22,7 @@ done
 $API/api/agents > "$RES/agents.json"
 echo "agent id: $ID" >> "$RES/summary.txt"
 if [ -n "$ID" ]; then
-  $API/api/cameras -X POST -H "Content-Type: application/json" -d "{\"name\":\"Phone\",\"source\":\"agent://$ID/0\"}" > "$RES/add.json"
+  $API/api/cameras -X POST -H "Content-Type: application/json" -d "{\"name\":\"Phone\",\"source\":\"agent://$ID/0\",\"profiles\":[{\"name\":\"MainStream\",\"encoding\":\"H264\",\"cbr\":true},{\"name\":\"SubStream\",\"encoding\":\"H264\",\"width\":640,\"height\":360,\"bitrate_kbps\":512}]}" > "$RES/add.json"
   CID=$(python3 -c "import json; print(json.load(open('$RES/add.json'))['ids'][0])")
   echo "camera: $CID $(cat "$RES/add.json")" >> "$RES/summary.txt"
   sleep 3
@@ -55,6 +55,7 @@ done
 adb shell am start -n $PKG/.MainActivity --es theme cyber --es lang fa; sleep 1
 adb shell am start -n $PKG/.SettingsActivity; sleep 2; shot 6_settings_fa
 adb shell input keyevent 4; sleep 2; shot 7_main_fa
+echo "phone encoder: $(adb logcat -d -s VCamStreamer | grep -o 'encoding .*' | tail -2 | tr '\n' ';')" >> "$RES/summary.txt"
 adb logcat -d -s VCamAgent VCamStreamer AndroidRuntime CameraX > "$RES/logcat.txt" 2>&1
 adb logcat -d | grep -iE "vcamagent|FATAL|camera" | tail -200 > "$RES/logcat-all.txt"
 cat "$RES/summary.txt"

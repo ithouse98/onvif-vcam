@@ -148,7 +148,8 @@ class AgentSession:
         fps = int(msg.get("fps") or 25)
         cmd = gst.helper_cmd("push", f"screen://{screen}?fps={fps}", "--to", f"{self.host}:{self.port}",
                              "--token", tok, "--auth", sign(self.key, tok),
-                             "--bitrate", str(int(msg.get("bitrate") or 6000)))
+                             "--bitrate", str(int(msg.get("bitrate") or 6000)),
+                             "--rc", str(msg.get("rc") or "vbr"))
         log.info("streaming screen %s at %d fps", screen or "primary", fps)
         p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                              stderr=subprocess.PIPE, env=gst._env(), creationflags=NO_WINDOW)

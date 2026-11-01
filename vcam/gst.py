@@ -155,11 +155,20 @@ def available():
 
 
 # --------------------------------------------------------------------------- branch descriptions
-def _scale(vec, fmt="I420"):
+def _scale(vec, fmt="I420", fixed_rate=False):
+    """fixed_rate: the source already runs at a fixed frame rate (screen capture). videorate then
+    only drops frames, which needs no look-ahead: the default mode holds every frame until the next
+    one arrives (one frame of delay). Not for variable-rate sources: drop-only asserts on those."""
     q = "queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream"
-    return (f"{q} ! videorate ! videoscale add-borders=false ! video/x-raw,format={fmt},"
-            f"width={vec.width},height={vec.height},framerate={_frac(vec.fps)},"
-            "pixel-aspect-ratio=1/1")
+    # skip-to-first: a branch joins a source that may have run for minutes (second profile, new
+    # viewer); by default videorate first fills that whole time with copies of the first frame,
+    # which came out as minutes of delay
+    if fixed_rate:
+        rate, fr = f"videorate skip-to-first=true drop-only=true max-rate={max(1, round(vec.fps))}", ""
+    else:
+        rate, fr = "videorate skip-to-first=true", f"framerate={_frac(vec.fps)},"
+    return (f"{q} ! {rate} ! videoscale add-borders=false ! video/x-raw,format={fmt},"
+            f"width={vec.width},height={vec.height},{fr}pixel-aspect-ratio=1/1")
 
 
 def _frac(fps):
@@ -168,29 +177,44 @@ def _frac(fps):
     return f"{f.numerator}/{f.denominator}"
 
 
-def branch_desc(vec, preset="veryfast", threads=0):
+def crf(quality):
+    """VBR quality target from the ONVIF Quality (1..10, default 5 -> CRF 26)."""
+    return int(round(33 - 1.5 * max(1.0, min(10.0, float(quality)))))
+
+
+def x264_rc(cbr, br, quality=5.0):
+    """x264enc rate control -> (properties, option-string suffix). CBR: constant rate, padded with
+    filler (nal-hrd=cbr). VBR: constant quality (CRF) capped at the bitrate, so a still picture
+    (a screen) costs almost nothing and motion still never exceeds the bitrate."""
+    if cbr:
+        return f"pass=cbr bitrate={br} vbv-buf-capacity=1000", ":nal-hrd=cbr"
+    return f"pass=qual quantizer={crf(quality)} bitrate={br} vbv-buf-capacity=1000", ""
+
+
+def branch_desc(vec, preset="veryfast", threads=0, fixed_rate=False):
     """-> (gst-launch branch, ffmpeg argv or None) for a transcoding encoder config."""
     sink = "appsink name=out max-buffers=100 drop=false"
     br = max(32, int(vec.bitrate_kbps))
     gop = max(1, int(vec.gop))
+    scale = _scale(vec, fixed_rate=fixed_rate)
     if vec.encoding == "H264":
         prof = {"baseline": "baseline", "main": "main", "high": "high",
                 "extended": "main"}.get(vec.profile.lower(), "main")
-        opts = f"min-keyint={gop}:scenecut=0:repeat-headers=1" + (":nal-hrd=cbr" if vec.cbr else "")
-        enc = (f"x264enc tune=zerolatency speed-preset={preset} bitrate={br} "
-               f"vbv-buf-capacity={1000 if vec.cbr else 2000} key-int-max={gop} bframes=0 "
+        rc, hrd = x264_rc(vec.cbr, br, vec.quality)
+        opts = f"min-keyint={gop}:scenecut=0:repeat-headers=1{hrd}"
+        enc = (f"x264enc tune=zerolatency speed-preset={preset} {rc} key-int-max={gop} bframes=0 "
                f"byte-stream=true aud=true option-string=\"{opts}\""
                + (f" threads={threads}" if threads else ""))
-        return (f"{_scale(vec)} ! {enc} ! video/x-h264,profile={prof} ! h264parse config-interval=-1 ! "
+        return (f"{scale} ! {enc} ! video/x-h264,profile={prof} ! h264parse config-interval=-1 ! "
                 f"video/x-h264,stream-format=byte-stream,alignment=au ! {sink}"), None
     if vec.encoding == "JPEG":
         q = int(round(30 + (max(1.0, min(10.0, vec.quality)) - 1) * 65 / 9))
-        return f"{_scale(vec)} ! jpegenc quality={q} ! {sink}", None
+        return f"{scale} ! jpegenc quality={q} ! {sink}", None
     # H.265: GStreamer scales / paces, libx265 (ffmpeg) encodes
     from .source import encoder_args
     ff = (["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "yuv4mpegpipe", "-i", "pipe:0"]
           + encoder_args(vec, preset, threads) + ["pipe:1"])
-    return f"{_scale(vec)} ! y4menc ! {sink}", ff
+    return f"{scale} ! y4menc ! {sink}", ff
 
 
 def snapshot_desc(w, h):
@@ -209,10 +233,11 @@ class Branch:
         self.q = queue.Queue(maxsize=600)
         self.ended = False
         self.error = None
+        self.arrival = 0.0      # when the last data read() returned came out of the helper
 
     def push(self, data):
         try:
-            self.q.put_nowait(data)
+            self.q.put_nowait((time.time(), data))
         except queue.Full:  # consumer stuck: drop rather than block the shared reader
             pass
 
@@ -222,7 +247,7 @@ class Branch:
             self.error = error
             while True:  # never block: callers may hold the source manager lock
                 try:
-                    self.q.put_nowait(b"")
+                    self.q.put_nowait((time.time(), b""))
                     return
                 except queue.Full:
                     try:
@@ -234,7 +259,8 @@ class Branch:
         if self.ended and self.q.empty():
             return b""
         try:
-            return self.q.get(timeout=timeout)
+            self.arrival, data = self.q.get(timeout=timeout)
+            return data
         except queue.Empty:
             return None
 
@@ -252,9 +278,10 @@ class Branch:
 class GstSource:
     """One helper process for one source; restarts it while branches need it."""
 
-    def __init__(self, manager, source, start_pos=0.0):
+    def __init__(self, manager, source, start_pos=0.0, cbr=False):
         self.manager = manager
         self.source = source
+        self.cbr = cbr          # agent sources: rate control of the agent's own encoder
         self.start_pos = start_pos
         self.lock = threading.Lock()
         self.branches = {}
@@ -274,7 +301,7 @@ class GstSource:
             from . import agents
             if agents.HUB is None:
                 raise RuntimeError("agent hub is not running")
-            src = agents.HUB.open_stream(src)
+            src = agents.HUB.open_stream(src, cbr=self.cbr)
         log.info("%s: starting GStreamer source%s", self.source,
                  " in the user session" if needs_user_session(src) else "")
         self.proc = spawn(["run", src, "--start", f"{self.start_pos:.3f}"], src)
