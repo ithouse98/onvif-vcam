@@ -1,0 +1,33 @@
+08:16:13 INFO    vcam           stream engine: gstreamer
+08:16:13 INFO    vcam.rtsp      RTSP server listening on tcp/8554
+08:16:13 INFO    vcam.discovery WS-Discovery listening on udp/3702 (10.1.0.187, 172.17.0.1)
+08:16:13 INFO    vcam.agents    agent hub listening on tcp/8600 (discovery udp/8600), no agent key set
+08:16:13 INFO    vcam.ui        control panel on http://10.1.0.187:8000/
+08:18:02 INFO    vcam.agents    agent Google sdk_gphone_x86_64 (127.0.0.1) connected, 3 screen(s)
+08:18:04 INFO    vcam.discovery WS-Discovery Hello cam1 (urn:uuid:d223a5ab-41eb-5ca9-90ae-16402f62befa)
+08:18:04 INFO    vcam           cam1: online at port 8080 (agent://3863ad64-652e-4957-a1bf-14a3739f90e6/0)
+08:18:08 INFO    vcam.gst       agent://3863ad64-652e-4957-a1bf-14a3739f90e6/0: starting GStreamer source
+08:18:08 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate skip-to-first=true ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast pass=cbr bitrate=4096 vbv-buf-capacity=1000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1:nal-hrd=cbr" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+08:18:12 INFO    vcam.rtsp      SETUP A942797619A4 cam1/Profile_1 tcp from 127.0.0.1 (rtsp)
+08:18:23 INFO    vcam.events    cam1: motion START
+08:18:25 INFO    vcam.rtsp      session A942797619A4 cam1/Profile_1 tcp closed (connection closed) after 12s, 1258 RTP packets sent, client 127.0.0.1 [Lavf62.3.100]
+08:18:25 INFO    vcam.source    0/H264 640x360@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate skip-to-first=true ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast pass=qual quantizer=26 bitrate=512 vbv-buf-capacity=1000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+08:18:25 INFO    vcam.rtsp      SETUP 4957E68E2227 cam1/Profile_2 tcp from 127.0.0.1 (rtsp)
+08:18:32 INFO    vcam.rtsp      session 4957E68E2227 cam1/Profile_2 tcp closed (connection closed) after 7s, 634 RTP packets sent, client 127.0.0.1 [Lavf62.3.100]
+08:18:33 INFO    vcam.events    cam1: motion stop
+08:18:33 WARNING vcam.gst       agent://3863ad64-652e-4957-a1bf-14a3739f90e6/0: GStreamer source stopped (avdec_h264: slice threading (low latency) | source ended)
+08:18:33 WARNING vcam.source    0/H264 640x360@25 encoder exited (avdec_h264: slice threading (low latency) | source ended); restarting in 1s
+08:18:33 WARNING vcam.source    0/H264 1280x720@25 encoder exited (avdec_h264: slice threading (low latency) | source ended); restarting in 1s
+08:18:34 INFO    vcam.gst       agent://3863ad64-652e-4957-a1bf-14a3739f90e6/0: starting GStreamer source
+08:18:34 INFO    vcam.source    0/H264 640x360@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate skip-to-first=true ! videoscale add-borders=false ! video/x-raw,format=I420,width=640,height=360,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast pass=qual quantizer=26 bitrate=512 vbv-buf-capacity=1000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+08:18:34 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate skip-to-first=true ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast pass=cbr bitrate=4096 vbv-buf-capacity=1000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1:nal-hrd=cbr" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+08:18:41 INFO    vcam.source    0/H264 1280x720@25 idle, stopping encoder
+08:18:43 INFO    vcam.source    0/H264 1280x720@25 starting GStreamer encoder: queue max-size-buffers=5 max-size-bytes=0 max-size-time=0 leaky=downstream ! videorate skip-to-first=true ! videoscale add-borders=false ! video/x-raw,format=I420,width=1280,height=720,framerate=25/1,pixel-aspect-ratio=1/1 ! x264enc tune=zerolatency speed-preset=veryfast pass=cbr bitrate=4096 vbv-buf-capacity=1000 key-int-max=25 bframes=0 byte-stream=true aud=true option-string="min-keyint=25:scenecut=0:repeat-headers=1:nal-hrd=cbr" ! video/x-h264,profile=main ! h264parse config-interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! appsink name=out max-buffers=100 drop=false
+08:18:43 INFO    vcam.rtsp      SETUP 3B128C26323C cam1/Profile_1 tcp from 127.0.0.1 (rtsp)
+08:18:49 INFO    vcam.source    0/H264 640x360@25 idle, stopping encoder
+08:18:52 INFO    vcam.rtsp      session 3B128C26323C cam1/Profile_1 tcp closed (connection closed) after 9s, 1048 RTP packets sent, client 127.0.0.1 [Lavf62.3.100]
+08:19:09 INFO    vcam.source    0/H264 1280x720@25 idle, stopping encoder
+08:19:17 INFO    vcam.agents    agent Google sdk_gphone_x86_64 (127.0.0.1) disconnected
+08:19:17 WARNING vcam.gst       agent://3863ad64-652e-4957-a1bf-14a3739f90e6/0: GStreamer source stopped (avdec_h264: slice threading (low latency) | source ended)
+08:19:23 INFO    vcam.events    cam1: motion START
+08:19:33 INFO    vcam.events    cam1: motion stop
