@@ -40,7 +40,7 @@ class AgentService : LifecycleService() {
     data class Src(val kind: Kind, val label: String)
 
     companion object {
-        const val VERSION = "1.4.0-android"
+        const val VERSION = "1.4.2-android"
         private const val CHANNEL = "vcam-agent"
         private const val NOTIF_ID = 1
         private const val TAG = "VCamAgent"

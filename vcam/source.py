@@ -550,7 +550,7 @@ class SourceManager:
                         log.info("%s/%s idle, stopping encoder", *src.key)
                         self.sources.pop(key).stop("idle")
                     elif (src.consumer_count and src.ready.is_set() and
-                          now - src.last_wall > max(10.0, 5.0 / max(src.fps, 0.1))):
+                          now - src.last_wall > max(10.0, 5.0 / max(src.fps, 0.001))):
                         # watchdog: a frozen ffmpeg (stalled RTSP relay, disk hiccup) is killed;
                         # _run() restarts it and viewers resync on the next key frame
                         log.warning("%s/%s no frames for %.0fs, restarting encoder", *src.key,
@@ -565,13 +565,19 @@ class SourceManager:
                         if g is not None and now - g.last_data > 9:
                             log.warning("%s: GStreamer source silent, restarting it", src.camera.source)
                             self.gst.pop(src.camera.source).stop()
+                # slowest frame interval per source: a 0.01 fps MJPEG stream sends one picture
+                # every 100 s, which must not look like a frozen source
+                gap = {}
+                for src in self.sources.values():
+                    k = src.camera.source
+                    gap[k] = max(gap.get(k, 0.0), 1.0 / max(src.fps, 0.001))
                 for key, g in list(self.gst.items()):
                     n = g.branch_count()
                     if not g.alive or (n == 0 and now - g.idle_since > self.idle_timeout):
                         if g.alive:
                             log.info("%s: idle, stopping GStreamer source", key)
                         self.gst.pop(key).stop()
-                    elif n and now - max(g.last_data, g.added_at) > 15:
+                    elif n and now - max(g.last_data, g.added_at) > max(15.0, 2.5 * gap.get(key, 0.0)):
                         log.warning("%s: GStreamer source frozen for %.0fs, restarting", key,
                                     now - g.last_data)
                         self.gst.pop(key).stop()  # branches end -> encoders restart it

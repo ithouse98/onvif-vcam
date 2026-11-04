@@ -1,44 +1,33 @@
-## ONVIF VCam 1.4.1: stream quality, MJPEG bitrate and sub-1 fps, redesigned control panel
+## ONVIF VCam 1.4.2: batch camera actions, JPEG down to 0.01 fps, new Android agent design
 
 ### New
-- **Quality per stream: High / Medium / Low.** VBR: picture quality (CRF 21 / 26 / 30). H.264 / H.265
-  (CBR too): encoder effort, High = a better picture at the same bitrate. JPEG: JPEG quality
-  (81 / 59 / 37). Measured on the test clip: H.264 VBR High 4.1 Mbps vs Low 1.5 Mbps. Also set over
-  ONVIF (Quality).
-- **MJPEG below 1 fps:** e.g. 0.5 (one picture every 2 s) or 0.3 fps, from the panel or ONVIF Media2.
-- **Redesigned control panel:** a camera wall where every camera is a monitor with CCTV-style
-  on-screen text (name, a red tally light while someone watches, resolution and fps, snapshot time,
-  id and port), quieter controls, six reworked themes (Control room, Night shift, Graphite, NOC amber,
-  Dusk, Daylight). Persian in Vazirmatn, English in IBM Plex (both bundled, offline).
-- **Wider camera editor:** two columns, the whole stream table visible: no scroll bars at
-  1366×768 or larger.
+- **Batch actions for cameras.** Press **Select cameras** on the control panel, tick the cameras
+  (or click their pictures), then **Start**, **Stop** or **Delete** all of them at once. **All** and
+  **None** select every camera or none. Works in English and Persian. Stop keeps the camera (it can be
+  started again); Delete asks once for the whole selection and keeps the video files.
+- **MJPEG down to 0.01 fps:** one picture every 100 s (0.05 = every 20 s). Also available over ONVIF
+  Media2. Streams this slow no longer get restarted by the watchdog.
+- **Android agent redesigned (1.4.2):** one Start / Stop button that changes colour with the state,
+  the image source as a 2 × 2 grid, the resolution as equal segments in Settings.
 
 ### Fixed
-- **MJPEG ignored the bitrate (CBR or VBR):** JPEG quality is now steered frame by frame toward
-  the size the bitrate allows: CBR holds the bitrate (600 kbps set: 637 measured), VBR keeps the
-  chosen quality and only lowers it to stay under the limit (800 kbps cap: 765 measured). The editor
-  no longer greys out CBR for JPEG.
-- Low-quality MJPEG frames could be cut short (their quantisation tables can contain the JPEG end
-  marker), which stopped such streams.
-- Snapshots of an idle source could fail: the source watchdog took the silent source for frozen and
-  stopped it. A source that really goes silent while encoders wait is now restarted.
-- Two MJPEG streams with the same size but a different bitrate shared one encoder.
+- Very slow MJPEG streams (0.05 and 0.01 fps) were treated as frozen and restarted: the watchdog now
+  allows for the time between pictures.
 
-### نسخه 1.4.1 (فارسی)
-- **کیفیت برای هر استریم (بالا / متوسط / پایین):** روی کیفیت تصویر VBR، دقت انکودر H.264 / H.265 و کیفیت JPEG اعمال می‌شود.
-- **MJPEG:** سقف بیت‌ریت و حالت CBR حالا اعمال می‌شود و نرخ فریم می‌تواند کمتر از ۱ باشد (مثلاً 0.5 یعنی هر ۲ ثانیه یک تصویر).
-- **طراحی جدید پنل مدیریت:** دیوار تصویر با نوشته‌های روی تصویر مثل دستگاه‌های CCTV، شش تم بازطراحی‌شده، فونت وزیر برای فارسی.
-- **پنجره ویرایش دوربین عریض‌تر:** بدون نوار اسکرول افقی و عمودی.
+### نسخه 1.4.2 (فارسی)
+- **عملیات گروهی روی دوربین‌ها:** دکمه «انتخاب دوربین‌ها» را بزنید، دوربین‌ها را علامت بزنید (یا روی تصویرشان کلیک کنید)، و سپس همه را با «شروع»، «توقف» یا «حذف» تغییر دهید. «همه» و «هیچ‌کدام» برای انتخاب سریع است. «توقف» دوربین را نگه می‌دارد؛ «حذف» یک بار تأیید می‌گیرد و فایل‌های ویدیو را نگه می‌دارد.
+- **MJPEG تا 0.01 فریم در ثانیه:** یک تصویر هر ۱۰۰ ثانیه (۰.۰۵ یعنی هر ۲۰ ثانیه). این نرخ در ONVIF Media2 هم قابل تنظیم است.
+- **طراحی جدید ایجنت اندروید (1.4.2):** یک دکمه شروع / توقف که با وضعیت رنگ عوض می‌کند، منبع تصویر به صورت شبکه ۲×۲ و وضوح تصویر در تنظیمات.
+- **اصلاح:** استریم‌های بسیار کند MJPEG (0.05 و 0.01 فریم در ثانیه) به اشتباه منجمد تشخیص داده و ریستارت می‌شدند؛ حالا فاصله بین تصاویر در نظر گرفته می‌شود.
 
 ### Downloads
-- **ONVIF-VCam-Setup-1.4.1.exe**: setup for the server and / or the agent (64-bit Windows 8.1+).
-- **ONVIF-VCam-1.4.1-Portable-win64.zip**: the VCam server, standalone and offline (no installation).
-- **ONVIF-VCam-Agent-Setup-1.4.1.exe**: the small agent-only setup for rolling out to many PCs.
-- **ONVIF-VCam-Agent-Android-1.4.0.apk**: the Android agent app (unchanged in this release).
+- **ONVIF-VCam-Setup-1.4.2.exe**: setup for the server and / or the agent (64-bit Windows 8.1+).
+- **ONVIF-VCam-1.4.2-Portable-win64.zip**: the VCam server, standalone and offline (no installation).
+- **ONVIF-VCam-Agent-Setup-1.4.2.exe**: the small agent-only setup for rolling out to many PCs.
+- **ONVIF-VCam-Agent-Android-1.4.2.apk**: the Android agent app.
 
 ---
 Created by **Behrouz Kazemi**, VMS Systems Specialist · IPS-Co. · Telegram: [@B_8241](https://t.me/B_8241)
 © 1405 IPS-Co. All rights reserved.
 _Bundled third-party software: GStreamer (LGPL; x264 / gst-libav GPL), FFmpeg (GPL), PyGObject (LGPL),
-pywin32 (PSF), NSIS installers (zlib licence), Vazirmatn and IBM Plex Sans Arabic fonts (OFL).
-Sources: https://gstreamer.freedesktop.org · https://ffmpeg.org · https://github.com/conda-forge_
+pywin32 (PSF), NSIS installers (zlib licence), Vazirmatn and IBM Plex Sans Arabic fonts (OFL)._

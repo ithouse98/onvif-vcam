@@ -162,6 +162,16 @@ class Ui(val ctx: Context, val p: Palette = Themes.current(ctx)) {
             setOnClickListener { onClick() }
         }
 
+    /** One equal-width segment of a segmented control; selected = accent fill. */
+    fun segment(s: String, selected: Boolean, onClick: () -> Unit): TextView =
+        text(s, 13.5f, selected, if (selected) (if (p.light) Color.WHITE else p.bg1) else p.text).apply {
+            gravity = Gravity.CENTER
+            minHeight = dp(46)
+            setPadding(dp(8), dp(10), dp(8), dp(10))
+            background = ripple(if (selected) gradient(p.accent, p.accent2, 14) else shape(p.field, p.stroke, 14))
+            setOnClickListener { onClick() }
+        }
+
     fun bigButton(s: String, c1: Int, c2: Int, onClick: () -> Unit): TextView =
         text(s, 18f, true, Color.WHITE).apply {
             gravity = Gravity.CENTER

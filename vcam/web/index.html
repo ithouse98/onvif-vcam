@@ -80,6 +80,14 @@ main{max-width:1600px;margin:0 auto;padding:20px}
 .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:20px}
 .mon{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;min-width:0}
 .mon.off .screen img{filter:grayscale(1) brightness(.6)}
+.batch{max-width:1600px;margin:0 auto 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.batch-acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 10px;border:1px solid var(--accent);border-radius:var(--r);background:var(--surface)}
+#selCount{font-weight:600;min-width:6em}
+.mon{position:relative}
+.mon.sel{box-shadow:0 0 0 2px var(--accent)}
+.pick{position:absolute;top:40px;inset-inline-end:10px;z-index:4;width:26px;height:26px;display:grid;place-items:center;
+  background:rgba(0,0,0,.6);border-radius:6px;cursor:pointer}
+.pick input{width:17px;height:17px;margin:0;accent-color:var(--accent);cursor:pointer}
 .screen{position:relative;aspect-ratio:16/9;background:var(--screen);border:6px solid var(--bezel);
   border-radius:var(--r) var(--r) 0 0;cursor:zoom-in;overflow:hidden}
 .screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
@@ -201,6 +209,18 @@ footer{margin-top:32px;border-top:1px solid var(--line)}
 
 <main>
   <div id="notice"></div>
+  <div class="batch">
+    <button class="btn sm" id="selBtn" onclick="toggleSelect(true)" data-en="Select cameras">انتخاب دوربین‌ها</button>
+    <div class="batch-acts" id="batchActs" hidden>
+      <span id="selCount" class="ltr"></span>
+      <button class="btn sm" onclick="pickAll(true)" data-en="All">همه</button>
+      <button class="btn sm" onclick="pickAll(false)" data-en="None">هیچ‌کدام</button>
+      <button class="btn sm pri" onclick="batch('start')" data-en="Start">شروع</button>
+      <button class="btn sm" onclick="batch('stop')" data-en="Stop">توقف</button>
+      <button class="btn sm dan" onclick="batch('delete')" data-en="Delete">حذف</button>
+      <button class="btn sm" onclick="toggleSelect(false)" data-en="Done">پایان</button>
+    </div>
+  </div>
   <div id="cams" class="wall"></div>
 
   <section class="console">
@@ -300,7 +320,7 @@ footer{margin-top:32px;border-top:1px solid var(--line)}
         <tbody id="profs"></tbody></table>
       <div class="row" style="margin-top:10px">
         <button class="btn sm" type="button" onclick="addProf()" data-en="Add stream">افزودن استریم</button>
-        <span class="hint" data-en="Empty = from the source. CBR keeps the bandwidth fixed; VBR keeps the quality and never goes above kbps. Quality: picture quality (VBR, JPEG) and encoder effort. JPEG can run below 1 fps (e.g. 0.5). copy sends the file as it is.">خالی = از روی منبع. CBR پهنای باند را ثابت نگه می‌دارد؛ VBR کیفیت را ثابت نگه می‌دارد و از kbps بالاتر نمی‌رود. کیفیت: کیفیت تصویر (VBR و JPEG) و دقت انکودر. JPEG می‌تواند کمتر از ۱ فریم در ثانیه باشد (مثلاً 0.5). copy فایل را بدون انکود می‌فرستد.</span>
+        <span class="hint" data-en="Empty = from the source. CBR keeps the bandwidth fixed; VBR keeps the quality and never goes above kbps. Quality: picture quality (VBR, JPEG) and encoder effort. JPEG can run below 1 fps (0.5 = one picture every 2 s, down to 0.01 = every 100 s). copy sends the file as it is.">خالی = از روی منبع. CBR پهنای باند را ثابت نگه می‌دارد؛ VBR کیفیت را ثابت نگه می‌دارد و از kbps بالاتر نمی‌رود. کیفیت: کیفیت تصویر (VBR و JPEG) و دقت انکودر. JPEG می‌تواند کمتر از ۱ فریم در ثانیه باشد (0.5 یعنی هر ۲ ثانیه یک تصویر، تا 0.01 یعنی هر ۱۰۰ ثانیه). copy فایل را بدون انکود می‌فرستد.</span>
       </div>
     </fieldset>
   </div>
@@ -493,8 +513,10 @@ function card(c){
       <td class="ltr">${!e?'':e.mode==='copy'?'copy':e.bitrate_kbps+'k '+(e.cbr?'CBR':'VBR')}</td>
       <td>${e&&e.mode!=='copy'?T(...QNAME[QUAL(e.quality??5)]):''}</td>
       <td><button class="cp" onclick="copy('${esc(p.rtsp)}')" title="${esc(p.rtsp)}">RTSP ⧉</button></td></tr>`; }).join('') : '';
-  return `<article class="mon ${c.running?'':'off'}">
-    <div class="screen" onclick="${c.running?`zoom('${id}')`:''}">
+  const pick = selMode ? `<label class="pick"><input type="checkbox" aria-label="${esc(cf.name)}" ${picked.has(cf.id)?'checked':''} onclick="event.stopPropagation()" onchange="setPick('${id}',this.checked)"></label>` : '';
+  return `<article class="mon ${c.running?'':'off'}${picked.has(cf.id)?' sel':''}" id="card-${id}">
+    ${pick}
+    <div class="screen" onclick="${selMode?`setPick('${id}',!picked.has('${id}'))`:c.running?`zoom('${id}')`:''}">
       ${c.running ? `<img data-cam="${id}" data-prof="${esc(first?first.token:'')}" alt="" onload="stamp('${id}')">`
                   : `<div class="nosig">${T('بدون تصویر','No signal')}</div>`}
       <div class="osd tl"><span title="${esc(cf.name)}">${esc(cf.name)}</span>${stateTag}</div>
@@ -550,13 +572,39 @@ async function del(id){
   try{ await api('DELETE','/api/cameras/'+id); toast(T('حذف شد','Deleted')); poll(); }catch(e){toast(e.message,1)}
 }
 
+/* ---------------------------------------------------------------- batch */
+let selMode = false; const picked = new Set();
+function toggleSelect(on){ selMode = on; if (!on) picked.clear();
+  $('#selBtn').hidden = on; $('#batchActs').hidden = !on; sig = ''; render(); updSel(); }
+function setPick(id, on){ on ? picked.add(id) : picked.delete(id);
+  const el = document.getElementById('card-'+id);
+  if (el){ el.classList.toggle('sel', on); const cb = el.querySelector('.pick input'); if (cb) cb.checked = on; }
+  updSel(); }
+function pickAll(on){ S.cameras.forEach(c => setPick(c.config.id, on)); }
+function updSel(){ $('#selCount').textContent = `${picked.size} ${T('انتخاب شده','selected')}`; }
+async function batch(action){
+  const ids = S.cameras.map(c => c.config.id).filter(id => picked.has(id));
+  if (!ids.length){ toast(T('هیچ دوربینی انتخاب نشده است','No camera selected'), 1); return; }
+  if (action === 'delete' && !confirm(T(`${ids.length} دوربین حذف شود؟ (فایل‌های ویدیو حذف نمی‌شوند)`,
+                                       `Delete ${ids.length} camera(s)? (video files are kept)`))) return;
+  let failed = 0;
+  for (const id of ids){                       // one at a time: each start/stop restarts that camera
+    try{ if (action === 'delete') await api('DELETE', '/api/cameras/'+id);
+         else await api('PUT', '/api/cameras/'+id, {enabled: action === 'start'}); }
+    catch(e){ failed++; }
+  }
+  toast(failed ? T(`${ids.length-failed} انجام شد، ${failed} ناموفق`, `${ids.length-failed} done, ${failed} failed`) :
+                 T(`${ids.length} دوربین انجام شد`, `${ids.length} camera(s) done`), failed > 0);
+  toggleSelect(false); poll();
+}
+
 /* ---------------------------------------------------------------- editor */
 const DEF = [{name:'MainStream',mode:'transcode',encoding:'H264'},{name:'SubStream',mode:'transcode',encoding:'H264',width:640,height:360,fps:15,bitrate_kbps:512}];
 const QVAL = {high:8, medium:5, low:2};   // ONVIF Quality 1..10
 function profRow(p={}){
   const tr = document.createElement('tr');
   const v = k => p[k] ?? '';
-  const num = (k, step) => `<td><input data-k="${k}" type="number" min="${k==='fps'?'0.1':'1'}" step="${step||1}" class="ltr" value="${esc(v(k))}" placeholder="auto"></td>`;
+  const num = (k, step) => `<td><input data-k="${k}" type="number" min="${k==='fps'?'0.01':'1'}" step="${step||1}" class="ltr" value="${esc(v(k))}" placeholder="auto"></td>`;
   tr.innerHTML = `<td><input data-k="name" value="${esc(v('name'))}"></td>
     <td><select data-k="mode"><option value="transcode">${T('انکود','encode')}</option><option value="copy">copy</option></select></td>
     <td><select data-k="encoding"><option>H264</option><option>H265</option><option>JPEG</option></select></td>
@@ -574,7 +622,7 @@ function profRow(p={}){
     const jpeg = tr.querySelector('[data-k=encoding]').value==='JPEG';
     tr.querySelectorAll('input[type=number],select:not([data-k=mode])').forEach(i=>i.disabled = copyMode);
     tr.querySelector('[data-k=gop]').disabled = copyMode || jpeg;           // JPEG has no GOP
-    tr.querySelector('[data-k=fps]').min = jpeg ? '0.1' : '1';             // JPEG may go below 1 fps
+    tr.querySelector('[data-k=fps]').min = jpeg ? '0.01' : '1';             // JPEG may go below 1 fps
   };
   tr.querySelector('[data-k=mode]').onchange = sync; tr.querySelector('[data-k=encoding]').onchange = sync; sync();
   return tr;

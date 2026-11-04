@@ -103,9 +103,11 @@ class SettingsActivity : Activity() {
         // video
         val vc = ui.card(getString(R.string.sec_video))
         vc.addView(ui.label(getString(R.string.lbl_resolution)))
-        val rf = FlowLayout(this, ui.dp(8))
+        val rf = ui.row()
         for (h in listOf(480, 720, 1080)) {
-            rf.addView(ui.chip("${h * 16 / 9}×$h", prefs.height == h) { prefs.height = h; build() })
+            rf.addView(ui.segment("${h * 16 / 9}×$h", prefs.height == h) { prefs.height = h; build() },
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    .apply { setMargins(ui.dp(4), 0, ui.dp(4), ui.dp(8)) })
         }
         vc.addView(rf)
         val vr = ui.row()

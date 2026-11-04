@@ -35,8 +35,8 @@ class MainActivity : Activity() {
     private lateinit var statusText: TextView
     private lateinit var statsText: TextView
     private lateinit var dot: View
-    private lateinit var btnStart: View
-    private lateinit var btnStop: View
+    private lateinit var btnMain: TextView
+    private var btnRunning: Boolean? = null
     private var fServer: EditText? = null
     private var fPort: EditText? = null
     private var fKey: EditText? = null
@@ -116,6 +116,7 @@ class MainActivity : Activity() {
         ui.styleWindow(this)
         builtTheme = prefs.theme
         builtLang = prefs.lang
+        btnRunning = null
         val p = ui.p
         val root = ScrollView(this).apply { background = ui.background(); isFillViewport = true }
         val col = ui.column(18)
@@ -150,12 +151,17 @@ class MainActivity : Activity() {
 
         // source
         val src = ui.card(getString(R.string.sec_source))
-        val flow = FlowLayout(this, ui.dp(8))
-        for ((k, res) in listOf("auto" to R.string.src_auto, "back" to R.string.src_back,
-                                "front" to R.string.src_front, "screen" to R.string.src_screen)) {
-            flow.addView(ui.chip(getString(res), prefs.source == k) { selectSource(k) })
+        val options = listOf("auto" to R.string.src_auto, "back" to R.string.src_back,
+                             "front" to R.string.src_front, "screen" to R.string.src_screen)
+        for (pair in options.chunked(2)) {      // 2 x 2 grid of equal segments
+            val gridRow = ui.row()
+            for ((k, res) in pair) {
+                gridRow.addView(ui.segment(getString(res), prefs.source == k) { selectSource(k) },
+                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                        .apply { setMargins(ui.dp(4), 0, ui.dp(4), ui.dp(8)) })
+            }
+            src.addView(gridRow)
         }
-        src.addView(flow)
         src.addView(ui.text(getString(if (prefs.source == "auto") R.string.src_hint_auto else R.string.src_hint_fixed),
             12.5f, false, p.mut).apply { setPadding(0, ui.dp(10), 0, 0) })
         if (prefs.source == "screen") {
@@ -187,11 +193,11 @@ class MainActivity : Activity() {
         fName = ui.field(prefs.name).also { sv.addView(it) }
         col.addView(sv, ui.lp(bottom = 18))
 
-        // start / stop
-        btnStart = ui.bigButton("▶  " + getString(R.string.btn_start), p.accent, p.accent2) { save(); startAgent() }
-        btnStop = ui.bigButton("■  " + getString(R.string.btn_stop), p.bad, 0xFF7A1238.toInt()) { AgentService.stop(this) }
-        col.addView(btnStart, ui.lp(bottom = 4))
-        col.addView(btnStop, ui.lp(bottom = 4))
+        // one button: starts the agent, or stops it while it runs
+        btnMain = ui.bigButton("", p.accent, p.accent2) {
+            if (AgentService.running) AgentService.stop(this) else { save(); startAgent() }
+        }
+        col.addView(btnMain, ui.lp(top = 6, bottom = 4))
 
         col.addView(ui.text(getString(R.string.credit_by) + "\n" + getString(R.string.credit_copy), 11.5f, false, p.mut).apply {
             gravity = Gravity.CENTER
@@ -220,8 +226,12 @@ class MainActivity : Activity() {
         statsText.text = if (live != null) getString(R.string.stats, live, AgentService.frames,
             if (secs > 0) AgentService.frames / secs else 0L)
         else getString(R.string.stats_idle, srcName(prefs.source), "${prefs.width}×${prefs.height} @${prefs.fps}")
-        btnStart.visibility = if (running) View.GONE else View.VISIBLE
-        btnStop.visibility = if (running) View.VISIBLE else View.GONE
+        if (running != btnRunning) {            // restyle the button only when its state changes
+            btnRunning = running
+            btnMain.text = if (running) "■  " + getString(R.string.btn_stop) else "▶  " + getString(R.string.btn_start)
+            val (c1, c2) = if (running) p.bad to 0xFF7A1238.toInt() else p.accent to p.accent2
+            btnMain.background = ui.ripple(ui.gradient(c1, c2, 30))
+        }
     }
 
     private fun srcName(k: String) = getString(when (k) {

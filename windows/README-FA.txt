@@ -1,4 +1,4 @@
-﻿ONVIF Virtual Camera 1.4.1 - نسخه پرتابل و آفلاین (Windows 64-bit)
+﻿ONVIF Virtual Camera 1.4.2 - نسخه پرتابل و آفلاین (Windows 64-bit)
 ================================================================
 طراحی و توسعه: بهروز کاظمی (Behrouz Kazemi) - VMS Systems Specialist
 IPS-Co.  ·  تلگرام: @B_8241

@@ -159,7 +159,7 @@ class _MediaBase:
         res = cam.resolutions(enc)
         if (w, h) not in res and not (vec.mode == "copy" and (w, h) == (vec.width, vec.height)):
             raise config_modify(f"resolution {w}x{h} not supported for {enc}")
-        lo = 0.1 if enc == "JPEG" else 1   # MJPEG may run below 1 fps (one picture every few s)
+        lo = 0.01 if enc == "JPEG" else 1   # MJPEG may run below 1 fps (down to one picture / 100 s)
         if not (lo <= fps <= max(cam.max_fps(), cam.info.fps)):  # e.g. 15.011 source
             raise config_modify(f"frame rate {fps} out of range {lo:g}..{cam.max_fps()}")
         if not (32 <= br <= MAX_BITRATE):
@@ -763,7 +763,7 @@ class Media2Service(_MediaBase):
                        f'ProfilesSupported="{" ".join(profs)}" ConstantBitRateSupported="true">'
                        f"<tt:Encoding>{enc}</tt:Encoding>{q}{self.resolutions_xml(c, enc)}{br}"
                        "</tr2:Options>")
-        out.append(f'<tr2:Options FrameRatesSupported="{rates} 0.5 0.3" ConstantBitRateSupported="true">'
+        out.append(f'<tr2:Options FrameRatesSupported="{rates} 0.5 0.3 0.1 0.05 0.01" ConstantBitRateSupported="true">'
                    f"<tt:Encoding>JPEG</tt:Encoding>{q}{self.resolutions_xml(c, 'JPEG')}{br}"
                    "</tr2:Options>")
         return "<tr2:GetVideoEncoderConfigurationOptionsResponse>" + "".join(out) + \

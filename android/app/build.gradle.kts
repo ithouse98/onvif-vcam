@@ -11,8 +11,8 @@ android {
         applicationId = "com.ipsco.vcamagent"
         minSdk = 26
         targetSdk = 34
-        versionCode = 140
-        versionName = "1.4.0"
+        versionCode = 142
+        versionName = "1.4.2"
     }
 
     signingConfigs {
